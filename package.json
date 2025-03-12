@@ -1,0 +1,13 @@
+{
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "scripts": {
+    "dtms": "concurrently --kill-others-on-fail -n Server,Client -c green,blue \"npm run server\" \"npm run client\"",
+    "client": "cd client && npm start",
+    "server": "cd server && npm start"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2"
+  }
+}
