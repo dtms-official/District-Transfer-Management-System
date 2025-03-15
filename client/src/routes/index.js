@@ -14,6 +14,7 @@ const UpdateProfile = lazy(() => import("../views/app-views/UpdateProfile"));
 const UserViewProfile = lazy(() =>
   import("../views/app-views/UserViewProfile")
 );
+
 const Cadre = lazy(() => import("../components/admin/Cadre"));
 const UserManagement = lazy(() => import("../components/admin/UserManagement"));
 const Test = lazy(() => import("../views/Test"));
@@ -21,7 +22,7 @@ const NotFound = lazy(() => import("../views/NotFound"));
 const AdminManagement = lazy(() =>
   import("../components/admin/AdminManagement")
 );
-
+const TransferWindow = lazy(() => import("../components/admin/TransferWindow"));
 const authRoutes = [
   { path: "/register", element: <Register /> },
   { path: "/login", element: <Login /> },
@@ -38,6 +39,7 @@ const userRoutes = [
 
 
 const adminRoutes = [
+  { path: "/admin_dashboard/transfer-window", element: <TransferWindow /> },
   { path: "/admin_dashboard", element: <AdminDashboard /> },
   { path: "/admin_dashboard/admin-management", element: <AdminManagement /> },
   { path: "/admin_dashboard/user-management", element: <UserManagement /> },
