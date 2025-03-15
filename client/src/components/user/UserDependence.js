@@ -89,6 +89,7 @@ const Dependence = ({ user }) => {
       message.success(response.data.message || "Dependence added successfully");
       form.resetFields();
       fetchData();
+      UpdateProgressValue();
     } catch (error) {
       message.error(
         error.response?.data?.error ||

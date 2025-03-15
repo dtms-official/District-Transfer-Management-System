@@ -38,7 +38,6 @@ const LoginPage = () => {
       );
       if (response.status === 200) {
         localStorage.setItem("token", response.data.token);
-        message.success("Login successful!");
         navigate("/dashboard");
       }
     } catch (err) {
