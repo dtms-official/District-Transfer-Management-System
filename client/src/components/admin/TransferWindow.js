@@ -73,7 +73,7 @@ const TransferWindow = () => {
             <div className="mb-4">
               <p className="text-sm text-gray-600">Transfer window name:</p>
               <Input 
-                placeholder="2025/2026"
+                placeholder="2025/26"
                 value={windowName}
                 onChange={(e) => setWindowName(e.target.value)}
                 className="rounded-md"
