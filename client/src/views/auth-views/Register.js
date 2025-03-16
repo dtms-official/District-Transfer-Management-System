@@ -4,29 +4,18 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Header from "../../components/Header";
 import bg from "../../assets/images/images.jpg";
+import getWorkplaces from "../../api/getWorkplaces";
 
 const Register = () => {
   const [form] = Form.useForm();
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
-  const [workplaces, setWorkplaces] = useState([]);
 
-  const fetchWorkplaces = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/workplace`
-      );
-      setWorkplaces(response.data || []);
-    } catch (error) {
-      message.error(
-        error.response?.data?.error || "Failed to fetch workplaces"
-      );
-    }
-  };
+  const { workplaces, fetchWorkplaces } = getWorkplaces();
 
   useEffect(() => {
-    fetchWorkplaces();
-  }, []);
+    fetchWorkplaces(); // Fetch workplaces when the component mounts
+  }, [fetchWorkplaces]);
 
   const handleSubmit = async (values) => {
     try {
@@ -49,6 +38,7 @@ const Register = () => {
       message.error(err.response?.data?.message || "Registration failed.");
     }
   };
+
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-gray-100 p-4 sm:p-10"
@@ -137,7 +127,7 @@ const Register = () => {
                 name="gender"
                 rules={[{ required: true, message: "Required" }]}
               >
-                <Select placeholder="Select Workplace">
+                <Select placeholder="Select your gender">
                   <Select.Option value="male">Male</Select.Option>
                   <Select.Option value="female">Female</Select.Option>
                 </Select>
@@ -224,7 +214,10 @@ const Register = () => {
                   },
                 ]}
               >
-                <Input.Password className="w-full p-2 border border-gray-300 rounded-md" placeholder="Enter your password"  />
+                <Input.Password
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  placeholder="Enter your password"
+                />
               </Form.Item>
             </Col>
           </Row>

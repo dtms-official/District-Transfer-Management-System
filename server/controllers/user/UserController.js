@@ -201,10 +201,10 @@ exports.updateUser = async (req, res) => {
       }
     }
 
-    // Update user details
+    // Update user details and set isUpdated to true
     const updatedUser = await User.findByIdAndUpdate(
       userId, // Use the userId from req.params.id
-      { $set: req.body },
+      { $set: { ...req.body, isUpdated: true } }, // Add isUpdated: true
       { new: true, runValidators: true }
     );
 

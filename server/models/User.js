@@ -30,6 +30,7 @@ const UserSchema = new mongoose.Schema(
     GPS_latitude: { type: String, default: null },
 
     progressValue: { type: Number, default: 15 }, // isSubmited status
+    isUpdated: { type: Boolean, default: false }, // isUpdated status
     isSubmited: { type: Boolean, default: false }, // isSubmited status
     isChecked: { type: Boolean, default: false }, // isChecked status
     isRecommended: { type: Boolean, default: false }, // isRecommended status

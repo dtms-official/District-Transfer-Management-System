@@ -6,6 +6,7 @@ import {
   MenuOutlined,
   TeamOutlined,
   SolutionOutlined,
+  BarChartOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import useCheckAdminAuth from "../../utils/checkAdminAuth";
@@ -78,24 +79,49 @@ const Sidebar = () => {
         onClose={closeDrawer}
         visible={visible}
       >
-        <Menu mode="vertical" defaultSelectedKeys={["1"]}>
+        <Menu
+          mode="inline"
+          defaultSelectedKeys={["1"]}
+          style={{ height: "100%", borderRight: 0 }}
+        >
           <Menu.Item key="1" icon={<HomeOutlined />}>
             <Link to="/admin_dashboard">Dashboard</Link>
           </Menu.Item>
+
+          <Menu.SubMenu
+            key="2"
+            icon={<BarChartOutlined />}
+            title="Transfer Management"
+          >
+            <Menu.Item key="2-1">
+              <Link to="/admin_dashboard/transfer-management/transfer-window">
+                Transfer Window
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="2-2">
+              <Link to="/admin_dashboard/transfer-management/transfer-applications">
+                Transfer Applications
+              </Link>
+            </Menu.Item>
+          </Menu.SubMenu>
           {adminRole === "superAdmin" && (
-            <Menu.Item key="2" icon={<TeamOutlined />}>
+            <Menu.Item key="3" icon={<TeamOutlined />}>
               <Link to="admin_dashboard/admin-management">
                 Admin Management
               </Link>
             </Menu.Item>
           )}
-          <Menu.Item key="3" icon={<TeamOutlined />}>
+          <Menu.Item key="4" icon={<TeamOutlined />}>
             <Link to="admin_dashboard/user-management">User Management</Link>
           </Menu.Item>
-          <Menu.Item key="4" icon={<SolutionOutlined />}>
+          <Menu.Item key="5" icon={<SolutionOutlined />}>
             <Link to="admin_dashboard/cadre-management">Cadre Management</Link>
           </Menu.Item>
-          <Menu.Item key="5" icon={<SettingOutlined />} onClick={showSettingsModal}>
+          <Menu.Item
+            key="6"
+            icon={<SettingOutlined />}
+            onClick={showSettingsModal}
+          >
             Settings
           </Menu.Item>
         </Menu>

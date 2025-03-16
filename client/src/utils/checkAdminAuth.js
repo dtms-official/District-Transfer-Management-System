@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { message } from "antd";
 
 const useCheckAdminAuth = () => {
-  const [adminData, setAdminData] = useState(null);
+  const [adminData, setAdminData] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
