@@ -21,8 +21,11 @@ const TransferWindow = () => {
       message.success("Transfer window saved successfully.");
       console.log("Response:", response.data);
     } catch (error) {
-      message.error( error.response?.data?.error ||
-          error.response?.data?.errors[0]?.msg || "Failed to save transfer window details.");
+      message.error(
+        error.response?.data?.error ||
+          error.response?.data?.errors[0]?.msg ||
+          "Failed to save transfer window details."
+      );
       console.error("Error:", error);
     }
   };
@@ -35,31 +38,28 @@ const TransferWindow = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 gap-4">
-      <div className="p-6 border border-gray-300 rounded-xl w-96 shadow-lg bg-white">
-        <h2 className="text-lg mb-4 font-semibold text-gray-700">
-          {isEnabled
-            ? "Currently ongoing transfer window"
-            : "No transfer window ongoing"}
-        </h2>
+      <h2 className="text-lg mb-4 font-semibold text-gray-700">
+        {isEnabled
+          ? "Currently ongoing transfer window"
+          : "No transfer window ongoing"}
+      </h2>
+      <div className="mb-4 flex items-center">
+        <p className="mr-4 text-sm text-gray-700">Enable transfer window</p>
+        <Switch
+          checked={isEnabled}
+          onChange={(checked) => {
+            setIsEnabled(checked);
+            if (!checked) {
+              form.resetFields();
+            }
+          }}
+        />
       </div>
 
       <div className="p-6 border border-gray-300 rounded-xl w-96 shadow-lg bg-white">
         <h2 className="text-lg mb-4 font-semibold text-gray-700">
           Transfer Management Window
         </h2>
-
-        <div className="mb-4 flex items-center">
-          <p className="mr-4 text-sm text-gray-700">Enable transfer window</p>
-          <Switch
-            checked={isEnabled}
-            onChange={(checked) => {
-              setIsEnabled(checked);
-              if (!checked) {
-                form.resetFields();
-              }
-            }}
-          />
-        </div>
 
         {isEnabled && (
           <>
@@ -80,7 +80,12 @@ const TransferWindow = () => {
                 <Form.Item
                   name="name"
                   label="Transfer window name"
-                  rules={[{ required: true, message: "Please enter the window name!" }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter the window name!",
+                    },
+                  ]}
                 >
                   <Input placeholder="Window name" className="rounded-md" />
                 </Form.Item>
@@ -90,17 +95,18 @@ const TransferWindow = () => {
                 <Form.Item
                   name="closingDate"
                   label="Application closing date"
-                  rules={[{ required: true, message: "Please select a closing date!" }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please select a closing date!",
+                    },
+                  ]}
                 >
                   <Input type="date" className="rounded-md" />
                 </Form.Item>
               </div>
 
-              <Button
-                onClick={handleSave}
-                type="primary"
-                className="w-full"
-              >
+              <Button onClick={handleSave} type="primary" className="w-full">
                 SAVE
               </Button>
             </Form>
