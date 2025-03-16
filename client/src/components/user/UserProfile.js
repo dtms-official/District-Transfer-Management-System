@@ -12,9 +12,11 @@ import {
 } from "antd";
 import moment from "moment";
 import useUserData from "../../api/useUserData";
+import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
 const UserProfile = ({ user }) => {
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
   const [workplaceData, setWorkplaceData] = useState([]);
@@ -72,6 +74,7 @@ const UserProfile = ({ user }) => {
       );
       message.success(response.data.message);
       fetchUserData();
+      navigate("/dashboard");
     } catch (error) {
       if (error.response?.data.error) {
         message.error(error.response.data.error);

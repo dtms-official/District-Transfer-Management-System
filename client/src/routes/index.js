@@ -21,6 +21,7 @@ const NotFound = lazy(() => import("../views/NotFound"));
 const AdminManagement = lazy(() =>
   import("../components/admin/AdminManagement")
 );
+const TransferWindow = lazy(() => import("../components/admin/TransferWindow"));
 
 const authRoutes = [
   { path: "/register", element: <Register /> },
@@ -28,17 +29,17 @@ const authRoutes = [
   { path: "/admin_login", element: <AdminLogin /> },
 ];
 
-
-
 const userRoutes = [
   { path: "/dashboard", element: <Dashboard /> },
   { path: "/dashboard/update-profile", element: <UpdateProfile /> },
+  { path: "/dashboard/transfer-management/transfer-window", element: <TransferWindow /> },
+  { path: "/dashboard/transfer-management/transfer-applications", element: <TransferWindow /> },
 ];
-
-
 
 const adminRoutes = [
   { path: "/admin_dashboard", element: <AdminDashboard /> },
+  { path: "/admin_dashboard/transfer-management/transfer-window", element: <TransferWindow /> },
+  { path: "/admin_dashboard/transfer-management/transfer-applications", element: <TransferWindow /> },
   { path: "/admin_dashboard/admin-management", element: <AdminManagement /> },
   { path: "/admin_dashboard/user-management", element: <UserManagement /> },
   { path: "/admin_dashboard/cadre-management", element: <Cadre /> },
@@ -47,7 +48,9 @@ const adminRoutes = [
 
 const RoutesPage = () => (
   <Router>
-    <Suspense fallback={ <div
+    <Suspense
+      fallback={
+        <div
           style={{
             display: "flex",
             justifyContent: "center",
@@ -60,7 +63,9 @@ const RoutesPage = () => (
             tip="Loading..."
             style={{ fontSize: "24px", transform: "scale(2)" }} // Enlarges the spinner
           />
-        </div>}>
+        </div>
+      }
+    >
       <Routes>
         {authRoutes.map(({ path, element }) => (
           <Route key={path} path={path} element={element} />

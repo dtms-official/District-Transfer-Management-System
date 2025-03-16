@@ -10,6 +10,7 @@ import {
   CheckCircleOutlined,
   MenuOutlined,
   ExceptionOutlined,
+  ClockCircleOutlined
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import UserProfile from "../../components/user/UserProfile";
@@ -39,7 +40,11 @@ const UpdateProfile = () => {
       {
         key: "BasicDetails",
         label: "Basic Details",
-        icon: <CheckCircleOutlined style={{ color: "green" }} />,
+        icon: user?.isUpdated ? (
+          <CheckCircleOutlined style={{ color: "green" }} />
+        ) : (
+          <ProfileOutlined /> // Replace with the default icon you want to show when isUpdated is false
+        ),
       },
       {
         key: "WorkHistory",
@@ -47,87 +52,63 @@ const UpdateProfile = () => {
         icon: user?.isWorkHistorySubmited ? (
           <CheckCircleOutlined style={{ color: "green" }} />
         ) : (
-          <ProfileOutlined />
+          <ClockCircleOutlined />
         ),
       },
-      ...(user?.isWorkHistorySubmited
-        ? [
-            {
-              key: "LeaveDetails",
-              label: "Leave Details",
-              icon: user?.isLeaveDetailsSubmited ? (
-                <CheckCircleOutlined style={{ color: "green" }} />
-              ) : (
-                <CalendarOutlined />
-              ),
-            },
-          ]
-        : []),
-      ...(user?.isLeaveDetailsSubmited
-        ? [
-            {
-              key: "Petitions",
-              label: "Petitions & Disciplinary Actions",
-              icon: user?.isPettionSubmited ? (
-                <CheckCircleOutlined style={{ color: "green" }} />
-              ) : (
-                <CalendarOutlined />
-              ),
-            },
-          ]
-        : []),
-      ...(user?.isPettionSubmited
-        ? [
-            {
-              key: "Dependence",
-              label: "Dependence",
-              icon: user?.isDependenceSubmited ? (
-                <CheckCircleOutlined style={{ color: "green" }} />
-              ) : (
-                <TeamOutlined />
-              ),
-            },
-          ]
-        : []),
-      ...(user?.isDependenceSubmited
-        ? [
-            {
-              key: "Disease",
-              label: "Disease",
-              icon: user?.isDiseaseSubmited ? (
-                <CheckCircleOutlined style={{ color: "green" }} />
-              ) : (
-                <HeartOutlined />
-              ),
-            },
-          ]
-        : []),
-      ...(user?.isDiseaseSubmited
-        ? [
-            {
-              key: "MedicalCondition",
-              label: "Medical Condition",
-              icon: user?.isMedicalConditionSubmited ? (
-                <CheckCircleOutlined style={{ color: "green" }} />
-              ) : (
-                <MedicineBoxOutlined />
-              ),
-            },
-          ]
-        : []),
-      ...(user?.isMedicalConditionSubmited
-        ? [
-            {
-              key: "Disability",
-              label: "Disability",
-              icon: user?.isDisabilitySubmited ? (
-                <CheckCircleOutlined style={{ color: "green" }} />
-              ) : (
-                <EyeInvisibleOutlined />
-              ),
-            },
-          ]
-        : []),
+      {
+        key: "LeaveDetails",
+        label: "Leave Details",
+        icon: user?.isLeaveDetailsSubmited ? (
+          <CheckCircleOutlined style={{ color: "green" }} />
+        ) : (
+          <CalendarOutlined />
+        ),
+      },
+      {
+        key: "Petitions",
+        label: "Petitions & Disciplinary Actions",
+        icon: user?.isPettionSubmited ? (
+          <CheckCircleOutlined style={{ color: "green" }} />
+        ) : (
+          <CalendarOutlined />
+        ),
+      },
+      {
+        key: "Dependence",
+        label: "Dependence",
+        icon: user?.isDependenceSubmited ? (
+          <CheckCircleOutlined style={{ color: "green" }} />
+        ) : (
+          <TeamOutlined />
+        ),
+      },
+      {
+        key: "Disease",
+        label: "Disease",
+        icon: user?.isDiseaseSubmited ? (
+          <CheckCircleOutlined style={{ color: "green" }} />
+        ) : (
+          <HeartOutlined />
+        ),
+      },
+      {
+        key: "MedicalCondition",
+        label: "Medical Condition",
+        icon: user?.isMedicalConditionSubmited ? (
+          <CheckCircleOutlined style={{ color: "green" }} />
+        ) : (
+          <MedicineBoxOutlined />
+        ),
+      },
+      {
+        key: "Disability",
+        label: "Disability",
+        icon: user?.isDisabilitySubmited ? (
+          <CheckCircleOutlined style={{ color: "green" }} />
+        ) : (
+          <EyeInvisibleOutlined />
+        ),
+      },
       ...(user?.isDisabilitySubmited && !user?.isSubmited
         ? [
             {

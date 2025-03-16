@@ -1,20 +1,32 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Layout, Spin, Typography } from "antd";
 import ApprovalAdmin from "../../components/admin/ApprovalAdmin";
 import CheckingAdmin from "../../components/admin/CheckingAdmin";
 import RecommendAdmin from "../../components/admin/RecommendAdmin";
 import useCheckAdminAuth from "../../utils/checkAdminAuth";
 import SuperAdmin from "../../components/admin/SuperAdmin";
+import getOneWorkplace from "../../api/getOneWorkplace";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
 const AdminDashboard = () => {
-  const { adminData, loading } = useCheckAdminAuth();
+  const { adminData, loading: adminLoading } = useCheckAdminAuth();
+  const {
+    workplace,
+    loading: workplaceLoading,
+    fetchWorkplace,
+  } = getOneWorkplace();
 
   const adminRole = adminData?.adminRole || null;
+  const adminWorkplace = workplace || null;
 
-  if (loading)
+
+  useEffect(() => {
+    fetchWorkplace(); // Fetch workplaces when the component mounts
+  }, [fetchWorkplace]);
+
+  if (adminLoading | workplaceLoading)
     return (
       <div
         style={{
@@ -50,15 +62,9 @@ const AdminDashboard = () => {
           ? "Approve Admin"
           : "Super Admin"}
       </Title>
-      <Text className="bg-green-200 text-sm px-4 py-1">
-        <strong>Admin Role: </strong>
-        {adminRole === "checkingAdmin"
-          ? "Checking Admin"
-          : adminRole === "recommendAdmin"
-          ? "Recommend Admin"
-          : adminRole === "approveAdmin"
-          ? "Approve Admin"
-          : "Super Admin"}
+     
+      <Text classNfame="text-sm px-4 py-1">
+        {adminWorkplace && <strong>{adminWorkplace.workplace}</strong>}
       </Text>
       {adminRole === "approveAdmin" ? (
         <ApprovalAdmin />

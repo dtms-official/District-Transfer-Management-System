@@ -55,7 +55,7 @@ const AdminLogin = () => {
 
         localStorage.setItem("adminToken", res.data.accessToken);
         navigate("/admin_dashboard");
-        message.success("Login successful!");
+        console.log("Login successful!");
       } else {
         setError("Invalid response from server.");
       }
