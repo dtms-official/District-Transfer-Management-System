@@ -22,8 +22,7 @@ const UserWorkHistory = ({ adminRole }) => {
         }
       })
       .catch((error) => {
-        message.error(
-          error.response?.data?.errors?.[0]?.msg ||
+        console.log(
             error.response?.data?.error ||
             "Failed to load user data"
         );
@@ -141,7 +140,7 @@ const UserWorkHistory = ({ adminRole }) => {
           </div>
         ))
       ) : (
-        <Text>No work history found.</Text> // Show this if no data
+        <Text>No work history</Text> // Show this if no data
       )}
     </div>
   );

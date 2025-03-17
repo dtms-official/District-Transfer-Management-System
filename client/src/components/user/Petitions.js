@@ -74,7 +74,7 @@ const Petitions = ({ user }) => {
         { ...values, userId: user._id }, // Include userId
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      message.success(response.data.message || "pettion added successfully");
+      message.success(response.data.message || "pettion saved successfully");
       form.resetFields();
       fetchData();
       updateProgressValue(); // Update progress if necessary
@@ -112,7 +112,7 @@ const Petitions = ({ user }) => {
       render: (text, record) => (
         <div>
           <Popconfirm
-            title="Are you sure you want to delete this disease?"
+            title="Are you sure you want to delete this petition?"
             onConfirm={() => deleteData(record._id)} // Call deleteData with the record ID
             okText="Yes"
             cancelText="No"

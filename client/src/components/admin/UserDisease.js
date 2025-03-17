@@ -22,8 +22,7 @@ const UserDisease = ({ adminRole }) => {
         }
       })
       .catch((error) => {
-        message.error(
-          error.response?.data?.errors?.[0]?.msg ||
+        console.log(
             error.response?.data?.error ||
             "Failed to load user data"
         );
@@ -99,7 +98,7 @@ const UserDisease = ({ adminRole }) => {
           </div>
         ))
       ) : (
-        <Text>No disease found.</Text> // Show this if no data
+        <Text>No disease</Text> // Show this if no data
       )}
     </div>
   );

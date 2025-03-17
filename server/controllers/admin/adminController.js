@@ -227,7 +227,7 @@ const approveUser = async (req, res) => {
     user.isApproved = true; // Approve user
     user.isRejected = false;
     user.rejectReason = null;
-    user.progressValue += 10; // Add 10 progress value to the existing progressValue
+    user.progressValue += 15; // Add 15 progress value to the existing progressValue
 
     await user.save();
 

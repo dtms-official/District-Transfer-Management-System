@@ -22,8 +22,7 @@ const LeaveDetails = ({ adminRole }) => {
         }
       })
       .catch((error) => {
-        message.error(
-          error.response?.data?.errors?.[0]?.msg ||
+        console.log(
             error.response?.data?.error ||
             "Failed to load user data"
         );
@@ -100,7 +99,7 @@ const LeaveDetails = ({ adminRole }) => {
           </div>
         ))
       ) : (
-        <Text>No leave details found.</Text> // Show this if no data
+        <Text>No leave details</Text> // Show this if no data
       )}
     </div>
   );
