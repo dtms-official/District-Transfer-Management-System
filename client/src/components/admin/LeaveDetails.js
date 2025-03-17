@@ -23,6 +23,7 @@ const LeaveDetails = ({ adminRole }) => {
       })
       .catch((error) => {
         console.log(
+          error.response?.data?.errors?.[0]?.msg ||
             error.response?.data?.error ||
             "Failed to load user data"
         );
