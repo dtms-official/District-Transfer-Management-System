@@ -4,15 +4,15 @@ import { Spin } from "antd";
 
 const UserPageContainer = lazy(() => import("../layouts/UserPageContainer"));
 const AdminPageContainer = lazy(() => import("../layouts/AdminPageContainer"));
-const Home = lazy(() => import("../views/app-views/Home"));
-const Register = lazy(() => import("../views/auth-views/Register"));
-const Login = lazy(() => import("../views/auth-views/Login"));
-const AdminLogin = lazy(() => import("../views/auth-views/AdminLogin"));
-const Dashboard = lazy(() => import("../views/app-views/Dashboard"));
-const AdminDashboard = lazy(() => import("../views/app-views/AdminDashboard"));
-const UpdateProfile = lazy(() => import("../views/app-views/UpdateProfile"));
+const Home = lazy(() => import("../views/appViews/Home"));
+const Register = lazy(() => import("../views/authViews/Register"));
+const Login = lazy(() => import("../views/authViews/Login"));
+const AdminLogin = lazy(() => import("../views/authViews/AdminLogin"));
+const Dashboard = lazy(() => import("../views/appViews/Dashboard"));
+const AdminDashboard = lazy(() => import("../views/appViews/AdminDashboard"));
+const UpdateProfile = lazy(() => import("../views/appViews/UpdateProfile"));
 const UserViewProfile = lazy(() =>
-  import("../views/app-views/UserViewProfile")
+  import("../views/appViews/UserViewProfile")
 );
 const Cadre = lazy(() => import("../components/admin/Cadre"));
 const UserManagement = lazy(() => import("../components/admin/UserManagement"));
@@ -23,23 +23,29 @@ const AdminManagement = lazy(() =>
 );
 const TransferWindow = lazy(() => import("../components/admin/TransferWindow"));
 
-const authRoutes = [
-  { path: "/register", element: <Register /> },
-  { path: "/login", element: <Login /> },
-  { path: "/admin_login", element: <AdminLogin /> },
-];
-
 const userRoutes = [
   { path: "/dashboard", element: <Dashboard /> },
   { path: "/dashboard/update-profile", element: <UpdateProfile /> },
-  { path: "/dashboard/transfer-management/transfer-window", element: <TransferWindow /> },
-  { path: "/dashboard/transfer-management/transfer-applications", element: <TransferWindow /> },
+  {
+    path: "/dashboard/transfer-management/transfer-window",
+    element: <TransferWindow />,
+  },
+  {
+    path: "/dashboard/transfer-management/transfer-applications",
+    element: <TransferWindow />,
+  },
 ];
 
 const adminRoutes = [
   { path: "/admin_dashboard", element: <AdminDashboard /> },
-  { path: "/admin_dashboard/transfer-management/transfer-window", element: <TransferWindow /> },
-  { path: "/admin_dashboard/transfer-management/transfer-applications", element: <TransferWindow /> },
+  {
+    path: "/admin_dashboard/transfer-management/transfer-window",
+    element: <TransferWindow />,
+  },
+  {
+    path: "/admin_dashboard/transfer-management/transfer-applications",
+    element: <TransferWindow />,
+  },
   { path: "/admin_dashboard/admin-management", element: <AdminManagement /> },
   { path: "/admin_dashboard/user-management", element: <UserManagement /> },
   { path: "/admin_dashboard/cadre-management", element: <Cadre /> },
@@ -67,10 +73,6 @@ const RoutesPage = () => (
       }
     >
       <Routes>
-        {authRoutes.map(({ path, element }) => (
-          <Route key={path} path={path} element={element} />
-        ))}
-
         <Route element={<UserPageContainer />}>
           {userRoutes.map(({ path, element }) => (
             <Route key={path} path={path} element={element} />
@@ -84,6 +86,9 @@ const RoutesPage = () => (
         </Route>
 
         <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin_login" element={<AdminLogin />} />
+        <Route path="register" element={<Register />} />
         <Route path="/test" element={<Test />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

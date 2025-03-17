@@ -64,7 +64,7 @@ const generateTokens = (admin) => {
       workplace_id: admin.workplace_id,
     }, // Include adminRole here
     process.env.JWT_SECRET,
-    { expiresIn: "1h" }
+    { expiresIn: "5m" }
   );
 
   return { accessToken };

@@ -20,5 +20,7 @@ router.post(
 );
 router.get("/transfer-window", TransferWindowController.getAllTransferWindows);
 router.get("/transfer-window/:id", TransferWindowController.getOneTransferWindow);
+router.put("/transfer-window/:id", TransferWindowController.updateTransferWindow);
+// router.delete("/transfer-window/:id", TransferWindowController.getOneTransferWindow);
 
 module.exports = router;

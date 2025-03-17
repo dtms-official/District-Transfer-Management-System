@@ -75,7 +75,7 @@ const UserDisease = ({ user }) => {
         { ...values, userId: user._id }, // Include userId
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      message.success(response.data.message || "Disease added successfully");
+      message.success(response.data.message || "Disease saved successfully");
       form.resetFields();
       fetchData();
       updateProgressValue(); // Update progress if necessary

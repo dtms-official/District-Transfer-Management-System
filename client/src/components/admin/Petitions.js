@@ -22,8 +22,7 @@ const Petitions = ({ adminRole }) => {
         }
       })
       .catch((error) => {
-        message.error(
-          error.response?.data?.errors?.[0]?.msg ||
+        console.log(
             error.response?.data?.error ||
             "Failed to load user data"
         );
@@ -99,7 +98,7 @@ const Petitions = ({ adminRole }) => {
           </div>
         ))
       ) : (
-        <Text>No petitions found.</Text> // Show this if no data
+        <Text>No petitions</Text> // Show this if no data
       )}
     </div>
   );

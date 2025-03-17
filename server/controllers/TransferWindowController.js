@@ -34,26 +34,38 @@ exports.getAllTransferWindows = async (_req, res) => {
 
 // Get TransferWindow using _id
 exports.getOneTransferWindow = async (req, res) => {
-  const { id } = req.params; // Extracting id from the URL params
+  const { id } = req.params;
 
-  // Check if the provided id is a valid MongoDB ObjectId
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ error: "Invalid transfer window ID" });
   }
 
   try {
-    // Find the TransferWindow by _id
     const transferWindow = await TransferWindow.findById(id);
 
-    // Check if the TransferWindow was found
     if (!transferWindow) {
       return res.status(404).json({ error: "TransferWindow not found" });
     }
 
-    // Send the TransferWindow data as response
     res.json(transferWindow);
   } catch (err) {
     // Handle errors
     res.status(500).json({ error: "Fetch failed", details: err.message });
+  }
+};
+
+exports.updateTransferWindow = async (req, res) => {
+  try {
+    const transferWindow = await TransferWindow.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    if (!transferWindow)
+      return res.status(404).json({ error: "Record Not Found" });
+
+    res.json({ message: "Update successful", data: transferWindow });
+  } catch (err) {
+    res.status(500).json({ error: "Update failed", details: err.message });
   }
 };

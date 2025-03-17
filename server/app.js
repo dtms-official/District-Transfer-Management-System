@@ -43,6 +43,10 @@ const routes = {
 
 Object.keys(routes).forEach((path) => app.use(path, routes[path]));
 
+app.use("*", (req, res, next) => {
+  res.status(404).json({ error: "API Not Found" });
+});
+
 // Error Handling
 app.use((err, req, res, next) => {
   console.error("❌ Error:", err.stack);
