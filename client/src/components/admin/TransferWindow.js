@@ -72,7 +72,7 @@ const TransferWindow = () => {
         },
         onOk: async () => {
           try {
-            await axios.put(`${process.env.REACT_APP_API_URL}/transfer-window/${activeWindow._id}`, { status: "Closed" });
+            await axios.put(`${process.env.REACT_APP_API_URL}/transfer-window/${activeWindow._id}`, { isTerminated: true });
             message.warning("Transfer window terminated.");
             fetchTransferWindows();
             form.resetFields();
