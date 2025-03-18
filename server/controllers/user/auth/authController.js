@@ -108,7 +108,7 @@ const loginUser = async (req, res) => {
         id: user._id,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "15mn" } // Adjust expiration time
+      { expiresIn: "1h" } // Adjust expiration time
     );
 
     res.status(200).json({
