@@ -2,11 +2,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Layout, Avatar, Dropdown, message } from "antd";
-import {
-  UserOutlined,
-  ProfileOutlined,
-  LogoutOutlined,
-} from "@ant-design/icons";
+import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
 
 const { Header } = Layout;
 
@@ -23,7 +19,7 @@ const HeaderBar = () => {
   const menuItems = [
     {
       key: "1",
-      icon: <ProfileOutlined />,
+      icon: <UserOutlined />,
       label: <Link to="/dashboard/update-profile">Profile</Link>,
     },
     {

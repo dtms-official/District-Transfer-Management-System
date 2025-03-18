@@ -3,8 +3,7 @@ const Admin = require("../../models/Admin");
 const jwt = require("jsonwebtoken");
 
 // Get All  Users
-
-const getTotalUsers = async (req, res) => {
+const getTotalSubmitedUsers = async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1]; // Extract token
 
@@ -13,16 +12,27 @@ const getTotalUsers = async (req, res) => {
     }
 
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET); // Verify token
-    const workplaceId = decodedToken.workplace_id; // Get workplace_id from token
+    const { workplace_id, adminRole } = decodedToken; // Extract workplace_id & adminRole
 
-    const pendingUsers = await User.find({
-      isSubmited: true,
-      isChecked: false,
-      isRecommended: false,
-      isRejected: false,
-      isApproved: false,
-      workplace_id: workplaceId, // Match workplace_id
-    });
+    const filter =
+      adminRole === "superAdmin"
+        ? {
+            isSubmited: true,
+            isChecked: false,
+            isRecommended: false,
+            isRejected: false,
+            isApproved: false,
+          }
+        : {
+            isSubmited: true,
+            isChecked: false,
+            isRecommended: false,
+            isRejected: false,
+            isApproved: false,
+            workplace_id,
+          };
+
+    const pendingUsers = await User.find(filter);
 
     res.status(200).json(pendingUsers);
   } catch (error) {
@@ -227,7 +237,7 @@ const approveUser = async (req, res) => {
     user.isApproved = true; // Approve user
     user.isRejected = false;
     user.rejectReason = null;
-    user.progressValue += 10; // Add 10 progress value to the existing progressValue
+    user.progressValue += 15; // Add 15 progress value to the existing progressValue
 
     await user.save();
 
@@ -267,7 +277,7 @@ const rejectUser = async (req, res) => {
 };
 
 module.exports = {
-  getTotalUsers,
+  getTotalSubmitedUsers,
   getRejectedUsers,
   getPendingUsers,
   getCheckedUsers,

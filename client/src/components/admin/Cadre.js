@@ -22,15 +22,17 @@ const Cadre = () => {
   const [loading, setLoading] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const { workplaceId } = useCheckAdminAuth();
+  const { adminData } = useCheckAdminAuth();
   const [workplaceData, setWorkplaceData] = useState(null);
+
+  const id = adminData.workplace_id || null;
 
   useEffect(() => {
     const fetchWorkplace = async () => {
       try {
         // Replace with your API URL and the actual workplace ID
         const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/workplace/${workplaceId}`
+          `${process.env.REACT_APP_API_URL}/workplace/${id}`
         );
         setWorkplaceData(response.data);
       } catch (error) {
@@ -41,7 +43,7 @@ const Cadre = () => {
     };
 
     fetchWorkplace();
-  }, [workplaceId]); // Trigger the effect when the workplaceId changes
+  }, [id]); // Trigger the effect when the workplaceId changes
 
   const fetchStaff = async () => {
     setLoading(true);
@@ -215,7 +217,7 @@ const Cadre = () => {
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" icon={<PlusOutlined />}>
-              Add Staff
+              Add
             </Button>
           </Form.Item>
         </Form>

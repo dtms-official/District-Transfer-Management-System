@@ -22,8 +22,7 @@ const UserDependence = ({ adminRole }) => {
         }
       })
       .catch((error) => {
-        message.error(
-          error.response?.data?.errors?.[0]?.msg ||
+        console.log(
             error.response?.data?.error ||
             "Failed to load user data"
         );
@@ -143,7 +142,7 @@ const UserDependence = ({ adminRole }) => {
           </div>
         ))
       ) : (
-        <Text>No dependence found.</Text> // Show this if no data
+        <Text>No dependence</Text> // Show this if no data
       )}
     </div>
   );

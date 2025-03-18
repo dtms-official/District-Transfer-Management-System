@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Menu, Drawer, Button } from "antd";
-import { UserOutlined, SettingOutlined, MenuOutlined } from "@ant-design/icons";
+import { UserOutlined, SettingOutlined, MenuOutlined, BarChartOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import SettingsModal from "./SettingsModal"; // Import child modal component
 
@@ -36,21 +36,49 @@ const Sidebar = () => {
       />
 
       {/* Sidebar Drawer */}
-      <Drawer title="Menu" placement="left" onClose={closeDrawer} open={visible}>
-        <Menu mode="vertical" defaultSelectedKeys={["1"]}>
+      <Drawer
+        title="Menu"
+        placement="left"
+        onClose={closeDrawer}
+        open={visible}
+      >
+        <Menu mode="inline" defaultSelectedKeys={["1"]}>
           <Menu.Item key="1" icon={<UserOutlined />}>
             <Link to="/dashboard">Dashboard</Link>
           </Menu.Item>
+          <Menu.SubMenu
+            key="2"
+            icon={<BarChartOutlined />}
+            title="Transfer Management"
+          >
+            <Menu.Item key="2-1">
+              <Link to="/dashboard/transfer-management/transfer-window">
+                Transfer Window
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="2-2">
+              <Link to="/dashboard/transfer-management/transfer-applications">
+                Transfer Applications
+              </Link>
+            </Menu.Item>
+          </Menu.SubMenu>
 
           {/* Single Settings Option */}
-          <Menu.Item key="2" icon={<SettingOutlined />} onClick={showSettingsModal}>
+          <Menu.Item
+            key="2"
+            icon={<SettingOutlined />}
+            onClick={showSettingsModal}
+          >
             Settings
           </Menu.Item>
         </Menu>
       </Drawer>
 
       {/* Settings Modal */}
-      <SettingsModal isVisible={isSettingsModalVisible} onClose={closeSettingsModal} />
+      <SettingsModal
+        isVisible={isSettingsModalVisible}
+        onClose={closeSettingsModal}
+      />
     </>
   );
 };

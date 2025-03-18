@@ -77,7 +77,7 @@ const UserMedicalCondition = ({ user }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       message.success(
-        response.data.message || "Medical condition added successfully"
+        response.data.message || "Medical condition saved successfully"
       );
       form.resetFields();
       fetchData(); // Refresh the table after adding
@@ -118,7 +118,7 @@ const UserMedicalCondition = ({ user }) => {
       render: (text, record) => (
         <div>
           <Popconfirm
-            title="Are you sure you want to delete this disease?"
+            title="Are you sure you want to delete this medical condition?"
             onConfirm={() => deleteData(record._id)} // Call deleteData with the record ID
             okText="Yes"
             cancelText="No"

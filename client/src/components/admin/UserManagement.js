@@ -1,9 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Spin, message, Table, Button, Alert, Input, Tooltip } from "antd";
+import {
+  Spin,
+  message,
+  Table,
+  Button,
+  Alert,
+  Input,
+  Tooltip,
+  Select,
+} from "antd";
 import axios from "axios";
 import { EyeOutlined, UnlockOutlined } from "@ant-design/icons";
 import ResetPasswordModal from "./ResetPasswordModal"; // Adjust the path if needed
+import getWorkplaces from "../../api/getWorkplaces";
+import useCheckAdminAuth from "../../utils/checkAdminAuth";
 
 const UserManagement = () => {
   const navigate = useNavigate();
@@ -12,9 +23,14 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(true);
   const [searchNIC, setSearchNIC] = useState("");
   const [filterDesignation, setFilterDesignation] = useState("");
+  const [filterWorkplace, setFilterWorkplace] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+
+  const { workplaces } = getWorkplaces();
+  const { adminData } = useCheckAdminAuth();
+  const adminRole = adminData.adminRole || null;
 
   useEffect(() => {
     const token = localStorage.getItem("adminToken");
@@ -54,6 +70,16 @@ const UserManagement = () => {
     );
     setUsers(filtered);
   }, [searchNIC, filterDesignation, allUsers]);
+
+  useEffect(() => {
+    const filtered = allUsers.filter(
+      (user) =>
+        (user.NIC?.toLowerCase().includes(searchNIC.toLowerCase()) ||
+          !searchNIC) &&
+        (!filterWorkplace || user.workplace_id === filterWorkplace) // Fix: Direct comparison
+    );
+    setUsers(filtered);
+  }, [searchNIC, filterWorkplace, allUsers]);
 
   const renderStatus = (user) => (
     <div style={{ display: "flex", justifyContent: "center", gap: "6px" }}>
@@ -102,6 +128,13 @@ const UserManagement = () => {
       title: "Designation",
       dataIndex: "designation",
       render: (text) => text || "N/A",
+    },
+    {
+      title: "Workplace",
+      dataIndex: "workplace_id",
+      render: (workplace_id, record) =>
+        workplaces.find((wp) => wp._id === workplace_id)?.workplace ||
+        "No Workplace Assigned",
     },
     {
       title: "Contact Number",
@@ -220,6 +253,21 @@ const UserManagement = () => {
           onChange={(e) => setFilterDesignation(e.target.value)}
           className="w-full md:w-1/3"
         />
+
+        {workplaces.length > 0 && adminRole === "superAdmin" && (
+          <Select
+            placeholder="Filter by Workplace..."
+            value={filterWorkplace}
+            onChange={setFilterWorkplace}
+            className="w-full md:w-1/3"
+          >
+            {workplaces.map((workplace) => (
+              <Select.Option key={workplace._id} value={workplace._id}>
+                {workplace.workplace}
+              </Select.Option>
+            ))}
+          </Select>
+        )}
       </div>
 
       <ResetPasswordModal

@@ -4,10 +4,8 @@ const UserLeaveDetail = require("../../models/UserLeave");
 // Validation Rules
 exports.validateLeaveDetail = [
   check("year").notEmpty().withMessage("year is required"),
-  check("type")
-    .notEmpty()
-    .withMessage("are you taking leave is required"),
-    check("no_of_days").notEmpty().withMessage("days is required"),
+  check("type").notEmpty().withMessage("are you taking leave is required"),
+  check("no_of_days").notEmpty().withMessage("days is required"),
 ];
 
 // Create leaves
@@ -50,7 +48,9 @@ exports.getOneLeaveDetail = async (req, res) => {
 // Get  All leave using userID
 exports.getUserLeaveDetails = async (req, res) => {
   try {
-    const leavedetails = await UserLeaveDetail.find({ userId: req.params.userId }); // Find all by userId
+    const leavedetails = await UserLeaveDetail.find({
+      userId: req.params.userId,
+    }); // Find all by userId
     if (!leavedetails.length) {
       return res.status(404).json({ error: "No leave details" });
     }
@@ -73,7 +73,7 @@ exports.updateLeaveDetail = async (req, res) => {
       return res.status(404).json({ error: "Record Not Found" });
     }
 
-    res.json({ message: "Update successful", data: leavedetail});
+    res.json({ message: "Update successful", data: leavedetail });
   } catch (err) {
     res.status(500).json({ error: "Update failed", details: err.message });
   }

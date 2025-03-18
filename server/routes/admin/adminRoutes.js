@@ -5,7 +5,7 @@ const adminController = require("../../controllers/admin/adminController");
 const superAdminController = require("../../controllers/admin/superAdminController");
 
 // Get Routes
-router.get("/total-users", adminController.getTotalUsers);
+router.get("/total-users", adminController.getTotalSubmitedUsers);
 
 router.get("/pending-users", adminController.getPendingUsers);
 

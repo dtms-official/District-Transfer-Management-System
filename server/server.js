@@ -4,7 +4,9 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const PORT = process.env.PORT || 8000;
-const HOST = process.env.HOST || "http://localhost"; // Use your production domain or IP in `.env`
+let HOST = process.env.HOST || "http://localhost:3000";
+HOST = HOST.includes("localhost:3000") ? "http://localhost" : HOST;
+
 const NODE_ENV = process.env.NODE_ENV || "development";
 const serverStartTime = Date.now();
 

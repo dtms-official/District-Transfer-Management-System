@@ -86,9 +86,10 @@ const Dependence = ({ user }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      message.success(response.data.message || "Dependence added successfully");
+      message.success(response.data.message || "Dependence saved successfully");
       form.resetFields();
       fetchData();
+      UpdateProgressValue();
     } catch (error) {
       message.error(
         error.response?.data?.error ||
@@ -200,7 +201,7 @@ const Dependence = ({ user }) => {
       render: (text, record) => (
         <div>
           <Popconfirm
-            title="Are you sure you want to delete this disease?"
+            title="Are you sure you want to delete this dependence?"
             onConfirm={() => deleteData(record._id)} // Call deleteData with the record ID
             okText="Yes"
             cancelText="No"

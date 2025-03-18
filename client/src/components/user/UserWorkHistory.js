@@ -82,7 +82,7 @@ const UserWorkHistory = ({ user }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       message.success(
-        response.data.message || "Work history added successfully"
+        response.data.message || "Work history saved successfully"
       );
       form.resetFields();
       fetchData(); // Refresh the table after adding
@@ -196,7 +196,7 @@ const UserWorkHistory = ({ user }) => {
       render: (text, record) => (
         <div>
           <Popconfirm
-            title="Are you sure you want to delete this disease?"
+            title="Are you sure you want to delete this workhistory?"
             onConfirm={() => deleteData(record._id)} // Call deleteData with the record ID
             okText="Yes"
             cancelText="No"

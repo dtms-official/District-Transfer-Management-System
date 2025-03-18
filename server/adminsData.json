@@ -1,46 +1,45 @@
-[
-  {
-    "_id": {
-      "$oid": "67cffcc97190c5b90a10ba25"
-    },
-    "adminId": "C5410G",
-    "adminRole": "checkingAdmin",
-    "workplace_id": "67c5816b1586ba46b493804a",
-    "password": "123456",
-    "securePassword": "$2a$10$5WiJV2.Q6G0jVQNB7TGw4.iyYOu.Z.i9CRcYkm4YipJgIZ/u/4z..",
-    "__v": 0
+[{
+  "_id": {
+    "$oid": "67ced9a77d26e70578cb3919"
   },
-  {
-    "_id": {
-      "$oid": "67d091a7377d2547f9ed13e9"
-    },
-    "adminId": "R8342H",
-    "adminRole": "recommendAdmin",
-    "workplace_id": "67c5816b1586ba46b493804a",
-    "password": "140605",
-    "securePassword": "$2a$10$6p6L2hJaPDvpSpjggLbGcuTA7J0lnCh9RtDntVdyNPLmYfAWjzI/O",
-    "__v": 0
+  "adminId": "S7521P",
+  "adminRole": "superAdmin",
+  "workplace_id": "67c5816b1586ba46b493804a",
+  "password": "666324",
+  "securePassword": "$2a$10$oCcxPWXBKllqSgSOaYqLB.mTO6PvYa0GhjgGVCI7tgy4x5qfhCp1y",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67d6e97622aeef08a4dd92be"
   },
-  {
-    "_id": {
-      "$oid": "67d091ae377d2547f9ed13ee"
-    },
-    "adminId": "A7650G",
-    "adminRole": "approveAdmin",
-    "workplace_id": "67c5816b1586ba46b493804a",
-    "password": "270686",
-    "securePassword": "$2a$10$ZZJtX8JPFtUSWEdyCrDGpu5JKR6SAMrK.hXMRPQgLDjxuIx0ml0mG",
-    "__v": 0
+  "adminId": "C3378C",
+  "adminRole": "checkingAdmin",
+  "workplace_id": "67c5816b1586ba46b493804a",
+  "password": "811564",
+  "securePassword": "$2a$10$dMqWLU/J1q1bDeLjXfJyXex8Pt8PFDkd9ojJNQEXb2iWOE2lTVc3q",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67d6e97b22aeef08a4dd92c3"
   },
-  {
-    "_id": {
-      "$oid": "67ced9a77d26e70578cb3919"
-    },
-    "adminId": "S7521P",
-    "adminRole": "superAdmin",
-    "workplace_id": "67c5816b1586ba46b493804a",
-    "password": "666324",
-    "securePassword": "$2a$10$oCcxPWXBKllqSgSOaYqLB.mTO6PvYa0GhjgGVCI7tgy4x5qfhCp1y",
-    "__v": 0
-  }
+  "adminId": "R1121F",
+  "adminRole": "recommendAdmin",
+  "workplace_id": "67c5816b1586ba46b493804a",
+  "password": "414474",
+  "securePassword": "$2a$10$AWM10gXm3FDWW1wnQbFxxO52AvFIFSa4O1u4eNzRBnfqIlPpdCpze",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67d6e98122aeef08a4dd92c8"
+  },
+  "adminId": "A2907F",
+  "adminRole": "approveAdmin",
+  "workplace_id": "67c5816b1586ba46b493804a",
+  "password": "246865",
+  "securePassword": "$2a$10$nt8GQ9nS3tKd3.KFPgQQBOeX0vILV3Rbwqyxq/CqB2MdEqm65nXb6",
+  "__v": 0
+}
 ]

@@ -74,7 +74,7 @@ const LeaveDetails = ({ user }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       message.success(
-        response.data.message || "leavedetails added successfully"
+        response.data.message || "leavedetails saved successfully"
       );
       form.resetFields();
       fetchData();
@@ -114,7 +114,7 @@ const LeaveDetails = ({ user }) => {
       render: (text, record) => (
         <div>
           <Popconfirm
-            title="Are you sure you want to delete this disease?"
+            title="Are you sure you want to delete this leave detail?"
             onConfirm={() => deleteData(record._id)} // Call deleteData with the record ID
             okText="Yes"
             cancelText="No"
