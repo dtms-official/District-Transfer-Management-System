@@ -37,6 +37,7 @@ const routes = {
   "/api/": Routes.baseRoutes,
   "/api/auth/admin": Routes.adminAuthRoutes,
   "/api/admin": Routes.adminRoutes,
+  "/api/admin": Routes.cadreRoutes,
   "/api/auth": Routes.authRoutes,
   "/api/user": Routes.userRoutes,
 };
