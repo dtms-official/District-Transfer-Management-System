@@ -41,37 +41,5 @@
   "password": "246865",
   "securePassword": "$2a$10$nt8GQ9nS3tKd3.KFPgQQBOeX0vILV3Rbwqyxq/CqB2MdEqm65nXb6",
   "__v": 0
-},
-{
-  "_id": {
-    "$oid": "67d6e98d22aeef08a4dd92cd"
-  },
-  "adminId": "C6588J",
-  "adminRole": "checkingAdmin",
-  "workplace_id": "67cedaf27d26e70578cb394c",
-  "password": "471909",
-  "securePassword": "$2a$10$QEWEUc3kjpbhHMHYVQ7PPOJiisvFSK2BR5NeSvzNERFRuJ.TNKrGe",
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "67d6e99222aeef08a4dd92d2"
-  },
-  "adminId": "R4419S",
-  "adminRole": "recommendAdmin",
-  "workplace_id": "67cedaf27d26e70578cb394c",
-  "password": "231102",
-  "securePassword": "$2a$10$iW3lIzqivDWIp0MCmYbx9.tbxv.hVEHmNw2.NnxGobS/I3wGNoUJC",
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "67d6e99a22aeef08a4dd92d7"
-  },
-  "adminId": "A4298O",
-  "adminRole": "approveAdmin",
-  "workplace_id": "67cedaf27d26e70578cb394c",
-  "password": "771933",
-  "securePassword": "$2a$10$SQFCyESfly6nWIQ/0ADbre6nE5qMQVvPvOQFgWSFDF.dM0ww9mEYi",
-  "__v": 0
-}]
+}
+]

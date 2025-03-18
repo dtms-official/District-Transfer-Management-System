@@ -198,7 +198,6 @@ const UserViewProfile = () => {
             <Link to="/admin_dashboard">Dashboard</Link>
           </Breadcrumb.Item>
           <Breadcrumb.Item>{currentSection}</Breadcrumb.Item>
-          {isSubmited ? isSubmited : "hello"}
         </Breadcrumb>
         {renderContent()}
       </Content>
