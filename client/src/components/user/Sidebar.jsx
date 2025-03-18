@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { Menu, Drawer, Button } from "antd";
-import { UserOutlined, SettingOutlined, MenuOutlined, BarChartOutlined } from "@ant-design/icons";
+import {
+  UserOutlined,
+  SettingOutlined,
+  MenuOutlined,
+  BarChartOutlined,
+} from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import SettingsModal from "./SettingsModal"; // Import child modal component
 
@@ -51,14 +56,10 @@ const Sidebar = () => {
             icon={<BarChartOutlined />}
             title="Transfer Management"
           >
+          
             <Menu.Item key="2-1">
-              <Link to="/dashboard/transfer-management/transfer-window">
-                Transfer Window
-              </Link>
-            </Menu.Item>
-            <Menu.Item key="2-2">
               <Link to="/dashboard/transfer-management/transfer-applications">
-                Transfer Applications
+                Apply for transfer
               </Link>
             </Menu.Item>
           </Menu.SubMenu>
