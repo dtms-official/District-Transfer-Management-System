@@ -6,30 +6,11 @@ const TransferWindow = () => {
   const [form] = Form.useForm();
   const [isEnabled, setIsEnabled] = useState(false);
   const [pastWindows, setPastWindows] = useState([]);
-<<<<<<< HEAD
-  const [filteredWindows, setFilteredWindows] = useState([]);
-  const [searchDate, setSearchDate] = useState("");
-  const [isTerminated, setIsTerminated] = useState(false);
-=======
   const [transferWindows, setTransferWindows] = useState([]);
->>>>>>> develop
   const [activeWindow, setActiveWindow] = useState(null);
 
   const fetchTransferWindows = async () => {
     try {
-<<<<<<< HEAD
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/transfer-window`);
-      setPastWindows(response.data);
-      setFilteredWindows(response.data);
-      const active = response.data.find(window => new Date(window.closingDate) > new Date());
-      if (active) {
-        setIsEnabled(true);
-        setActiveWindow(active);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      message.error("Failed to fetch past transfer windows.");
-=======
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/transfer-window`
       );
@@ -53,7 +34,6 @@ const TransferWindow = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
       message.error("Failed to fetch transfer windows.");
->>>>>>> develop
     }
   };
 
@@ -67,23 +47,6 @@ const TransferWindow = () => {
       name,
       closingDate,
       status: "Open",
-<<<<<<< HEAD
-    };
-
-    try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/transfer-window`, data);
-      message.success("Transfer window saved successfully.");
-      fetchTransferWindows();
-      setActiveWindow(data);
-      form.resetFields();
-      setIsEnabled(true);
-      setIsTerminated(false);
-    } catch (error) {
-      message.error(
-        error.response?.data?.error ||
-        error.response?.data?.errors[0]?.msg ||
-        "Failed to save transfer window details."
-=======
       isTerminated: false,
     };
 
@@ -100,7 +63,6 @@ const TransferWindow = () => {
         error.response?.data?.error ||
           error.response?.data?.errors[0]?.msg ||
           "Failed to save transfer window details."
->>>>>>> develop
       );
       console.error("Error:", error);
     }
