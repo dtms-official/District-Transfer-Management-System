@@ -59,12 +59,6 @@ const LoginPage = () => {
     }
   };
 
-  const suggestPassword = (NIC) => {
-    // Check if password is available in cookies for the given NIC
-    const storedPassword = Cookies.get(`password_${NIC}`);
-    return storedPassword || ""; // Return password if available
-  };
-
   return (
     <div
       className="flex flex-col items-center justify-center min-h-screen bg-gray-100"

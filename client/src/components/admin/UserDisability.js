@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { message, Spin } from "antd";
+import { Spin } from "antd";
 import { Row, Col, Typography, Tag } from "antd";
 import axios from "axios";
 import { useParams } from "react-router-dom"; // Add this import
