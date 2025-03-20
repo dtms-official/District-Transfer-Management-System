@@ -32,17 +32,9 @@ mongoose
   .then(() => console.log(`✅ MongoDB connected in ${process.env.MONGO_URL}`))
   .catch((err) => console.error("❌ MongoDB connection error:", err.message));
 
-// API Routes
-const routes = {
-  "/api/": Routes.baseRoutes,
-  "/api/auth/admin": Routes.adminAuthRoutes,
-  "/api/admin": Routes.adminRoutes,
-  "/api/admin": Routes.cadreRoutes,
-  "/api/auth": Routes.authRoutes,
-  "/api/user": Routes.userRoutes,
-};
-
-Object.keys(routes).forEach((path) => app.use(path, routes[path]));
+app.use("/api", Routes.adminRoutes);
+app.use("/api", Routes.userRoutes);
+app.use("/api", Routes.commonRoutes);
 
 app.use("*", (req, res, next) => {
   res.status(404).json({ error: "API Not Found" });

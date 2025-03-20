@@ -4,6 +4,7 @@ const Cadre = require("../../models/Cadre");
 // Validation Rules
 exports.validateCadre = [
   check("service").notEmpty().withMessage("Service is required"),
+  check("workplace_id").notEmpty().withMessage("Workplace id  is required"),
   check("approvedCadre").notEmpty().withMessage("Approved cadre is required"),
   check("existingCadre").notEmpty().withMessage("Existing cadre is required"),
 ];

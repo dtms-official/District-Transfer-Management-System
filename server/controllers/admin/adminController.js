@@ -18,17 +18,10 @@ const getTotalSubmitedUsers = async (req, res) => {
       adminRole === "superAdmin"
         ? {
             isSubmited: true,
-            isChecked: false,
-            isRecommended: false,
-            isRejected: false,
-            isApproved: false,
           }
         : {
             isSubmited: true,
-            isChecked: false,
-            isRecommended: false,
-            isRejected: false,
-            isApproved: false,
+
             workplace_id,
           };
 

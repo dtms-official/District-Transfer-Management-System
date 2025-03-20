@@ -1,5 +1,5 @@
 const { check, validationResult } = require("express-validator");
-const TransferWindow = require("../models/TransferWindow");
+const TransferWindow = require("../../models/TransferWindow");
 const mongoose = require("mongoose"); // Import mongoose
 
 // Validation Rules

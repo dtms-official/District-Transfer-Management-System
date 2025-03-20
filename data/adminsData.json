@@ -1,0 +1,45 @@
+[{
+  "_id": {
+    "$oid": "67ced9a77d26e70578cb3919"
+  },
+  "adminId": "S7521P",
+  "adminRole": "superAdmin",
+  "workplace_id": "67c5816b1586ba46b493804a",
+  "password": "666324",
+  "securePassword": "$2a$10$oCcxPWXBKllqSgSOaYqLB.mTO6PvYa0GhjgGVCI7tgy4x5qfhCp1y",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67d6e97622aeef08a4dd92be"
+  },
+  "adminId": "C3378C",
+  "adminRole": "checkingAdmin",
+  "workplace_id": "67c5816b1586ba46b493804a",
+  "password": "811564",
+  "securePassword": "$2a$10$dMqWLU/J1q1bDeLjXfJyXex8Pt8PFDkd9ojJNQEXb2iWOE2lTVc3q",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67d6e97b22aeef08a4dd92c3"
+  },
+  "adminId": "R1121F",
+  "adminRole": "recommendAdmin",
+  "workplace_id": "67c5816b1586ba46b493804a",
+  "password": "414474",
+  "securePassword": "$2a$10$AWM10gXm3FDWW1wnQbFxxO52AvFIFSa4O1u4eNzRBnfqIlPpdCpze",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67d6e98122aeef08a4dd92c8"
+  },
+  "adminId": "A2907F",
+  "adminRole": "approveAdmin",
+  "workplace_id": "67c5816b1586ba46b493804a",
+  "password": "246865",
+  "securePassword": "$2a$10$nt8GQ9nS3tKd3.KFPgQQBOeX0vILV3Rbwqyxq/CqB2MdEqm65nXb6",
+  "__v": 0
+}
+]
