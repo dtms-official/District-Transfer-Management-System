@@ -22,6 +22,7 @@ const AdminManagement = lazy(() =>
   import("../components/admin/AdminManagement")
 );
 const TransferWindow = lazy(() => import("../components/admin/TransferWindow"));
+const TransferApplication = lazy(() => import("../components/user/TransferApplication"));
 
 const userRoutes = [
   { path: "/dashboard", element: <Dashboard /> },
@@ -32,7 +33,7 @@ const userRoutes = [
   },
   {
     path: "/dashboard/transfer-management/transfer-applications",
-    element: <TransferWindow />,
+    element: <TransferApplication />,
   },
 ];
 
@@ -42,10 +43,10 @@ const adminRoutes = [
     path: "/admin_dashboard/transfer-management/transfer-window",
     element: <TransferWindow />,
   },
-  {
-    path: "/admin_dashboard/transfer-management/transfer-applications",
-    element: <TransferWindow />,
-  },
+  // {
+  //   path: "/admin_dashboard/transfer-management/transfer-applications",
+  //   element: <TransferWindow />,
+  // },
   { path: "/admin_dashboard/admin-management", element: <AdminManagement /> },
   { path: "/admin_dashboard/user-management", element: <UserManagement /> },
   { path: "/admin_dashboard/cadre-management", element: <Cadre /> },

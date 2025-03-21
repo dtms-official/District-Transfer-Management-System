@@ -33,10 +33,14 @@ const SuperAdminDashboard = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const workplaceResponse = await axios.get("http://localhost:8000/api/user/user");
+        const workplaceResponse = await axios.get(
+          "http://localhost:8000/api/user/user"
+        );
         setWorkplaceData(workplaceResponse.data);
 
-        const adminResponse = await axios.get("http://localhost:8000/api/user/user");
+        const adminResponse = await axios.get(
+          "http://localhost:8000/api/user/user"
+        );
         setAdminData(adminResponse.data);
       } catch (error) {
         message.error("Failed to fetch data");
@@ -54,7 +58,10 @@ const SuperAdminDashboard = () => {
       const hashedPassword = await bcrypt.hash(values.password, 10);
       const adminDetails = { ...values, password: hashedPassword };
 
-      const response = await axios.post("http://localhost:8000/api/user/user", adminDetails);
+      const response = await axios.post(
+        "http://localhost:8000/api/user/user",
+        adminDetails
+      );
       message.success("Super Admin details saved successfully!");
       setAdminData([...adminData, response.data]);
       form.resetFields();
@@ -82,53 +89,61 @@ const SuperAdminDashboard = () => {
     }
   };
   const columns = [
-  { title: "Workplace", dataIndex: "NIC", key: "NIC" },
-  { title: "Admin Type", dataIndex: "firstName", key: "firstName" },
-  { title: "User Name", dataIndex: "lastName", key: "lastName" },
-  {
-    title: "Password", 
-    dataIndex: "password", 
-    key: "password", 
-    render: (text) => (
-      <span>{text}</span>  // Display the hashed password
-    ),
-  },
-  {
-    title: "Action",
-    key: "action",
-    render: (_, record) => (
-      <Button className="bg-red-500 text-white" onClick={() => handleDelete(record._id)}>
-        Delete
-      </Button>
-    ),
-  },
-];
-  
+    { title: "Workplace", dataIndex: "NIC", key: "NIC" },
+    { title: "Admin Type", dataIndex: "firstName", key: "firstName" },
+    { title: "User Name", dataIndex: "lastName", key: "lastName" },
+    {
+      title: "Password",
+      dataIndex: "password",
+      key: "password",
+      render: (text) => (
+        <span>{text}</span> // Display the hashed password
+      ),
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <Button
+          className="bg-red-500 text-white"
+          onClick={() => handleDelete(record._id)}
+        >
+          Delete
+        </Button>
+      ),
+    },
+  ];
+
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <Card title="Super Admin Management" className="mb-4 rounded-lg">
-        <Form form={form} layout="vertical" onFinish={onFinish} className="space-y-4">
-           <Form.Item
-                          label="Workplace"
-                          name="workplace_id"
-                          rules={[{ required: true, message: "Required" }]}
-                        >
-                          <Select
-                            placeholder="Select Workplace"
-                            style={{ width: "100%" }}
-                          >
-                            {workplaces.map((workplace) => (
-                              <Select.Option key={workplace._id} value={workplace._id}>
-                                {workplace.workplace}
-                              </Select.Option>
-                            ))}
-                          </Select>
-                        </Form.Item>
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+          className="space-y-4"
+        >
+          <Form.Item
+            label="Workplace"
+            name="workplace_id"
+            rules={[{ required: true, message: "Required" }]}
+          >
+            <Select placeholder="Select Workplace" style={{ width: "100%" }}>
+              {workplaces.map((workplace) => (
+                <Select.Option key={workplace._id} value={workplace._id}>
+                  {workplace.workplace}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
 
           <Form.Item
             label="Admin Type"
             name="admin_type"
-            rules={[{ required: true, message: "Please select an Admin Type!" }]}>
+            rules={[
+              { required: true, message: "Please select an Admin Type!" },
+            ]}
+          >
             <Select placeholder="Select Admin Type">
               <Option value="admin">Checking Admin</Option>
               <Option value="recommend_admin">Recommend Admin</Option>
@@ -136,7 +151,12 @@ const SuperAdminDashboard = () => {
             </Select>
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" style={{ width: "100px" }} loading={loading}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              style={{ width: "100px" }}
+              loading={loading}
+            >
               Save
             </Button>
           </Form.Item>
@@ -149,7 +169,7 @@ const SuperAdminDashboard = () => {
           dataSource={adminData}
           rowKey="id"
           pagination={{ pageSize: 10 }}
-          scroll={{ x: 'max-content' }}  // Allows horizontal scrolling
+          scroll={{ x: "max-content" }} // Allows horizontal scrolling
         />
       </Spin>
     </div>

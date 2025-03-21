@@ -259,6 +259,7 @@ const UserManagement = () => {
             placeholder="Filter by Workplace..."
             value={filterWorkplace}
             onChange={setFilterWorkplace}
+            allowClear
             className="w-full md:w-1/3"
           >
             {workplaces.map((workplace) => (

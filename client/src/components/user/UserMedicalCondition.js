@@ -13,7 +13,7 @@ import {
   Popconfirm,
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import moment from "moment";
+import dayjs from "dayjs";
 import useFetchDelete from "../../api/useFetchDelete";
 
 const { Option } = Select;
@@ -110,7 +110,7 @@ const UserMedicalCondition = ({ user }) => {
       title: "Created At",
       dataIndex: "createdAt",
       key: "createdAt",
-      render: (text) => moment(text).format("YYYY-MM-DD"),
+      render: (text) => dayjs(text).format("YYYY-MM-DD"),
     },
     {
       title: "Action",

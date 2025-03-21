@@ -14,7 +14,7 @@ import {
   Popconfirm,
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import moment from "moment";
+import dayjs from "dayjs";
 import useFetchDelete from "../../api/useFetchDelete";
 
 const { Option } = Select;
@@ -139,7 +139,7 @@ const Dependence = ({ user }) => {
       title: "Dependent DOB",
       dataIndex: "dependent_DOB",
       key: "dependent_DOB",
-      render: (text) => moment(text).format("YYYY-MM-DD"),
+      render: (text) => dayjs(text).format("YYYY-MM-DD"),
     },
     {
       title: "School",

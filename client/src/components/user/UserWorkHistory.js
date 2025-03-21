@@ -14,7 +14,7 @@ import {
   Popconfirm,
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import moment from "moment";
+import dayjs from "dayjs";
 import useFetchDelete from "../../api/useFetchDelete";
 
 const { Option } = Select;
@@ -147,13 +147,13 @@ const UserWorkHistory = ({ user }) => {
       title: "Duty commenced date",
       dataIndex: "start_date",
       key: "start_date",
-      render: (text) => moment(text).format("YYYY-MM-DD"),
+      render: (text) => dayjs(text).format("YYYY-MM-DD"),
     },
     {
       title: "Duty completed date",
       dataIndex: "end_date",
       key: "end_date",
-      render: (text) => moment(text).format("YYYY-MM-DD"),
+      render: (text) => dayjs(text).format("YYYY-MM-DD"),
     },
     {
       title: "Nature of Duty",

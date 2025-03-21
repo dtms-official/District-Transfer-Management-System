@@ -1,13 +1,9 @@
-const authRoutes = require("./user/auth");
-const userRoutes = require("./user/userRoutes");
-const adminRoutes = require("./admin/adminRoutes");
-const adminAuthRoutes = require("./admin/auth");
-const baseRoutes = require("./baseRoutes");
+const adminRoutes = require("./admin");
+const userRoutes = require("./user");
+const commonRoutes = require("./common");
 
 module.exports = {
-  authRoutes,
-  userRoutes,
   adminRoutes,
-  adminAuthRoutes,
-  baseRoutes,
+  userRoutes,
+  commonRoutes,
 };
