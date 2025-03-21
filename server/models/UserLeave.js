@@ -10,9 +10,6 @@ const UserleavedetailsSchema = new mongoose.Schema(
     year: { type: Number, required: true  },  
     type: { type: String, required: true },
     no_of_days: { type: Number, required: true  }, 
-    
-
-
   },
   { timestamps: true }
 );

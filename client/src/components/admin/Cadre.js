@@ -19,105 +19,215 @@ const { Option } = Select;
 const Cadre = () => {
   const [form] = Form.useForm();
   const [staffList, setStaffList] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { adminData } = useCheckAdminAuth();
-  const [workplaceData, setWorkplaceData] = useState(null);
-
-  const id = adminData.workplace_id || null;
+  const [workplaceData, setWorkplaceData] = useState([]);
+  const [selectedWorkplace, setSelectedWorkplace] = useState(null); // ✅ Fix variable declaration
+  
+  const workplaceId = adminData.workplace_id || null;
+  const adminRole = adminData.adminRole || null;
 
   useEffect(() => {
-    const fetchWorkplace = async () => {
+    const fetchWorkplaces = async () => {
       try {
-        // Replace with your API URL and the actual workplace ID
         const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/workplace/${id}`
+          `${process.env.REACT_APP_API_URL}/workplace`
         );
         setWorkplaceData(response.data);
       } catch (error) {
-        console.error("Error fetching workplace:", error);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching workplaces:", error);
       }
     };
 
-    fetchWorkplace();
-  }, [id]); // Trigger the effect when the workplaceId changes
+    fetchWorkplaces();
+    fetchStaff();
+  }, []);
+  
+// correct the issue in this line
+const handleUpdate = (record) => {
+  setEditingStaff(record);
+  form.setFieldsValue({
+    service: record.service, // Ensure this matches the form field name
+    approvedCadre: record.approvedCadre, // Ensure this matches the form field name
+    existingCadre: record.existingCadre, // Ensure this matches the form field name
+  });
+  setIsModalVisible(true);
+};
+
+const onUpdate = async (values) => {
+  try {
+    await axios.put(
+      `${process.env.REACT_APP_API_URL}/admin/cadre/${editingStaff._id}`, // editingStaff.key is now _id
+      values
+    );
+    message.success("Cadre updated successfully!");
+    fetchStaff(); // Refresh the data
+    setIsModalVisible(false);
+    setEditingStaff(null);
+    form.resetFields();
+  } catch (error) {
+    console.error(   error.response?.data?.error ||
+      "Failed to update data");
+    message.error(   error.response?.data?.error ||
+      "Failed to update data");
+  }
+};
 
   const fetchStaff = async () => {
-    setLoading(true);
+    const token = localStorage.getItem("adminToken");
+  
+    if (!token) {
+      message.error("Unauthorized! Please log in as an admin.");
+      return;
+    }
+  
+    setLoading(true); 
     try {
       const response = await axios.get(
-        "https://jsonplaceholder.typicode.com/users"
+        `${process.env.REACT_APP_API_URL}/admin/cadre`,
+        {
+          headers: { Authorization: `Bearer ${token}` }, // Correctly pass headers as part of the config object
+        }
       );
-      setStaffList(response.data.map((item) => ({ key: item.id, ...item })));
+  
+      const formattedData = response.data.map((item) => ({
+        key: item.id, 
+        ...item,
+      }));
+  
+      setStaffList(formattedData);
     } catch (error) {
+      console.error("Error fetching staff data:", error);
       message.error("Error fetching staff data. Please try again.");
     } finally {
-      setLoading(false);
+      setLoading(false); 
     }
   };
 
-  useEffect(() => {
-    fetchStaff();
-  }, []);
+  // Filtered staff list based on selected workplace
+  const filteredStaffList = selectedWorkplace
+  ? staffList.filter((staff) => staff.workplace_id === selectedWorkplace)
+  : staffList;
+
+  const handleWorkplaceChange = (value) => {
+    setSelectedWorkplace(value);
+  };
 
   const onFinish = async (values) => {
     setLoading(true);
     try {
+      if (!workplaceId) {
+        throw new Error("Workplace ID is missing.");
+      }
+  
+      const newStaff = {
+        ...values,
+        workplace_id: workplaceId, // Ensure workplaceId exists
+      };
+  
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/carder`,
-        values
+        `${process.env.REACT_APP_API_URL}/admin/cadre`,
+        newStaff
       );
-      setStaffList([
-        ...staffList,
-        { key: response.data._id, ...response.data },
-      ]);
-      form.resetFields();
-      message.success("Staff added successfully!");
+  
+      if (response.status === 201 || response.status === 200) {
+        setStaffList((prevList) => [
+          ...prevList,
+          { key: response.data._id, ...response.data },
+        ]);
+  
+        form.resetFields();
+        message.success("Staff added successfully!");
+      } else {
+        throw new Error("Unexpected response from server.");
+      }
     } catch (error) {
-      message.error("Failed to add staff. Try again.");
+      console.error("Error adding staff:", error?.response?.data || error.message);
+      message.error(error?.response?.data?.message || "Failed to add staff. Try again.");
     } finally {
       setLoading(false);
     }
   };
+  
+  
 
-  const handleUpdate = (record) => {
-    setEditingStaff(record);
-    form.setFieldsValue({
-      ApprovedCadre: record.username,
-      existingCadre: record.email,
-    });
-    setIsModalVisible(true);
-  };
-
-  const onUpdate = async (values) => {
-    setLoading(true);
-    try {
-      const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/carder/${editingStaff.key}`,
-        values
-      );
-      const updatedStaffList = staffList.map((staff) =>
-        staff.key === editingStaff.key ? { ...staff, ...response.data } : staff
-      );
-      setStaffList(updatedStaffList);
-      message.success("Staff updated successfully!");
-      setIsModalVisible(false);
-    } catch (error) {
-      message.error("Failed to update staff. Try again.");
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    // Check if the user has an admin token
+    const token = localStorage.getItem("adminToken");
+  
+    if (!token) {
+      message.error("Unauthorized! Please log in as an admin.");
+      return;
     }
-  };
+  
+    // Fetch total users or any other relevant admin data
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/admin/cadre`,{
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(({ data }) => {
+        if (data.length) {
+          setUsers(data); // Store users for further use if needed
+          setAllUsers(data); // Potentially reset or store all users if necessary
+        } else {
+          message.error("No users found");
+        }
+      })
+      .catch((error) =>
+        message.error(error.response?.data?.error || "Failed to load user data")
+      )
+      .finally(() => setLoading(false));
+  }, []);
+  
 
   const columns = [
-    { title: "Service", dataIndex: "name", key: "name" },
-    { title: "Approved cadre", dataIndex: "username", key: "username" },
-    { title: "Existing cadre", dataIndex: "email", key: "email" },
-    { title: "Last update", dataIndex: "website", key: "website" },
+    { title: "Cadre Category", dataIndex: "service", key: "service" },
+    { title: "Approved cadre", dataIndex: "approvedCadre", key: "approvedCadre" },
+    { title: "Existing cadre", dataIndex: "existingCadre", key: "existingCadre" },
     {
+      title: "Last Update",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
+      render: (updatedAt) => {
+        const date = new Date(updatedAt); 
+          const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0"); 
+        const day = String(date.getDate()).padStart(2, "0");
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        const seconds = String(date.getSeconds()).padStart(2, "0");
+  
+        const ampm = hours >= 12 ? "PM" : "AM";
+        hours = hours % 12 || 12; 
+  
+        const formattedDate = `${year}-${month}-${day} ${hours}:${minutes} ${ampm}`;
+        return formattedDate; 
+      },
+    },
+  ];
+
+  if (
+    adminRole === "superAdmin" ||
+    adminRole === "checkingAdmin" ||
+    adminRole === "recommendAdmin" ||
+    adminRole === "approvalAdmin"
+  ){
+    columns.unshift({ 
+      title: "Workplace", 
+      dataIndex: "workplace_id", 
+      key: "workplace_id",
+      render: (_, record) => 
+        workplaceData.find((wp) => wp._id === record.workplace_id)?.workplace || "Unknown"
+    });
+  }
+  
+  // Add "Action" column only if the user is NOT a super-admin
+  if (adminRole !== "superAdmin") {
+    columns.push({
       title: "Action",
       key: "action",
       render: (_, record) => (
@@ -129,9 +239,10 @@ const Cadre = () => {
           Update
         </Button>
       ),
-    },
-  ];
+    });
+  }  
 
+  
   if (loading)
     return (
       <div
@@ -150,141 +261,142 @@ const Cadre = () => {
       </div>
     );
 
-  return (
-    <div className="p-4 max-w-4xl mx-auto">
-      <Card title="Add Government Cadre" className="mb-4 rounded-lg">
-        <Form form={form} layout="vertical" onFinish={onFinish}>
-          <Form.Item
-            name="service"
-            label="Service"
-            rules={[{ required: true }]}
-          >
-            <Select placeholder="Select a service">
-              <Option value="Sri Lanka Administrative Service">
-                Sri Lanka Administrative Service
-              </Option>
-              <Option value="Sri Lanka Engineering Service">
-                Sri Lanka Engineering Service
-              </Option>
-              <Option value="Sri Lanka Accountants' Service">
-                Sri Lanka Accountants' Service
-              </Option>
-              <Option value="Sri Lanka Planning Service">
-                Sri Lanka Planning Service
-              </Option>
-              <Option value="Sri Lanka Scientific Service">
-                Sri Lanka Scientific Service
-              </Option>
-              <Option value="Sri Lanka Architectural Service">
-                Sri Lanka Architectural Service
-              </Option>
-              <Option value="Sri Lanka Information & Communication Technology Service">
-                Sri Lanka Information & Communication Technology Service
-              </Option>
-              <Option value="Government Translators’ Service">
-                Government Translators’ Service
-              </Option>
-              <Option value="Sri Lanka Librarians’ Service">
-                Sri Lanka Librarians’ Service
-              </Option>
-              <Option value="Development Officers' Service">
-                Development Officers' Service
-              </Option>
-              <Option value="Management Service Officers’ Service">
-                Management Service Officers’ Service
-              </Option>
-              <Option value="Combined Drivers’ Service">
-                Combined Drivers’ Service
-              </Option>
-              <Option value="Office Employees’ Service">
-                Office Employees’ Service
-              </Option>
-            </Select>
-          </Form.Item>
-          <Form.Item
-            name="ApprovedCadre"
-            label="Approved Cadre"
-            rules={[{ required: true }]}
-          >
-            <Input type="number" placeholder="Enter approved cadre" />
-          </Form.Item>
-          <Form.Item
-            name="existingCadre"
-            label="Total Existing Cadres"
-            rules={[{ required: true }]}
-          >
-            <Input type="number" placeholder="Enter total staff count" />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" icon={<PlusOutlined />}>
-              Add
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
+    return (
+      <div className="p-4 max-w-4xl mx-auto">
+        
+        {/* Show the form only if the admin is NOT a Super Admin */}
+        {adminRole !== "superAdmin" && (
+          <Card title="Add Government Cadre" className="mb-4 rounded-lg"> 
+            <Form form={form} layout="vertical" onFinish={onFinish}>
+  <Form.Item name="service" label="Cadre Category" rules={[{ required: true }]}>
+    <Select placeholder="Select a cadre category">
+      <Option value="Divisional Secretary">Divisional Secretary</Option>
+      <Option value="Assistant Divisional Secretary">Assistant Divisional Secretary</Option>
+      <Option value="Accountant">Accountant</Option>
+      <Option value="Engineer">Engineer</Option>
+      <Option value="DP/DDP/ADP">DP/DDP/ADP</Option>
+      <Option value="Administrative Officer">Administrative Officer</Option>
+      <Option value="Administrative Grama Niladhari">Administrative Grama Niladhari</Option>
+      <Option value="Development Officer (Public Administration)">Development Officer (Public Administration)</Option>
+      <Option value="Development Officer (Other)">Development Officer (Other)</Option>
+      <Option value="Technical Officer">Technical Officer</Option>
+      <Option value="Technical Assistant">Technical Assistant</Option>
+      <Option value="Field Officers">Field Officers</Option>
+      <Option value="Management Service Officers">Management Service Officers</Option>
+      <Option value="Information & Communication Technology Assistant">
+        Information & Communication Technology Assistant
+      </Option>
+      <Option value="Grama Niladhari">Grama Niladhari</Option>
+      <Option value="Translator">Translator</Option>
+      <Option value="Office Employment Service Officers">Office Employment Service Officers</Option>
+      <Option value="Drivers">Drivers</Option>
+    </Select>
+  </Form.Item>
 
-      {/* Removed Government Cadre List and added dynamic staff list */}
-      <Card
-        title={`Cadre List of ${workplaceData?.workplace || ""}`}
-        className="rounded-lg"
+  <Form.Item name="approvedCadre" label="Approved Cadre" rules={[{ required: true }]}>
+    <Input type="number" placeholder="Enter approved cadre" />
+  </Form.Item>
+
+  <Form.Item name="existingCadre" label="Total Existing Cadres" rules={[{ required: true }]}>
+    <Input type="number" placeholder="Enter total staff count" />
+  </Form.Item>
+
+  <Form.Item>
+    <Button type="primary" htmlType="submit" icon={<PlusOutlined />}>
+      Add
+    </Button>
+  </Form.Item>
+</Form>
+
+          </Card>
+        )}
+
+{/* Super Admin - Select Workplace Dropdown */}
+{adminRole === "superAdmin" && (
+  <Card title="Select Workplace" className="mb-4 rounded-lg">
+    <Form.Item label="Workplace">
+      <Select
+        placeholder="Select a workplace"
+        onChange={handleWorkplaceChange}
+        style={{ width: "100%" }}
       >
-        <Table
-          columns={columns}
-          dataSource={staffList}
-          pagination={{ pageSize: 5 }}
-          scroll={{ x: false }}
-        />
-      </Card>
+        {workplaceData.map((workplace) => (
+          <Option key={workplace._id} value={workplace._id}>
+            {workplace.workplace}
+          </Option>
+        ))}
+      </Select>
+    </Form.Item>
+  </Card>
+)}
+
+{/* Super Admin - Display Selected Workplace's Cadre List */}
+{adminRole === "superAdmin" && selectedWorkplace && (
+  <Card
+    title={`Cadre List for ${
+      workplaceData.find((wp) => wp._id === selectedWorkplace)?.workplace || "Selected Workplace"
+    }`}
+    className="rounded-lg"
+  >
+    <Table
+      columns={columns}
+      dataSource={filteredStaffList}
+      pagination={{ pageSize: 10 }}
+      scroll={{ x: false }}
+    />
+  </Card>
+)}
+
+{/* Normal Admin - Show Assigned Workplace's Cadre List */}
+{adminRole !== "superAdmin" && (
+  <Card
+    title={`Cadre List of ${
+      workplaceData.find((wp) => wp._id === workplaceId)?.workplace || "Other"
+    }`}
+    className="rounded-lg"
+  >
+    <Table
+      columns={columns}
+      dataSource={staffList}
+      pagination={{ pageSize: 10 }}
+      scroll={{ x: false }}
+    />
+  </Card>
+)}
+
+      
 
       {/* Modal for updating staff */}
       <Modal
-        title=""
-        open={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
-        footer={null}
-        className="max-w-md w-full mx-auto"
-      >
-        {editingStaff && (
-          <>
-            <p className="font-bold text-lg">{editingStaff.name}</p>
-            <Form form={form} layout="vertical" onFinish={onUpdate}>
-              <Form.Item
-                name="ApprovedCadre"
-                label="Approved Cadre"
-                rules={[{ required: true }]}
-              >
-                <Input
-                  type="number"
-                  placeholder="Enter approved cadre"
-                  className="w-full p-2 rounded"
-                />
-              </Form.Item>
-              <Form.Item
-                name="existingCadre"
-                label="Total Existing Cadres"
-                rules={[{ required: true }]}
-              >
-                <Input
-                  type="number"
-                  placeholder="Enter total staff count"
-                  className="w-full p-2 rounded"
-                />
-              </Form.Item>
-              <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  className="w-full sm:w-auto"
-                >
-                  Save
-                </Button>
-              </Form.Item>
-            </Form>
-          </>
-        )}
-      </Modal>
+  title="Update Cadre"
+  open={isModalVisible}
+  onCancel={() => setIsModalVisible(false)}
+  footer={null}
+>
+  {editingStaff && (
+  <Form form={form} layout="vertical" onFinish={onUpdate}>
+  <Form.Item name="service" label="Cadre Category">
+    <Input />
+  </Form.Item>
+  <Form.Item name="approvedCadre" label="Approved Cadre">
+    <Input type="number" />
+  </Form.Item>
+  <Form.Item name="existingCadre" label="Existing Cadre">
+    <Input type="number" />
+  </Form.Item>
+  <Form.Item>
+    <Button type="primary" htmlType="submit">Save</Button>
+  </Form.Item>
+</Form>
+
+    
+  )}
+</Modal>
     </div>
   );
 };
 
-export default Cadre;
+export default Cadre; 
+
+
+

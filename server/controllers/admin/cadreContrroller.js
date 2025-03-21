@@ -1,11 +1,13 @@
 const { check, validationResult } = require("express-validator");
 const Cadre = require("../../models/Cadre");
+const jwt = require("jsonwebtoken");
 
 // Validation Rules
 exports.validateCadre = [
   check("service").notEmpty().withMessage("Service is required"),
   check("approvedCadre").notEmpty().withMessage("Approved cadre is required"),
   check("existingCadre").notEmpty().withMessage("Existing cadre is required"),
+  check("workplace_id").notEmpty().withMessage("workplace id is required"),
 ];
 
 // Create Cadre
@@ -23,12 +25,29 @@ exports.createCadre = async (req, res) => {
 };
 
 // Get All Cadres
-exports.getAllCadres = async (_req, res) => {
+exports.getAllCadres = async (req, res) => {
   try {
-    const cadres = await Cadre.find();
-    res.json(cadres);
-  } catch (err) {
-    res.status(500).json({ error: "Fetch failed" });
+    // Extract token from the request headers
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    // Verify and decode token
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const { workplace_id, adminRole } = decodedToken;
+
+    // Apply workplace_id filter only if admin is NOT a superAdmin
+    const filter = adminRole !== "superAdmin" ? { workplace_id } : {};
+
+    // Fetch cadres based on the filter
+    const cadres = await Cadre.find(filter);
+
+    res.status(200).json(cadres);
+  } catch (error) {
+    console.error("Error fetching cadres:", error.message);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
