@@ -109,7 +109,7 @@ const Cadre = () => {
       form.resetFields();
       message.success("Staff added successfully!");
     } catch (error) {
-      message.error("Failed to add staff. Try again.");
+      message.error(error.response?.data?.error || "Failed to add staff. Try again.");
     } finally {
       setLoading(false);
     }
@@ -331,3 +331,10 @@ export default Cadre;
 
 
 
+// import React from 'react'
+
+// export default function Cadre() {
+//   return (
+//     <div>Cadre</div>
+//   )
+// }

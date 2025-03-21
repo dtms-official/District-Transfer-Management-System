@@ -2,7 +2,7 @@ const { check, validationResult } = require("express-validator");
 const Cadre = require("../../models/Cadre");
 
 // Validation Rules
-exports.validateCadre = [
+exports.validate = [
   check("service").notEmpty().withMessage("Service is required"),
   check("workplace_id").notEmpty().withMessage("Workplace id  is required"),
   check("approvedCadre").notEmpty().withMessage("Approved cadre is required"),
@@ -10,12 +10,20 @@ exports.validateCadre = [
 ];
 
 // Create Cadre
-exports.createCadre = async (req, res) => {
+exports.create = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty())
     return res.status(400).json({ errors: errors.array() });
 
   try {
+    const { service, workplace_id } = req.body;
+
+    const exists = await Cadre.findOne({ service, workplace_id });
+    if (exists)
+      return res
+        .status(400)
+        .json({ error: "Service already exists for this workplace" });
+
     const cadre = await Cadre.create(req.body);
     res.status(201).json(cadre);
   } catch (err) {
@@ -24,7 +32,7 @@ exports.createCadre = async (req, res) => {
 };
 
 // Get All Cadres
-exports.getAllCadres = async (_req, res) => {
+exports.getAll = async (_req, res) => {
   try {
     const cadres = await Cadre.find();
     res.json(cadres);
@@ -34,7 +42,7 @@ exports.getAllCadres = async (_req, res) => {
 };
 
 // Get  Dependence using id
-exports.getOneCadre = async (req, res) => {
+exports.getUnique = async (req, res) => {
   try {
     const cadre = await Cadre.findById(req.params.id); // Find by id passed in the request
     if (!cadre) {
@@ -47,7 +55,7 @@ exports.getOneCadre = async (req, res) => {
 };
 
 // Update Cadre
-exports.updateCadre = async (req, res) => {
+exports.update = async (req, res) => {
   try {
     const cadre = await Cadre.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -64,7 +72,7 @@ exports.updateCadre = async (req, res) => {
 };
 
 // Delete Cadre
-exports.deleteCadre = async (req, res) => {
+exports.delete = async (req, res) => {
   try {
     const deleted = await Cadre.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ error: "Record Not found" });

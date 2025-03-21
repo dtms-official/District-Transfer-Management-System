@@ -7,45 +7,55 @@ const TransferApplcationController = require("../../controllers/common/TransferA
 // Work Places Routes
 router.post(
   "/workplace",
-  WorkplaceController.validateWorkplace,
-  WorkplaceController.createWorkPlace
+  WorkplaceController.validate,
+  WorkplaceController.create
 );
-router.get("/workplace", WorkplaceController.getAllWorkplaces);
-router.get("/workplace/:id", WorkplaceController.getOneWorkplace);
+router.get("/workplace", WorkplaceController.getAll);
+router.get("/workplace/:id", WorkplaceController.getUnique);
+router.put("/workplace/:id", WorkplaceController.update);
+router.delete("/workplace/:id", WorkplaceController.delete);
 
 // Transfer Window Routes
 router.post(
   "/transfer-window",
-  TransferWindowController.validateTransferWindow,
-  TransferWindowController.createTransferWindow
+  TransferWindowController.validate,
+  TransferWindowController.create
 );
-router.get("/transfer-window", TransferWindowController.getAllTransferWindows);
+router.get("/transfer-window", TransferWindowController.getAll);
 router.get(
   "/transfer-window/:id",
-  TransferWindowController.getOneTransferWindow
+  TransferWindowController.getUnique
 );
 router.put(
   "/transfer-window/:id",
-  TransferWindowController.updateTransferWindow
+  TransferWindowController.update
+);
+router.delete(
+  "/transfer-window/:id",
+  TransferWindowController.delete
 );
 
 // Transfer Applciaiton Routes
 router.post(
   "/transfer-application",
-  TransferApplcationController.validateTransferApplcation,
-  TransferApplcationController.createTransferApplcation
+  TransferApplcationController.validate,
+  TransferApplcationController.create
 );
 router.get(
   "/transfer-application",
-  TransferApplcationController.getAllTransferApplcations
+  TransferApplcationController.getAll
 );
 router.get(
   "/transfer-application/:id",
-  TransferApplcationController.getOneTransferApplcation
+  TransferApplcationController.getUnique
 );
 router.put(
   "/transfer-application/:id",
-  TransferApplcationController.updateTransferApplcation
+  TransferApplcationController.update
+);
+router.delete(
+  "/transfer-application/:id",
+  TransferApplcationController.delete
 );
 
 module.exports = router;

@@ -24,7 +24,7 @@ const UserWorkHistory = ({ adminRole }) => {
       .catch((error) => {
         console.log(
             error.response?.data?.error ||
-            "Failed to load user data"
+            "Failed to load data"
         );
       })
       .finally(() => setLoading(false)); // Stop loading

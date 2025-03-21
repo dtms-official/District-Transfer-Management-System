@@ -14,7 +14,7 @@ import {
   InputNumber, // Add InputNumber for selecting months
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import moment from "moment";
+import dayjs from "dayjs";
 import useFetchDelete from "../../api/useFetchDelete";
 
 const { Option } = Select;
@@ -107,7 +107,7 @@ const UserDisease = ({ user }) => {
       title: "Treatment Date",
       dataIndex: "treatment_date",
       key: "treatment_date",
-      render: (text) => (text ? moment(text).format("YYYY-MM-DD") : "N/A"),
+      render: (text) => (text ? dayjs(text).format("YYYY-MM-DD") : "N/A"),
     },
 
     {

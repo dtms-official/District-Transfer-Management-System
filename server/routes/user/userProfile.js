@@ -1,6 +1,4 @@
 const express = require("express");
-const { validateUser } = require("../../middleware/user/validateUser");
-const { restrictRoute } = require("../../middleware/user/routeRestriction");
 
 const UserController = require("../../controllers/user/UserController");
 const UserDependenceController = require("../../controllers/user/UserDependenceController");
@@ -21,7 +19,6 @@ router.get(
 router.put(
   "/user/progress/:id",
   UserController.validateUser,
-  restrictRoute,
   UserController.updateProfileProgress
 );
 
@@ -36,130 +33,82 @@ router.delete(
 
 router.post(
   "/dependence",
-  validateUser,
-  UserDependenceController.validateDependence,
-  UserDependenceController.createDependence
+  UserDependenceController.validate,
+  UserDependenceController.create
 );
-router.get("/dependence", UserDependenceController.getAllDependences);
-router.get("/dependence/:id", UserDependenceController.getOneDependence);
-router.get(
-  "/dependence/user/:userId",
-  validateUser,
-  UserDependenceController.getUserDependences
-);
-router.put("/dependence/:id", UserDependenceController.updateDependence);
-router.delete("/dependence/:id", UserDependenceController.deleteDependence);
+router.get("/dependence", UserDependenceController.getAll);
+router.get("/dependence/:id", UserDependenceController.getUnique);
+router.get("/dependence/user/:id", UserDependenceController.getDataByUser);
+router.put("/dependence/:id", UserDependenceController.update);
+router.delete("/dependence/:id", UserDependenceController.delete);
 
 router.post(
   "/disability",
-  validateUser,
-  UserDisabilityController.validateDisability,
-  UserDisabilityController.createDisability
+  UserDisabilityController.validate,
+  UserDisabilityController.create
 );
-router.get("/disability", UserDisabilityController.getAllDisabilities);
-router.get("/disability/:id", UserDisabilityController.getOneDisability);
-router.get(
-  "/disability/user/:userId",
-  validateUser,
-  UserDisabilityController.getUserDisabilities
-);
-router.put("/disability/:id", UserDisabilityController.updateDisability);
-router.delete("/disability/:id", UserDisabilityController.deleteDisability);
+router.get("/disability", UserDisabilityController.getAll);
+router.get("/disability/:id", UserDisabilityController.getUnique);
+router.get("/disability/user/:id", UserDisabilityController.getDataByUser);
+router.put("/disability/:id", UserDisabilityController.update);
+router.delete("/disability/:id", UserDisabilityController.delete);
 
-router.post(
-  "/disease",
-  UserDiseaseController.validateDisease,
-  UserDiseaseController.createDisease
-);
-router.get("/disease", UserDiseaseController.getAllDiseases);
-router.get("/disease/:id", UserDiseaseController.getOneDisease);
-router.get(
-  "/disease/user/:userId",
-  validateUser,
-  UserDiseaseController.getUserDiseases
-);
-router.put("/disease/:id", UserDiseaseController.updateDisease);
-router.delete("/disease/:id", UserDiseaseController.deleteDisease);
+router.post("/disease",UserDiseaseController.validate, UserDiseaseController.create);
+router.get("/disease", UserDiseaseController.getAll);
+router.get("/disease/:id", UserDiseaseController.getUnique);
+router.get("/disease/user/:id", UserDiseaseController.getDataByUser);
+router.put("/disease/:id", UserDiseaseController.update);
+router.delete("/disease/:id", UserDiseaseController.delete);
 
 router.post(
   "/medicalcondition",
-  validateUser,
-  UserMedicalConditionController.validateMedicalCondition,
-  UserMedicalConditionController.createMedicalCondition
+  UserMedicalConditionController.validate,
+  UserMedicalConditionController.create
 );
+router.get("/medicalcondition", UserMedicalConditionController.getAll);
+router.get("/medicalcondition/:id", UserMedicalConditionController.getUnique);
 router.get(
-  "/medicalcondition",
-  UserMedicalConditionController.getAllMedicalConditions
+  "/medicalcondition/user/:id",
+  UserMedicalConditionController.getDataByUser
 );
-router.get(
-  "/medicalcondition/:id",
-  UserMedicalConditionController.getOneMedicalCondition
-);
-router.get(
-  "/medicalcondition/user/:userId",
-  validateUser,
-  UserMedicalConditionController.getUserMedicalConditions
-);
-router.put(
-  "/medicalcondition/:id",
-  UserMedicalConditionController.updateMedicalCondition
-);
-router.delete(
-  "/medicalcondition/:id",
-  UserMedicalConditionController.deleteMedicalCondition
-);
+router.put("/medicalcondition/:id", UserMedicalConditionController.update);
+router.delete("/medicalcondition/:id", UserMedicalConditionController.delete);
 
 router.post(
   "/workhistory",
-  validateUser,
-  UserWorkHistoryController.validateWorkHistory,
-  UserWorkHistoryController.createWorkHistory
+  UserWorkHistoryController.validate,
+  UserWorkHistoryController.create
 );
 
-router.get("/workhistory", UserWorkHistoryController.getAllWorkHistories);
-router.get("/workhistory/:id", UserWorkHistoryController.getOneWorkHistory);
-router.get(
-  "/workhistory/user/:userId",
-  validateUser,
-  UserWorkHistoryController.getUserWorkHistories
-);
-router.put("/workhistory/:id", UserWorkHistoryController.updateWorkHistory);
-router.delete("/workhistory/:id", UserWorkHistoryController.deleteWorkHistory);
+router.get("/workhistory", UserWorkHistoryController.getAll);
+router.get("/workhistory/:id", UserWorkHistoryController.getUnique);
+router.get("/workhistory/user/:id", UserWorkHistoryController.getDataByUser);
+router.put("/workhistory/:id", UserWorkHistoryController.update);
+router.delete("/workhistory/:id", UserWorkHistoryController.delete);
 
 module.exports = router;
 //user leave details
 router.post(
   "/leavedetails",
-  UserLeaveDetailsController.validateLeaveDetail,
-  UserLeaveDetailsController.createLeaveDetail
+  UserLeaveDetailsController.validate,
+  UserLeaveDetailsController.create
 );
-router.get("/leavedetails", UserLeaveDetailsController.getAllLeaveDetails);
-router.get("/leavedetails/:id", UserLeaveDetailsController.getOneLeaveDetail);
-router.get(
-  "/leavedetails/user/:userId",
-  validateUser,
-  UserLeaveDetailsController.getUserLeaveDetails
-);
-router.put("/leavedetails/:id", UserLeaveDetailsController.updateLeaveDetail);
-router.delete(
-  "/leavedetails/:id",
-  UserLeaveDetailsController.deleteLeaveDetail
-);
+router.get("/leavedetails", UserLeaveDetailsController.getAll);
+router.get("/leavedetails/:id", UserLeaveDetailsController.getUnique);
+router.get("/leavedetails/user/:id", UserLeaveDetailsController.getDataByUser);
+router.put("/leavedetails/:id", UserLeaveDetailsController.update);
+router.delete("/leavedetails/:id", UserLeaveDetailsController.delete);
 
 //user pettion details
 router.post(
   "/pettion",
-  UserPettionController.validatePettion,
-  UserPettionController.createPettion
+  UserPettionController.validate,
+  UserPettionController.create
 );
-router.get("/pettion", UserPettionController.getAllPettion);
-router.get("/pettion/:id", UserPettionController.getOnePettion);
-router.get(
-  "/pettion/user/:userId",
-  validateUser,
-  UserPettionController.getUserPettion
-);
-router.put("pettion/:id", UserPettionController.updatePettion);
-router.delete("/pettion/:id", UserPettionController.deletePettion);
+router.get("/pettion", UserPettionController.getAll);
+router.get("/pettion/:id", UserPettionController.getUnique);
+router.get("/pettion/user/:id", UserPettionController.getDataByUser);
+router.put("/pettion/:id", UserPettionController.update);
+router.delete("/pettion/:id", UserPettionController.delete);
 
 module.exports = router;

@@ -10,7 +10,7 @@ import {
   Spin,
   Modal,
 } from "antd";
-import moment from "moment";
+import dayjs from "dayjs";
 import useUserData from "../../api/useUserData";
 import { useNavigate } from "react-router-dom";
 
@@ -49,13 +49,13 @@ const UserProfile = ({ user }) => {
       form.setFieldsValue({
         ...user,
         dateOfBirth: user.dateOfBirth
-          ? moment(user.dateOfBirth, "YYYY-MM-DD")
+          ? dayjs(user.dateOfBirth, "YYYY-MM-DD")
           : null,
         first_appointment_date: user.first_appointment_date
-          ? moment(user.first_appointment_date, "YYYY-MM-DD")
+          ? dayjs(user.first_appointment_date, "YYYY-MM-DD")
           : null,
         duty_assumed_date: user.duty_assumed_date
-          ? moment(user.duty_assumed_date, "YYYY-MM-DD")
+          ? dayjs(user.duty_assumed_date, "YYYY-MM-DD")
           : null,
       });
 

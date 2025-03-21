@@ -5,12 +5,12 @@ const cadreContrroller = require("../../controllers/admin/cadreContrroller");
 // Cadre Routes
 router.post(
   "/cadre",
-  cadreContrroller.validateCadre,
-  cadreContrroller.createCadre
+  cadreContrroller.validate,
+  cadreContrroller.create
 );
-router.get("/cadre", cadreContrroller.getAllCadres);
-router.get("/cadre/:id", cadreContrroller.getOneCadre);
-router.put("/cadre/:id", cadreContrroller.updateCadre);
-router.delete("/cadre/:id", cadreContrroller.deleteCadre);
+router.get("/cadre", cadreContrroller.getAll);
+router.get("/cadre/:id", cadreContrroller.getUnique);
+router.put("/cadre/:id", cadreContrroller.update);
+router.delete("/cadre/:id", cadreContrroller.delete);
 
 module.exports = router;
