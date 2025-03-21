@@ -10,9 +10,6 @@ const UserPettionSchema = new mongoose.Schema(
     year:    { type: Number },  
     type:    { type: String, required: true },
     details: { type: String, required: true },
-    
-
-
   },
   { timestamps: true }
 );
