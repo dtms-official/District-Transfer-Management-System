@@ -72,7 +72,7 @@ export default function TransferApplicationForm() {
       <Card className="w-full max-w-xl">
         <Title level={4}>Transfer Application</Title>
         {!user?.isApproved ? (
-          <Text type="danger">You need approval to apply for transfer.</Text>
+          <Text type="danger">You need approval to Apply for transfer.</Text>
         ) : !activeWindow ? (
           <Text type="danger">Currently, no active transfer window is available.</Text>
         ) : (
