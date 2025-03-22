@@ -14,7 +14,7 @@ class CrudService {
         const errors = Object.values(err.errors).map((e) => e.message);
         return res
           .status(400)
-          .json({ error: "Please check your input", errors });
+          .json({ error: "All fields are required", errors });
       }
       res
         .status(500)
