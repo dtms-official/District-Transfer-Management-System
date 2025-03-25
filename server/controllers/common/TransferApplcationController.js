@@ -4,8 +4,8 @@ const service = new CrudService(TransferModel);
 const { dynamicValidation, runValidation } = require("../../middleware/crudValidation");
 
 exports.validate = [
-  ...dynamicValidation(["transferWindowId", "preferWorkplace_1", "preferWorkplace_2", "preferWorkplace_3", "remarks"]),
-  runValidation,
+  // ...dynamicValidation(["transferWindowId", "preferWorkplace_1", "preferWorkplace_2", "preferWorkplace_3", "remarks"]),
+  // runValidation,
 ];
 
 exports.create = (req, res) => service.create(req, res);

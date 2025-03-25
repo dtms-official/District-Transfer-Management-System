@@ -5,7 +5,7 @@ const TransferApplcationSchema = new mongoose.Schema({
   preferWorkplace_1: { type: String, required: true },
   preferWorkplace_2: { type: String, required: true },
   preferWorkplace_3: { type: String, required: true },
-  remarks: { type: String, required: true },
+  remarks: { type: String },
   isSubmited: { type: Boolean, default: false }, // isSubmited status
   isChecked: { type: Boolean, default: false }, // isChecked status
   isRecommended: { type: Boolean, default: false }, // isRecommended status
