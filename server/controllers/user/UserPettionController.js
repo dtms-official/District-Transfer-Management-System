@@ -4,8 +4,8 @@ const service = new CrudService(UserPettion);
 const { dynamicValidation, runValidation, userValidation } = require("../../middleware/crudValidation");
 
 exports.validate = [
-  ...dynamicValidation([]),
   ...userValidation, 
+  ...dynamicValidation(["year","type","details"]),
   runValidation,
 ];
 
