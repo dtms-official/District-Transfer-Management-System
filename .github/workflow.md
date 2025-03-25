@@ -37,3 +37,7 @@ steps:
 
 
 Do all perfetly // Nosuad
+
+to rest the branch run these commands
+git checkout -- .
+git reset --hard
