@@ -1,31 +1,63 @@
 const { check, validationResult } = require("express-validator");
-const TransferApplcation = require("../../models/TransferApplcation");
+const TransferApplication = require("../../models/TransferApplcation");
+const TransferWindow = require("../../models/TransferWindow");
+const Workplace = require("../../models/Workplace");
 const mongoose = require("mongoose");
 
 // Validation Rules
 exports.validate = [
   check("transferWindowId")
     .notEmpty()
-    .withMessage("transfer window id is required"),
+    .withMessage("transfer window id is required")
+    .isMongoId()
+    .withMessage("Invalid transfer window ID"),
   check("preferWorkplace_1")
     .notEmpty()
-    .withMessage("prefer workplace 1 is required"),
+    .withMessage("prefer workplace 1 is required")
+    .isMongoId()
+    .withMessage("Invalid workplace id"),
   check("preferWorkplace_2")
     .notEmpty()
-    .withMessage("prefer workplace 2 is required"),
+    .withMessage("prefer workplace 2 is required")
+    .isMongoId()
+    .withMessage("Invalid workplace id"),
   check("preferWorkplace_3")
     .notEmpty()
-    .withMessage("prefer workplace 3 is required"),
+    .withMessage("prefer workplace 3 is required")
+    .isMongoId()
+    .withMessage("Invalid workplace id"),
 ];
 
 // Create TransferApplcation
 exports.create = async (req, res) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty())
+  if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
+  }
 
   try {
-    const data = await TransferApplcation.create(req.body);
+    const { transferWindowId, preferWorkplace_1, preferWorkplace_2, preferWorkplace_3 } = req.body;
+
+    // Check if transferWindowId exists in the TransferWindow collection
+    const transferWindowExists = await TransferWindow.findById(transferWindowId);
+    if (!transferWindowExists) {
+      return res.status(400).json({ error: "No transfer window found for the provided ID" });
+    }
+
+    const workplaceIds = [preferWorkplace_1, preferWorkplace_2, preferWorkplace_3];
+    const uniqueWorkplaceIds = new Set(workplaceIds);
+
+    if (uniqueWorkplaceIds.size !== workplaceIds.length) {
+      return res.status(400).json({ error: "Preferred workplace ID(s) must be unique" });
+    }
+
+    const workplaces = await Workplace.find({ _id: { $in: workplaceIds } });
+
+    if (workplaces.length !== 3) {
+      return res.status(400).json({ error: "No workplaces found for the provided ID(s)" });
+    }
+
+    const data = await TransferApplication.create(req.body);
     res.status(201).json(data);
   } catch (err) {
     res.status(500).json({
@@ -38,7 +70,7 @@ exports.create = async (req, res) => {
 // Get All transferApplicaitons
 exports.getAll = async (_req, res) => {
   try {
-    const data = await TransferApplcation.find();
+    const data = await TransferApplication.find();
     res.json(data);
   } catch (err) {
     res
@@ -55,7 +87,7 @@ exports.getUnique = async (req, res) => {
       .json({ error: "Invalid request. Please check your ID" });
 
   try {
-    const data = await TransferApplcation.findById(req.params.id);
+    const data = await TransferApplication.findById(req.params.id);
     if (!data) return res.status(404).json({ error: "No record found" });
 
     res.json(data);
@@ -72,7 +104,7 @@ exports.getDataByUser = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.userId))
       return res.status(400).json({ error: "Invalid ID format" });
 
-    const data = await TransferApplcation.find({ userId: req.params.userId });
+    const data = await TransferApplication.find({ userId: req.params.userId });
     if (!data || data.length === 0) {
       return res.status(404).json({ error: "No data found for this user" });
     }
@@ -93,7 +125,7 @@ exports.update = async (req, res) => {
     return res.status(400).json({ error: "Update data cannot be empty" });
 
   try {
-    const data = await TransferApplcation.findByIdAndUpdate(
+    const data = await TransferApplication.findByIdAndUpdate(
       req.params.id,
       req.body,
       {
@@ -119,7 +151,7 @@ exports.delete = async (req, res) => {
       .json({ error: "Invalid request. Please check your ID" });
 
   try {
-    const data = await TransferApplcation.findByIdAndDelete(req.params.id);
+    const data = await TransferApplication.findByIdAndDelete(req.params.id);
     if (!data)
       return res.status(404).json({ error: "No record found to delete" });
 

@@ -50,7 +50,8 @@ exports.getAll = async (req, res) => {
     res.status(200).json(cadres);
   } catch (error) {
     console.error("Error fetching cadres:", error.message);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({error: "Something went wrong. Please try again later",
+ });
   }
 };
 

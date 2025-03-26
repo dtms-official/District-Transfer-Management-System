@@ -30,7 +30,9 @@ const getTotalSubmitedUsers = async (req, res) => {
     res.status(200).json(pendingUsers);
   } catch (error) {
     console.error("Error fetching pending users:", error.message);
-    res.status(500).json({ error: "Server error" });
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later" });
   }
 };
 
@@ -56,7 +58,12 @@ const getPendingUsers = async (req, res) => {
     res.status(200).json(pendingUsers);
   } catch (error) {
     console.error("Error fetching pending users:", error.message);
-    res.status(500).json({ error: "Server error", details: error });
+    res
+      .status(500)
+      .json({
+        error: "Something went wrong. Please try again later",
+        details: error,
+      });
   }
 };
 
@@ -81,7 +88,9 @@ const getRejectedUsers = async (req, res) => {
     res.status(200).json(rejectedUsers);
   } catch (error) {
     console.error("Error fetching rejected users:", error.message);
-    res.status(500).json({ error: "Server error" });
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later" });
   }
 };
 
@@ -106,7 +115,9 @@ const getCheckedUsers = async (req, res) => {
     res.status(200).json(checkedusers);
   } catch (error) {
     console.error("Error fetching checked users:", error.message);
-    res.status(500).json({ error: "Server error" });
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later" });
   }
 };
 
@@ -131,7 +142,9 @@ const getRecommendedUsers = async (req, res) => {
     res.status(200).json(recommendedusers);
   } catch (error) {
     console.error("Error fetching recommended users:", error.message);
-    res.status(500).json({ error: "Server error" });
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later" });
   }
 };
 
@@ -156,7 +169,9 @@ const getApprovedUsers = async (req, res) => {
     res.status(200).json(approvedUsers);
   } catch (error) {
     console.error("Error fetching approved users:", error.message);
-    res.status(500).json({ error: "Server error" });
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later" });
   }
 };
 
@@ -265,7 +280,9 @@ const rejectUser = async (req, res) => {
 
     res.status(200).json({ message: "User rejected successfully", user });
   } catch (error) {
-    res.status(500).json({ error: "Server error" });
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later" });
   }
 };
 

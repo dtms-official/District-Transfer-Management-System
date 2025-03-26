@@ -6,7 +6,7 @@ import useUserData from "../../api/useUserData";
 
 const { Option } = Select;
 const { TextArea } = Input;
-const { Title, Text } = Typography;
+const { Title, Text } = Typography;  
 
 export default function TransferApplicationForm() {
   const [transferWindows, setTransferWindows] = useState([]);
@@ -16,23 +16,45 @@ export default function TransferApplicationForm() {
   const { workplaces, fetchWorkplaces } = getWorkplaces();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [isSubmited, setIsSubmited] = useState([]);
+
+  const userId = user?.id || null;
+
+  useEffect(() => {
+    if (user) {
+      checkSubmissionStatus();
+    }
+  }, [user]);
+
+  const checkSubmissionStatus = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/transfer-application/user/67ddc93f98ee6f36f956b183`
+      );
+      setIsSubmited(response.data);
+    } catch (error) {
+      message.error("Failed to check submission status.");
+    }
+  };
 
   const onFinish = async (values) => {
     setLoading(true);
     try {
       const payload = {
-        transferWindowId: values.transferWindow, // Sending ID instead of name
+        transferWindowId: values.transferWindow,
         preferWorkplace_1: values.preferredWorkplace1,
         preferWorkplace_2: values.preferredWorkplace2,
         preferWorkplace_3: values.preferredWorkplace3,
         remarks: values.remarks || "",
+        userId: userId,
       };
 
       await axios.post(
         `${process.env.REACT_APP_API_URL}/transfer-application`,
-        payload
+        { ...payload, userId: user._id }
       );
 
+      setIsSubmited(true);
       form.resetFields();
       message.success("Application submitted successfully!");
     } catch (err) {
@@ -40,8 +62,7 @@ export default function TransferApplicationForm() {
         err.response.data.errors.forEach((e) => message.error(e.msg));
       } else {
         message.error(
-          err?.response?.data?.error ||
-            "Something went wrong. Please try again."
+          err?.response?.data?.error || "Something went wrong. Please try again."
         );
       }
     } finally {
@@ -104,6 +125,10 @@ export default function TransferApplicationForm() {
         <Title level={4}>Transfer Application</Title>
         {!user?.isApproved ? (
           <Text type="danger">You need approval to apply for transfer.</Text>
+        ) : isSubmited.isSubmited ? (
+          <Text type="warning">
+            You have already submitted a transfer application. You can only apply once.
+          </Text>
         ) : !activeWindow ? (
           <Text type="danger">
             Currently, no active transfer window is available.
@@ -113,95 +138,58 @@ export default function TransferApplicationForm() {
             <Text type="danger" className="text-sm font-bold">
               TRANSFER APPLICATION CLOSING IN: {formatTime(timeLeft)}
             </Text>
+            {
+              !isSubmited.isSubmited &&
+           
             <Form form={form} layout="vertical" onFinish={onFinish}>
               <Form.Item
                 label="Select Transfer Window"
                 name="transferWindow"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please select a transfer window",
-                  },
-                ]}
+                rules={[{ required: true, message: "Please select a transfer window" }]}
               >
                 <Select placeholder="Select a transfer window">
                   {transferWindows
-                    .filter(
-                      (window) =>
-                        !window.isTerminated &&
-                        new Date(window.closingDate) > new Date()
-                    )
+                    .filter((window) => !window.isTerminated && new Date(window.closingDate) > new Date())
                     .map((transferWindow) => (
-                      <Option
-                        key={transferWindow._id}
-                        value={transferWindow._id}
-                      >
+                      <Option key={transferWindow._id} value={transferWindow._id}>
                         {transferWindow.name}
                       </Option>
                     ))}
                 </Select>
               </Form.Item>
-              {[
-                "preferredWorkplace1",
-                "preferredWorkplace2",
-                "preferredWorkplace3",
-              ].map((field, index) => (
+              {["preferredWorkplace1", "preferredWorkplace2", "preferredWorkplace3"].map((field, index) => (
                 <Form.Item
                   key={field}
                   label={`Preferred Workplace (${index + 1})`}
                   name={field}
-                  rules={[
-                    {
-                      required: true,
-                      message: `Please select preferred workplace ${index + 1}`,
-                    },
-                  ]}
+                  rules={[{ required: true, message: `Please select preferred workplace ${index + 1}` }]}
                 >
                   <Select
                     placeholder="Select Workplace"
-                    filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    }
+                    filterOption={(input, option) => option.children.toLowerCase().includes(input.toLowerCase())}
                   >
-                    {workplaces
-                      .filter(
-                        (workplace) =>
-                          index === 0 || // First selection: All workplaces available
-                          index === 1
-                            ? workplace.workplace !==
-                              form.getFieldValue("preferredWorkplace1") // Second selection: Remove first selection
-                            : workplace.workplace !==
-                                form.getFieldValue("preferredWorkplace1") &&
-                              workplace.workplace !==
-                                form.getFieldValue("preferredWorkplace2") // Third selection: Remove first and second selections
-                      )
-                      .map((workplace) => (
-                        <Option key={workplace._id} value={workplace.workplace}>
-                          {workplace.workplace}
-                        </Option>
-                      ))}
+                    {workplaces.filter((workplace) =>
+                      field === "preferredWorkplace1" ||
+                      (field === "preferredWorkplace2" && workplace._id !== form.getFieldValue("preferredWorkplace1")) ||
+                      (field === "preferredWorkplace3" && workplace._id !== form.getFieldValue("preferredWorkplace1") && workplace._id !== form.getFieldValue("preferredWorkplace2"))
+                    ).map((workplace) => (
+                      <Option key={workplace._id} value={workplace._id}>
+                        {workplace.workplace}
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
               ))}
-              <Form.Item
-                label="Remarks to be considered by transfer board (Optional)"
-                name="remarks"
-              >
+              <Form.Item label="Remarks (Optional)" name="remarks">
                 <TextArea maxLength={350} placeholder="Enter your remarks" />
               </Form.Item>
               <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  className="w-full"
-                  loading={loading}
-                >
+                <Button type="primary" htmlType="submit" className="w-full" loading={loading}>
                   Submit Application
                 </Button>
               </Form.Item>
             </Form>
+}
           </>
         )}
       </Card>

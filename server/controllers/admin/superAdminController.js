@@ -7,7 +7,8 @@ exports.getTotalAdmins = async (req, res) => {
     res.status(200).json(adminList);
   } catch (error) {
     console.error("Error fetching pending users:", error.message);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({error: "Something went wrong. Please try again later",
+ });
   }
 };
 
