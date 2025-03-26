@@ -13,10 +13,12 @@ import {
 import { Button, Tag } from "antd";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const { Text } = Typography;
 
 const UserProfile = ({ adminRole }) => {
+  const navigate = useNavigate();
   const { id } = useParams(); // Get ID from URL params
   const [user, setUser] = useState(null); // Corrected to user (singular)
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
@@ -40,6 +42,8 @@ const UserProfile = ({ adminRole }) => {
       if (response.status === 200) {
         setUser({ ...user, status });
         message.success(response.data.message);
+        navigate("/admin_dashboard");
+
       } else {
         message.error(response.data.error);
       }
@@ -59,6 +63,7 @@ const UserProfile = ({ adminRole }) => {
         setUser({ ...user, status: "rejected", rejectReason });
         message.success(response.data.message);
         setIsModalVisible(false); // Close modal after rejection
+        navigate("/admin_dashboard");
       }
     } catch (error) {
       message.error(error.response?.data?.error || "Failed to update user data");

@@ -1,9 +1,10 @@
-const TransferApplcation = require("../../models/TransferApplcation");
+const TransferApplication = require("../../models/TransferApplcation");
 const Admin = require("../../models/Admin");
+const User = require("../../models/User");
 const jwt = require("jsonwebtoken");
 
 // Get All  TransferApplcations
-const getTotalSubmitedTransferApplcations = async (req, res) => {
+const getTotalSubmitedTransferApplications = async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1]; // Extract token
 
@@ -14,75 +15,71 @@ const getTotalSubmitedTransferApplcations = async (req, res) => {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET); // Verify token
     const { workplace_id, adminRole } = decodedToken; // Extract workplace_id & adminRole
 
-    const filter =
-      adminRole === "superAdmin"
-        ? {
-            isSubmited: true,
-          }
-        : {
-            isSubmited: true,
+    let filter = {
+      isSubmited: true,
+    };
 
-            workplace_id,
-          };
+    if (adminRole !== "superAdmin") {
+      // First find users from this workplace
+      const users = await User.find({ workplace_id }, "_id");
+      const userIds = users.map((user) => user._id);
 
-    const pendingTransferApplcations = await TransferApplcation.find(filter);
-
-    res.status(200).json(pendingTransferApplcations);
-  } catch (error) {
-    console.error(
-      "Error fetching pending transfer applcations:",
-      error.message
-    );
-    res.status(500).json({error: "Something went wrong. Please try again later",
- });
-  }
-};
-
-const getRejectedTransferApplcations = async (req, res) => {
-  try {
-    const admin = await Admin.findOne();
-    const adminWorkplace = admin ? admin.workplace_id : null;
-
-    if (!adminWorkplace) {
-      return res.status(400).json({ error: "Admin workplace not found" });
+      filter.userId = { $in: userIds };
     }
 
-    const rejectedTransferApplcations = await TransferApplcation.find({
-      isSubmited: false,
+    const totalTransferApplications = await TransferApplication.find(filter);
+
+    res.status(200).json(totalTransferApplications);
+  } catch (error) {
+    console.error("Error fetching total transfer applications:", error.message);
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later" });
+  }
+};
+const getPendingTransferApplications = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1]; // Extract token
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET); // Verify token
+    const workplaceId = decodedToken.workplace_id; // Get workplace_id from token
+
+    const pendingApplications = await TransferApplication.find({
+      isSubmited: true,
       isChecked: false,
       isRecommended: false,
-      isRejected: true,
       isApproved: false,
-      workplace_id: adminWorkplace, // Match Transfer Applcations' workplace_id with admin's
+      isRejected: false,
+      workplace_id: workplaceId
     });
 
-    res.status(200).json(rejectedTransferApplcations);
+    res.status(200).json(pendingApplications);
   } catch (error) {
-    console.error(
-      "Error fetching rejected transfer applcations:",
-      error.message
-    );
-    res.status(500).json({error: "Something went wrong. Please try again later",
- });
+    console.error("Error:", error.message);
+    res.status(500).json({ error: error });
   }
 };
 
-const getCheckedTransferApplcations = async (req, res) => {
+const getCheckedTransferApplications = async (req, res) => {
   try {
-    const admin = await Admin.findOne();
-    const adminWorkplace = admin ? admin.workplace_id : null;
-
-    if (!adminWorkplace) {
-      return res.status(400).json({ error: "Admin workplace not found" });
+    const token = req.headers.authorization?.split(" ")[1]; // Extract token
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const checkedTransferApplcations = await TransferApplcation.find({
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET); // Verify token
+    const workplaceId = decodedToken.workplace_id; // Get workplace_id from token
+
+    const checkedTransferApplcations = await TransferApplication.find({
       isSubmited: true,
       isChecked: true,
       isRecommended: false,
       isRejected: false,
       isApproved: false,
-      workplace_id: adminWorkplace, // Match TransferApplcations' workplace_id with admin's
+      workplace_id: workplaceId,
     });
 
     res.status(200).json(checkedTransferApplcations);
@@ -91,27 +88,29 @@ const getCheckedTransferApplcations = async (req, res) => {
       "Error fetching checked transfer applcations:",
       error.message
     );
-    res.status(500).json({error: "Something went wrong. Please try again later",
- });
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later" });
   }
 };
 
-const getRecommendedTransferApplcations = async (req, res) => {
+const getRecommendedTransferApplications = async (req, res) => {
   try {
-    const admin = await Admin.findOne();
-    const adminWorkplace = admin ? admin.workplace_id : null;
-
-    if (!adminWorkplace) {
-      return res.status(400).json({ error: "Admin workplace not found" });
+    const token = req.headers.authorization?.split(" ")[1]; // Extract token
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const recommendedTransferApplcations = await TransferApplcation.find({
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET); // Verify token
+    const workplaceId = decodedToken.workplace_id; // Get workplace_id from token
+
+    const recommendedTransferApplcations = await TransferApplication.find({
       isSubmited: true,
       isChecked: true,
       isRecommended: true,
       isRejected: false,
       isApproved: false,
-      workplace_id: adminWorkplace, // Match TransferApplcations' workplace_id with admin's
+      workplace_id: workplaceId, // Match TransferApplcations' workplace_id with admin's
     });
 
     res.status(200).json(recommendedTransferApplcations);
@@ -120,27 +119,29 @@ const getRecommendedTransferApplcations = async (req, res) => {
       "Error fetching recommended transfer applcations:",
       error.message
     );
-    res.status(500).json({error: "Something went wrong. Please try again later",
- });
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later" });
   }
 };
 
-const getApprovedTransferApplcations = async (req, res) => {
+const getApprovedTransferApplications = async (req, res) => {
   try {
-    const admin = await Admin.findOne();
-    const adminWorkplace = admin ? admin.workplace_id : null;
-
-    if (!adminWorkplace) {
-      return res.status(400).json({ error: "Admin workplace not found" });
+    const token = req.headers.authorization?.split(" ")[1]; // Extract token
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const approvedTransferApplcations = await TransferApplcation.find({
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET); // Verify token
+    const workplaceId = decodedToken.workplace_id; // Get workplace_id from token
+
+    const approvedTransferApplcations = await TransferApplication.find({
       isSubmited: true,
       isChecked: true,
       isRecommended: true,
       isRejected: false,
       isApproved: true,
-      workplace_id: adminWorkplace, // Match TransferApplcations' workplace_id with admin's
+      workplace_id: workplaceId, // Match TransferApplcations' workplace_id with admin's
     });
 
     res.status(200).json(approvedTransferApplcations);
@@ -149,83 +150,50 @@ const getApprovedTransferApplcations = async (req, res) => {
       "Error fetching approved transfer applcations:",
       error.message
     );
-    res.status(500).json({error: "Something went wrong. Please try again later",
- });
-  }
-};
-
-// check TransferApplcation TransferApplcation
-const checkTransferApplcation = async (req, res) => {
-  const { TransferApplcationId } = req.params;
-
-  try {
-    const TransferApplcation = await TransferApplcation.findById(
-      TransferApplcationId
-    );
-    if (!TransferApplcation) {
-      return res.status(404).json({ error: "Transfer applcation not found" });
-    }
-
-    TransferApplcation.isSubmited = true;
-    TransferApplcation.isChecked = true; // check TransferApplcation
-    TransferApplcation.isRecommended = false;
-    TransferApplcation.isApproved = false;
-    TransferApplcation.isRejected = false;
-    TransferApplcation.rejectReason = null;
-    await TransferApplcation.save();
-
-    res
-      .status(200)
-      .json({ message: "Transfer applcation checked successfully" });
-  } catch (error) {
-    console.error("Approval Error:", error.message);
     res
       .status(500)
-      .json({
-        error: "Cannot check the transfer applcation right now. try again",
-      });
+      .json({ error: "Something went wrong. Please try again later" });
   }
 };
 
-// Approve TransferApplcation
-const recommendTransferApplcation = async (req, res) => {
-  const { TransferApplcationId } = req.params;
-
+// For super admin only
+const getRejectedTransferApplications = async (req, res) => {
   try {
-    const transferApplcation = await TransferApplcation.findById(
-      TransferApplcationId
-    );
-    if (!transferApplcation) {
-      return res.status(404).json({ error: "Transfer applcation not found" });
+    const token = req.headers.authorization?.split(" ")[1]; // Extract token
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
-    transferApplcation.isSubmited = true;
-    transferApplcation.isChecked = true;
-    transferApplcation.isRecommended = true; // Recommended TransferApplcation
-    transferApplcation.isApproved = false;
-    transferApplcation.isRejected = false;
-    transferApplcation.rejectReason = null;
-    await TransferApplcation.save();
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET); // Verify token
+    const workplaceId = decodedToken.workplace_id; // Get workplace_id from token
 
-    res
-      .status(200)
-      .json({ message: "Transfer applcation recommended successfully" });
+    const rejectedTransferApplcations = await TransferApplication.find({
+      isSubmited: false,
+      isChecked: false,
+      isRecommended: false,
+      isRejected: true,
+      isApproved: false,
+      workplace_id: workplaceId, // Match Transfer Applcations' workplace_id with admin's
+    });
+
+    res.status(200).json(rejectedTransferApplcations);
   } catch (error) {
-    console.error("Approval Error:", error.message);
+    console.error(
+      "Error fetching rejected transfer applcations:",
+      error.message
+    );
     res
       .status(500)
-      .json({
-        error: "Cannot recommend the Transfer applcation right now. try again",
-      });
+      .json({ error: "Something went wrong. Please try again later" });
   }
 };
 
-// Approve TransferApplcation
-const approveTransferApplcation = async (req, res) => {
+// For super admin only
+const approveTransferApplication = async (req, res) => {
   const { TransferApplcationId } = req.params;
 
   try {
-    const transferApplcation = await TransferApplcation.findById(
+    const transferApplcation = await TransferApplication.findById(
       TransferApplcationId
     );
     if (!transferApplcation) {
@@ -239,28 +207,88 @@ const approveTransferApplcation = async (req, res) => {
     transferApplcation.isRejected = false;
     transferApplcation.rejectReason = null;
 
-    await TransferApplcation.save();
+    await TransferApplication.save();
 
     res
       .status(200)
       .json({ message: "Transfer applcation approved successfully" });
   } catch (error) {
     console.error("Approval Error:", error.message);
+    res.status(500).json({
+      error: "Cannot approve the transfer applcation right now. try again",
+    });
+  }
+};
+
+// check TransferApplcation TransferApplcation
+const checkTransferApplication = async (req, res) => {
+  const { TransferApplcationId } = req.params;
+
+  try {
+    const transferApplcation = await TransferApplication.findById(
+      TransferApplcationId
+    );
+    if (!transferApplcation) {
+      return res.status(404).json({ error: "Transfer applcation not found" });
+    }
+
+    transferApplcation.isSubmited = true;
+    transferApplcation.isChecked = true; // check TransferApplcation
+    transferApplcation.isRecommended = false;
+    transferApplcation.isApproved = false;
+    transferApplcation.isRejected = false;
+    transferApplcation.rejectReason = null;
+    await TransferApplcation.save();
+
     res
-      .status(500)
-      .json({
-        error: "Cannot approve the transfer applcation right now. try again",
-      });
+      .status(200)
+      .json({ message: "Transfer applcation checked successfully" });
+  } catch (error) {
+    console.error("Approval Error:", error.message);
+    res.status(500).json({
+      error: "Cannot check the transfer applcation right now. try again",
+    });
+  }
+};
+
+// Approve TransferApplcation
+const recommendTransferApplication = async (req, res) => {
+  const { TransferApplcationId } = req.params;
+
+  try {
+    const transferApplcation = await TransferApplication.findById(
+      TransferApplcationId
+    );
+    if (!transferApplcation) {
+      return res.status(404).json({ error: "Transfer applcation not found" });
+    }
+
+    transferApplcation.isSubmited = true;
+    transferApplcation.isChecked = true;
+    transferApplcation.isRecommended = true; // Recommended TransferApplcation
+    transferApplcation.isApproved = false;
+    transferApplcation.isRejected = false;
+    transferApplcation.rejectReason = null;
+    await TransferApplication.save();
+
+    res
+      .status(200)
+      .json({ message: "Transfer applcation recommended successfully" });
+  } catch (error) {
+    console.error("Approval Error:", error.message);
+    res.status(500).json({
+      error: "Cannot recommend the transfer applcation right now. try again",
+    });
   }
 };
 
 // Reject TransferApplcation (Delete TransferApplcation)
-const rejectTransferApplcation = async (req, res) => {
+const rejectTransferApplication = async (req, res) => {
   const { TransferApplcationId } = req.params;
   const { rejectReason } = req.body;
 
   try {
-    const transferApplcation = await TransferApplcation.findByIdAndUpdate(
+    const transferApplcation = await TransferApplication.findByIdAndUpdate(
       TransferApplcationId,
       {
         isSubmited: false,
@@ -275,26 +303,26 @@ const rejectTransferApplcation = async (req, res) => {
     if (!transferApplcation)
       return res.status(404).json({ message: "Transfer applcation not found" });
 
-    res
-      .status(200)
-      .json({
-        message: "Transfer applcation rejected successfully",
-        TransferApplcation,
-      });
+    res.status(200).json({
+      message: "Transfer applcation rejected successfully",
+      transferApplcation,
+    });
   } catch (error) {
-    res.status(500).json({error: "Something went wrong. Please try again later",
- });
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later" });
   }
 };
 
 module.exports = {
-  getTotalSubmitedTransferApplcations,
-  getRejectedTransferApplcations,
-  getCheckedTransferApplcations,
-  getRecommendedTransferApplcations,
-  getApprovedTransferApplcations,
-  checkTransferApplcation,
-  recommendTransferApplcation,
-  approveTransferApplcation,
-  rejectTransferApplcation,
+  getTotalSubmitedTransferApplications,
+  getPendingTransferApplications,
+  getRejectedTransferApplications,
+  getCheckedTransferApplications,
+  getRecommendedTransferApplications,
+  getApprovedTransferApplications,
+  checkTransferApplication,
+  recommendTransferApplication,
+  approveTransferApplication,
+  rejectTransferApplication,
 };

@@ -2,7 +2,7 @@ const User = require("../../models/User");
 const Admin = require("../../models/Admin");
 const jwt = require("jsonwebtoken");
 
-// Get All  Users
+// Get All  Users for all admins
 const getTotalSubmitedUsers = async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1]; // Extract token
@@ -25,9 +25,9 @@ const getTotalSubmitedUsers = async (req, res) => {
             workplace_id,
           };
 
-    const pendingUsers = await User.find(filter);
+    const totalUsers = await User.find(filter);
 
-    res.status(200).json(pendingUsers);
+    res.status(200).json(totalUsers);
   } catch (error) {
     console.error("Error fetching pending users:", error.message);
     res
@@ -58,50 +58,22 @@ const getPendingUsers = async (req, res) => {
     res.status(200).json(pendingUsers);
   } catch (error) {
     console.error("Error fetching pending users:", error.message);
-    res
-      .status(500)
-      .json({
-        error: "Something went wrong. Please try again later",
-        details: error,
-      });
-  }
-};
-
-const getRejectedUsers = async (req, res) => {
-  try {
-    const admin = await Admin.findOne();
-    const adminWorkplace = admin ? admin.workplace_id : null;
-
-    if (!adminWorkplace) {
-      return res.status(400).json({ error: "Admin workplace not found" });
-    }
-
-    const rejectedUsers = await User.find({
-      isSubmited: false,
-      isChecked: false,
-      isRecommended: false,
-      isRejected: true,
-      isApproved: false,
-      workplace_id: adminWorkplace, // Match users' workplace_id with admin's
+    res.status(500).json({
+      error: "Something went wrong. Please try again later",
+      details: error,
     });
-
-    res.status(200).json(rejectedUsers);
-  } catch (error) {
-    console.error("Error fetching rejected users:", error.message);
-    res
-      .status(500)
-      .json({ error: "Something went wrong. Please try again later" });
   }
 };
 
 const getCheckedUsers = async (req, res) => {
   try {
-    const admin = await Admin.findOne();
-    const adminWorkplace = admin ? admin.workplace_id : null;
-
-    if (!adminWorkplace) {
-      return res.status(400).json({ error: "Admin workplace not found" });
+    const token = req.headers.authorization?.split(" ")[1]; // Extract token
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
+
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET); // Verify token
+    const workplaceId = decodedToken.workplace_id; // Get workplace_id from token
 
     const checkedusers = await User.find({
       isSubmited: true,
@@ -109,7 +81,7 @@ const getCheckedUsers = async (req, res) => {
       isRecommended: false,
       isRejected: false,
       isApproved: false,
-      workplace_id: adminWorkplace, // Match users' workplace_id with admin's
+      workplace_id: workplaceId, // Match users' workplace_id with admin's
     });
 
     res.status(200).json(checkedusers);
@@ -123,12 +95,13 @@ const getCheckedUsers = async (req, res) => {
 
 const getRecommendedUsers = async (req, res) => {
   try {
-    const admin = await Admin.findOne();
-    const adminWorkplace = admin ? admin.workplace_id : null;
-
-    if (!adminWorkplace) {
-      return res.status(400).json({ error: "Admin workplace not found" });
+    const token = req.headers.authorization?.split(" ")[1]; // Extract token
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
+
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET); // Verify token
+    const workplaceId = decodedToken.workplace_id; // Get workplace_id from token
 
     const recommendedusers = await User.find({
       isSubmited: true,
@@ -136,7 +109,7 @@ const getRecommendedUsers = async (req, res) => {
       isRecommended: true,
       isRejected: false,
       isApproved: false,
-      workplace_id: adminWorkplace, // Match users' workplace_id with admin's
+      workplace_id: workplaceId, // Match users' workplace_id with admin's
     });
 
     res.status(200).json(recommendedusers);
@@ -148,34 +121,7 @@ const getRecommendedUsers = async (req, res) => {
   }
 };
 
-const getApprovedUsers = async (req, res) => {
-  try {
-    const admin = await Admin.findOne();
-    const adminWorkplace = admin ? admin.workplace_id : null;
-
-    if (!adminWorkplace) {
-      return res.status(400).json({ error: "Admin workplace not found" });
-    }
-
-    const approvedUsers = await User.find({
-      isSubmited: true,
-      isChecked: true,
-      isRecommended: true,
-      isRejected: false,
-      isApproved: true,
-      workplace_id: adminWorkplace, // Match users' workplace_id with admin's
-    });
-
-    res.status(200).json(approvedUsers);
-  } catch (error) {
-    console.error("Error fetching approved users:", error.message);
-    res
-      .status(500)
-      .json({ error: "Something went wrong. Please try again later" });
-  }
-};
-
-// check User User
+// check User for checking admin
 const checkUser = async (req, res) => {
   const { userId } = req.params;
 
@@ -202,7 +148,7 @@ const checkUser = async (req, res) => {
   }
 };
 
-// Approve User
+// Approve User for recommend admin
 const recommendUser = async (req, res) => {
   const { userId } = req.params;
 
@@ -229,7 +175,7 @@ const recommendUser = async (req, res) => {
   }
 };
 
-// Approve User
+// Approve User for approve admin
 const approveUser = async (req, res) => {
   const { userId } = req.params;
 
@@ -258,7 +204,7 @@ const approveUser = async (req, res) => {
   }
 };
 
-// Reject User (Delete User)
+// Reject User for all admins
 const rejectUser = async (req, res) => {
   const { userId } = req.params;
   const { rejectReason } = req.body;
@@ -280,6 +226,54 @@ const rejectUser = async (req, res) => {
 
     res.status(200).json({ message: "User rejected successfully", user });
   } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later" });
+  }
+};
+
+// For super admin only
+const getApprovedUsers = async (req, res) => {
+  try {
+    const approvedUsers = await User.find({
+      isSubmited: true,
+      isChecked: true,
+      isRecommended: true,
+      isRejected: false,
+      isApproved: true,
+    });
+
+    res.status(200).json(approvedUsers);
+  } catch (error) {
+    console.error("Error fetching approved users:", error.message);
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later" });
+  }
+};
+
+const getRejectedUsers = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1]; // Extract token
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET); // Verify token
+    const workplaceId = decodedToken.workplace_id; // Get workplace_id from token
+
+    const rejectedUsers = await User.find({
+      isSubmited: false,
+      isChecked: false,
+      isRecommended: false,
+      isRejected: true,
+      isApproved: false,
+      workplace_id: workplaceId, // Match users' workplace_id with admin's
+    });
+
+    res.status(200).json(rejectedUsers);
+  } catch (error) {
+    console.error("Error fetching rejected users:", error.message);
     res
       .status(500)
       .json({ error: "Something went wrong. Please try again later" });
