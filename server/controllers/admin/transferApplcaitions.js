@@ -12,22 +12,18 @@ const getTotalSubmitedTransferApplications = async (req, res) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET); // Verify token
-    const { workplace_id, adminRole } = decodedToken; // Extract workplace_id & adminRole
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const { workplace_id, adminRole } = decodedToken;
 
-    let filter = {
-      isSubmited: true,
-    };
+    let filter = { isSubmited: true };
 
-    if (adminRole !== "superAdmin") {
-      // First find users from this workplace
-      const users = await User.find({ workplace_id }, "_id");
-      const userIds = users.map((user) => user._id);
+    // if (adminRole !== "superAdmin") {
+    //   filter.workplace_id = workplace_id; // Apply workplace filter for non-superAdmins
+    // }
 
-      filter.userId = { $in: userIds };
-    }
-
-    const totalTransferApplications = await TransferApplication.find(filter);
+    const totalTransferApplications = await TransferApplication.find(filter)
+      .populate("userId", "nameWithInitial designation duty_assumed_date")
+      .exec();
 
     res.status(200).json(totalTransferApplications);
   } catch (error) {
@@ -37,6 +33,7 @@ const getTotalSubmitedTransferApplications = async (req, res) => {
       .json({ error: "Something went wrong. Please try again later" });
   }
 };
+
 const getPendingTransferApplications = async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1]; // Extract token
@@ -53,7 +50,7 @@ const getPendingTransferApplications = async (req, res) => {
       isRecommended: false,
       isApproved: false,
       isRejected: false,
-      workplace_id: workplaceId
+      workplace_id: workplaceId,
     });
 
     res.status(200).json(pendingApplications);

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Space, Button, Select, Input, Tooltip, message } from 'antd';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { Table, Button, Select, Input, Tooltip, message } from "antd";
+import axios from "axios";
 import useCheckAdminAuth from "../../utils/checkAdminAuth";
 
 const renderStatus = (user) => (
@@ -59,100 +59,122 @@ const TransferApplications = () => {
   // Fetch the transfer applications data
   useEffect(() => {
     const token = localStorage.getItem("adminToken");
-    
-        if (!token) {
-          message.error("Unauthorized! Please log in as an admin.");
-          return;
-        }
-        
+
+    if (!token) {
+      message.error("Unauthorized! Please log in as an admin.");
+      return;
+    }
+
     const fetchApplications = async () => {
-        setLoading(true);
-        try {
-          const response = await axios.get(
-            `${process.env.REACT_APP_API_URL}/admin/total-transfer-application`, 
-            {  headers: { Authorization: `Bearer ${token}` } }
-          );
-          setApplications(response.data);
-        } catch (error) {
-          message.error(error.response?.data?.error || "Something went wrong, try again later");
-        } finally {
-          setLoading(false);
-        }
-      };      
-  
+      setLoading(true);
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/admin/total-transfer-application`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setApplications(response.data);
+      } catch (error) {
+        console.error("Error fetching transfer applications:", error);
+        message.error(
+          error.response?.data?.error || "Something went wrong, try again later"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchApplications();
   }, []);
-  
+
   const calculateEligibility = (transferDate) => {
     const currentDate = new Date();
     const transferDateObj = new Date(transferDate);
-  
-    let yearsDifference = currentDate.getFullYear() - transferDateObj.getFullYear();
-  
-    const isBeforeAnniversary = 
-      currentDate.getMonth() < transferDateObj.getMonth() || 
-      (currentDate.getMonth() === transferDateObj.getMonth() && currentDate.getDate() < transferDateObj.getDate());
-  
+
+    let yearsDifference =
+      currentDate.getFullYear() - transferDateObj.getFullYear();
+
+    const isBeforeAnniversary =
+      currentDate.getMonth() < transferDateObj.getMonth() ||
+      (currentDate.getMonth() === transferDateObj.getMonth() &&
+        currentDate.getDate() < transferDateObj.getDate());
+
     if (isBeforeAnniversary) {
       yearsDifference--;
     }
-  
+
     return yearsDifference;
   };
 
-  const handleEdit = (record) => {
-    console.log('Edit record:', record);
-  };
+  // const handleEdit = (record) => {
+  //   console.log("Edit record:", record);
+  // };
 
   const handleAction = async (record, actionType, value) => {
     try {
-        const urlMap = {
-            check: `${process.env.REACT_APP_API_URL}/admin/check-applcation/${record.id}`,
-            recommend: `${process.env.REACT_APP_API_URL}/admin/recommend-applcation/${record.id}`,
-            approve: `${process.env.REACT_APP_API_URL}/admin/approve-applcation/:${record.id}`,
-            reject: `${process.env.REACT_APP_API_URL}/admin/reject-applcation/${record.id}`,
-          };
-          
-  
+      const urlMap = {
+        check: `${process.env.REACT_APP_API_URL}/admin/check-applcation/${record.id}`,
+        recommend: `${process.env.REACT_APP_API_URL}/admin/recommend-applcation/${record.id}`,
+        approve: `${process.env.REACT_APP_API_URL}/admin/approve-applcation/:${record.id}`,
+        reject: `${process.env.REACT_APP_API_URL}/admin/reject-applcation/${record.id}`,
+      };
+
       const url = urlMap[actionType];
       if (!url) return;
-  
-      const requestData = (actionType === "approve" || actionType === "reject") ? { value } : {};
-  
+
+      const requestData =
+        actionType === "approve" || actionType === "reject" ? { value } : {};
+
       const response = await axios.post(url, requestData);
       if (response.data.success) {
-        message.success(`${actionType.charAt(0).toUpperCase() + actionType.slice(1)} action completed successfully`);
-        setApplications(prev =>
-          prev.map(app => app.id === record.id ? { ...app, [`is${actionType.charAt(0).toUpperCase() + actionType.slice(1)}`]: true } : app)
+        message.success(
+          `${
+            actionType.charAt(0).toUpperCase() + actionType.slice(1)
+          } action completed successfully`
+        );
+        setApplications((prev) =>
+          prev.map((app) =>
+            app.id === record.id
+              ? {
+                  ...app,
+                  [`is${
+                    actionType.charAt(0).toUpperCase() + actionType.slice(1)
+                  }`]: true,
+                }
+              : app
+          )
         );
       }
     } catch (error) {
-      message.error(error.response?.data?.error || "Something went wrong, try again later");
+      message.error(
+        error.response?.data?.error || "Something went wrong, try again later"
+      );
     }
   };
-  
+
   const columns = [
     {
-      title: 'Name with Initials',
-      dataIndex: 'transferWindowId',
-      key: 'transferWindowId',
+      title: "Name with Initials",
+      dataIndex: ["userId", "nameWithInitial"],
+      key: ["userId", "nameWithInitial"],
     },
     {
-      title: 'Designation',
-      dataIndex: 'designation',
-      key: 'designation',
+      title: "Designation",
+      dataIndex: ["userId", "designation"],
+      key: "designation",
     },
-    ...(adminRole === 'superAdmin' ? [
-      {
-        title: 'Workplace',
-        dataIndex: 'workplace',
-        key: 'workplace',
-      }
-    ] : []),
+    ...(adminRole === "superAdmin"
+      ? [
+          {
+            title: "Workplace",
+            dataIndex: "workplace_id",
+            key: "workplace_id",
+          },
+        ]
+      : []),
     {
-      title: 'Transfer Window',
-      dataIndex: 'transferWindow',
-      key: 'transferWindow',
+      title: "Transfer Window",
+      dataIndex: "transferWindowId",
+      key: "transferWindowId",
     },
     {
       title: "Preferred Workplaces",
@@ -167,18 +189,18 @@ const TransferApplications = () => {
       ),
     },
     {
-      title: 'Remarks',
-      dataIndex: 'remarks',
-      key: 'remarks',
+      title: "Remarks",
+      dataIndex: "remarks",
+      key: "remarks",
     },
     {
-      title: 'Eligibility (Years)',
-      dataIndex: 'eligibility',
-      key: 'eligibility',
+      title: "Eligibility (Years)",
+      dataIndex: "eligibility",
+      key: "eligibility",
       render: (text, record) => (
         <>
           {calculateEligibility(record.transferDate)}
-          
+
           {adminRole === "approveAdmin" && (
             <Select
               disabled={record.isApproved || record.isRejected}
@@ -190,41 +212,44 @@ const TransferApplications = () => {
             </Select>
           )}
 
-          {(adminRole === "checkingAdmin" || adminRole === "recommendAdmin") && (
+          {(adminRole === "checkingAdmin" ||
+            adminRole === "recommendAdmin") && (
             <Input
               placeholder="Enter your details"
-              disabled={record.isChecked || record.isRecommended} 
-              onBlur={(e) => handleAction(record, "checkOrRecommend", e.target.value)}
+              disabled={record.isChecked || record.isRecommended}
+              onBlur={(e) =>
+                handleAction(record, "checkOrRecommend", e.target.value)
+              }
             />
           )}
         </>
       ),
     },
     {
-      title: 'Replacement',
-      dataIndex: 'replacement',
-      key: 'replacement',
+      title: "Replacement",
+      dataIndex: "Replacement",
+      key: "Replacement",
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
       render: (text, record) => renderStatus(record),
     },
     {
-      title: 'Score',
-      dataIndex: 'score',
-      key: 'score',
+      title: "Score",
+      dataIndex: "score",
+      key: "score",
     },
     {
-      title: 'Transfer Decision Recommendation',
-      dataIndex: 'transferDecisionRecommendation',
-      key: 'transferDecisionRecommendation',
+      title: "Transfer Decision Recommendation",
+      dataIndex: "transferDecisionRecommendation",
+      key: "transferDecisionRecommendation",
     },
     {
-      title: 'Replacement Officer',
-      dataIndex: 'replacementOfficer',
-      key: 'replacementOfficer',
+      title: "Replacement Officer",
+      dataIndex: "replacementOfficer",
+      key: "replacementOfficer",
     },
     {
       title: "Action",
@@ -234,7 +259,8 @@ const TransferApplications = () => {
       render: (_, record) => (
         <div style={{ display: "flex", gap: 8 }}>
           {/* Checking Admin & Recommend Admin */}
-          {(adminRole === "checkingAdmin" || adminRole === "recommendAdmin") && (
+          {(adminRole === "checkingAdmin" ||
+            adminRole === "recommendAdmin") && (
             <>
               <Button
                 type="primary"
@@ -246,7 +272,7 @@ const TransferApplications = () => {
               >
                 {record.isChecked ? "Checked" : "Check"}
               </Button>
-  
+
               <Button
                 type="default"
                 disabled={record.isRecommended}
@@ -259,9 +285,9 @@ const TransferApplications = () => {
               </Button>
             </>
           )}
-  
+
           {/* Super Admin */}
-          {adminRole === "superadmin" && (
+          {adminRole === "superAdmin" && (
             <Button
               type="dashed"
               disabled={record.isProcessed}
@@ -273,7 +299,7 @@ const TransferApplications = () => {
               {record.isProcessed ? "Processed" : "Process"}
             </Button>
           )}
-  
+
           {/* Approval Admin */}
           {adminRole === "approvalAdmin" && (
             <>
@@ -287,7 +313,7 @@ const TransferApplications = () => {
               >
                 {record.isApproved ? "Approved" : "Approve"}
               </Button>
-  
+
               <Button
                 type="danger"
                 disabled={record.isApproved || record.isRejected}
@@ -319,5 +345,3 @@ const TransferApplications = () => {
 };
 
 export default TransferApplications;
-
-
