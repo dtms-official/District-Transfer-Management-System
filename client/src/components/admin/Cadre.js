@@ -435,7 +435,7 @@ const Cadre = () => {
         {editingcadre && (
           <Form form={form} layout="vertical" onFinish={onUpdate}>
             <Form.Item name="service" label="Cadre Category">
-              <Select placeholder="Select a cadre category">
+              <Select placeholder="Select a cadre category" disabled>
                 <Option value="Divisional Secretary">
                   Divisional Secretary
                 </Option>
@@ -482,7 +482,7 @@ const Cadre = () => {
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit">
-                Save
+                Update
               </Button>
             </Form.Item>
           </Form>

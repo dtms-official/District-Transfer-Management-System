@@ -106,7 +106,7 @@ exports.getDataByUser = async (req, res) => {
 
     const data = await TransferApplication.find({ userId: req.params.userId });
     if (!data || data.length === 0) {
-      return res.status(404).json({ error: "There are no transfer applicaitons" });
+      return res.status(404).json({ error: "You haven’t submitted any applications yet" });
     }
     res.json(data);
   } catch (err) {

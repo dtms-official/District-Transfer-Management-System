@@ -43,13 +43,14 @@ const UserProfile = ({ adminRole }) => {
         setUser({ ...user, status });
         message.success(response.data.message);
         navigate("/admin_dashboard");
-
       } else {
         message.error(response.data.error);
       }
     } catch (error) {
       console.error("Error updating user:", error);
-      message.error(error.response?.data?.error || "Failed to update user data");
+      message.error(
+        error.response?.data?.error || "Failed to update user data"
+      );
     }
   };
 
@@ -66,7 +67,9 @@ const UserProfile = ({ adminRole }) => {
         navigate("/admin_dashboard");
       }
     } catch (error) {
-      message.error(error.response?.data?.error || "Failed to update user data");
+      message.error(
+        error.response?.data?.error || "Failed to update user data"
+      );
     }
   };
 
