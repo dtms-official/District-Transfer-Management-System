@@ -1,5 +1,6 @@
 import axios from "axios";
 
+// For Users
 export const fetchPendingUsers = async (token, setPendingUsers, setMessage) => {
   try {
     const response = await axios.get(
@@ -43,3 +44,5 @@ export const fetchRecommendedUsers = async (token, setRecommendedUsers, setMessa
     setMessage(errorMessage);
   }
 };
+
+

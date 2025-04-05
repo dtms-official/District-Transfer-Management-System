@@ -4,17 +4,18 @@ const router = express.Router();
 const transferApplcaitions = require("../../controllers/admin/transferApplcaitions");
 
 // Get Routes
-router.get("/total-transfer-applcation", transferApplcaitions.getTotalSubmitedTransferApplcations);
-router.get("/rejected-transfer-applcation", transferApplcaitions.getRejectedTransferApplcations);
-router.get("/checked-transfer-applcation", transferApplcaitions.getCheckedTransferApplcations);
-router.get("/recommended-transfer-applcation", transferApplcaitions.getRecommendedTransferApplcations);
-router.get("/approved-transfer-applcation", transferApplcaitions.getApprovedTransferApplcations);
+router.get("/total-transfer-application", transferApplcaitions.getTotalSubmitedTransferApplications);
+router.get("/pending-transfer-application", transferApplcaitions.getPendingTransferApplications);
+router.get("/rejected-transfer-application", transferApplcaitions.getRejectedTransferApplications);
+router.get("/checked-transfer-application", transferApplcaitions.getCheckedTransferApplications);
+router.get("/recommended-transfer-application", transferApplcaitions.getRecommendedTransferApplications);
+router.get("/approved-transfer-application", transferApplcaitions.getApprovedTransferApplications);
 
 
 // Update Routes
-router.put("/check-applcation/:id", transferApplcaitions.checkTransferApplcation);
-router.put("/recommend-applcation/:id", transferApplcaitions.recommendTransferApplcation);
-router.put("/approve-applcation/:id", transferApplcaitions.approveTransferApplcation);
-router.put("/reject-applcation/:id", transferApplcaitions.rejectTransferApplcation);
+router.put("/check-application/:id", transferApplcaitions.checkTransferApplication);
+router.put("/recommend-application/:id", transferApplcaitions.recommendTransferApplication);
+router.put("/approve-application/:id", transferApplcaitions.approveTransferApplication);
+router.put("/reject-application/:id", transferApplcaitions.rejectTransferApplication);
 
 module.exports = router;

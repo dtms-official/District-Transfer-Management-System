@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { Table, Card, Alert, Button } from "antd";
 import { fetchCheckedUsers } from "../../api/useAdmin"; // Import the utility function
 
-export default function CheckingAdmin() {
+export default function RecommendAdmin() {
   const navigate = useNavigate();
   const [checkedUsers, setCheckedUsers] = useState([]);
+    useState([]);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -19,27 +20,11 @@ export default function CheckingAdmin() {
   }, []);
 
   const columns = [
-    {
-      title: "Name",
-      dataIndex: "nameWithInitial",
-      key: "name",
-    },
+    { title: "Name", dataIndex: "nameWithInitial", key: "name" },
     { title: "Designation", dataIndex: "designation", key: "designation" },
-    {
-      title: "NIC",
-      dataIndex: "NIC",
-      key: "nic",
-    },
-    {
-      title: "Gender",
-      dataIndex: "gender",
-      key: "gender",
-    },
-    {
-      title: "Contact",
-      dataIndex: "contactNumber",
-      key: "contact",
-    },
+    { title: "NIC", dataIndex: "NIC", key: "nic" },
+    { title: "Gender", dataIndex: "gender", key: "gender" },
+    { title: "Contact", dataIndex: "contactNumber", key: "contact" },
     {
       title: "Actions",
       key: "actions",
@@ -61,7 +46,6 @@ export default function CheckingAdmin() {
       {message && (
         <Alert message={message} type="error" showIcon className="mb-4" />
       )}
-
       <Card title="Checked Users" bordered>
         <Table
           columns={columns}
