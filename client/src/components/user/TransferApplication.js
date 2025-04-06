@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Select, Input, Button, Card, Typography, message, Form } from "antd";
+import {
+  Select,
+  Input,
+  Button,
+  Card,
+  Typography,
+  message,
+  Form,
+  notification,
+} from "antd";
 import getWorkplaces from "../../api/getWorkplaces";
 import axios from "axios";
 import useUserData from "../../api/useUserData";
@@ -30,7 +39,12 @@ export default function TransferApplicationForm() {
       );
       setUserApplication(response.data);
     } catch (error) {
-      message.error(error.response?.data?.error || "Something went wrong.");
+      notification.info({
+        description:
+          error?.response?.data?.error ||
+          "Something went wrong. Please try again.",
+        placement: "topRight",
+      });
     }
   }, [userId]);
 
@@ -75,16 +89,20 @@ export default function TransferApplicationForm() {
 
   useEffect(() => {
     if (user && !user.isApproved) {
-      message.error("You need approval to apply for transfer");
+      notification.error({
+        message: "Approval Required",
+        description: "You need approval to apply for transfer",
+      });
       return;
     }
     fetchWorkplaces();
     fetchTransferWindows();
 
     if (isSubmited) {
-      message.success(
-        "You have successfully submitted the transfer application. Wait for approval"
-      );
+      notification.success({
+        description:
+          "You have successfully submitted the transfer application. Wait for approval",
+      });
     }
   }, [user, fetchWorkplaces, isSubmited]);
 

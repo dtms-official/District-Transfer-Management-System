@@ -1,7 +1,7 @@
 const express = require("express");
 
 const router = express.Router();
-const transferApplcaitions = require("../../controllers/admin/transferApplcaitions");
+const transferApplcaitions = require("../../controllers/admin/transferApplcaitionsController");
 
 // Get Routes
 router.get("/total-transfer-application", transferApplcaitions.getTotalSubmitedTransferApplications);

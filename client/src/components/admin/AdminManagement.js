@@ -161,7 +161,7 @@ const AdminManagement = () => {
           okText="Yes"
           cancelText="No"
         >
-          <Button className="bg-red-500 text-white">Delete</Button>
+          <Button className="bg-red-500 text-white">Remove</Button>
         </Popconfirm>
       ),
     },
@@ -211,7 +211,7 @@ const AdminManagement = () => {
               style={{ width: "100px" }}
               loading={loading}
             >
-              Save
+              Add
             </Button>
           </Form.Item>
         </Form>

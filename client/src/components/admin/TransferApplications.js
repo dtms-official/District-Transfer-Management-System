@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Space, Button, Select, Input, Tooltip, message } from "antd";
+import { Table, Button, Select, Tooltip, message } from "antd";
 import axios from "axios";
 import useCheckAdminAuth from "../../utils/checkAdminAuth";
 
@@ -57,14 +57,14 @@ const TransferApplications = () => {
   const { adminData } = useCheckAdminAuth();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState([]);
-  const [activeWindow, setActiveWindow] = useState(null);
+  // const [users, setUsers] = useState([]);
+  // const [activeWindow, setActiveWindow] = useState(null);
 
   // Get admin role and workplace ID from adminData
   const [workplaceData, setWorkplaceData] = useState([]);
-  const [selectedWorkplace, setSelectedWorkplace] = useState(null); // ✅ Fix variable declaration
+  // const [selectedWorkplace, setSelectedWorkplace] = useState(null); // ✅ Fix variable declaration
 
-  const workplaceId = adminData.workplace_id || null;
+  // const workplaceId = adminData.workplace_id || null;
   const adminRole = adminData.adminRole || null;
 
   const [transferWindows, setTransferWindows] = useState([]); // ✅ Correct state variable
@@ -148,22 +148,26 @@ const TransferApplications = () => {
       (currentDate.getMonth() === dutyDateObj.getMonth() &&
         currentDate.getDate() < dutyDateObj.getDate());
 
-    if (isBeforeAnniversary) {
-      yearsDifference--;
-    }
+    if (isBeforeAnniversary) yearsDifference--;
 
     const replacementStatus = yearsDifference >= 3 ? "Yes" : "No";
 
     return { yearsDifference, replacementStatus };
   };
+  // const handleEdit = (record) => {
+  //   console.log("Edit record:", record);
+  // };
 
-  const handleEdit = (record) => {
-    console.log("Edit record:", record);
-  };
-
-  const handleAction = async (record, actionType, value) => {
+  const handleAction = async (record, actionType, replacementValue = null) => {
     try {
       const token = localStorage.getItem("adminToken");
+
+      if (!token) {
+        message.error("Unauthorized! Please log in again.");
+        return;
+      }
+
+      // Map actionType to API endpoints
       const urlMap = {
         check: `${process.env.REACT_APP_API_URL}/admin/check-application/${record._id}`,
         recommend: `${process.env.REACT_APP_API_URL}/admin/recommend-application/${record._id}`,
@@ -172,26 +176,35 @@ const TransferApplications = () => {
       };
 
       const url = urlMap[actionType];
-      if (!url) return;
+      if (!url) {
+        console.warn("Invalid actionType:", actionType);
+        return;
+      }
 
-      // Send request data for the 'approve' or 'reject' actions
-      const requestData =
-        actionType === "approve" || actionType === "reject" ? { value } : {};
+      // Send request to the server with the appropriate action
+      const response = await axios.put(
+        url,
+        replacementValue ? { Replacement: replacementValue } : {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      const response = await axios.put(url, requestData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      console.log("Server response:", response.data);
 
-      if (response.data.success) {
-        message.success(
-          `${
-            actionType.charAt(0).toUpperCase() + actionType.slice(1)
-          } action completed successfully`
-        );
+      if (response.data.success || response.data.message) {
+        // Construct action message
+        const actionMessage =
+          actionType === "recommend"
+            ? "Recommendation Added"
+            : `${actionType} done`;
 
-        // Update UI optimistically based on action type
+        message.success(response.data.message || actionMessage);
+        window.location.reload(); // Refresh the page
+
+        // Update local application state to disable further actions and update status color
         setApplications((prev) =>
           prev.map((app) =>
             app._id === record._id
@@ -200,16 +213,25 @@ const TransferApplications = () => {
                   [`is${
                     actionType.charAt(0).toUpperCase() + actionType.slice(1)
                   }`]: true,
-                  Replacement: value ?? app.Replacement, // Handle value for approve/reject
+                  Replacement:
+                    replacementValue || app.Replacement || "No" || "Yes",
+                  disabled: true, // Mark this application as "processed"
+                  status: actionType, // Track the action in the status
                 }
               : app
           )
         );
+      } else {
+        message.error("Unexpected server response");
       }
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Action error:",
+        error.response?.data || error.message || error
+      );
       message.error(
-        error.response?.data?.error || "Something went wrong, try again later"
+        error.response?.data?.error ||
+          "Action failed. Check console for more info."
       );
     }
   };
@@ -287,37 +309,53 @@ const TransferApplications = () => {
 
     {
       title: "Eligibility (more than 3 years)",
-      dataIndex: "eligibility",
       key: "eligibility",
       render: (text, record) => {
-        const { yearsDifference, replacementStatus } = calculateEligibility(
-          record.duty_assumed_date
-        );
-        return (
-          <div>
-            <br />
-            <span> {replacementStatus}</span>
-            <br />
-          </div>
-        );
+        const dutyDate = record.userId?.duty_assumed_date;
+        const { replacementStatus } = calculateEligibility(dutyDate);
+        return <span>{replacementStatus}</span>;
       },
-    },
+    }
+    ,
 
     {
       title: "Replacement",
       dataIndex: "Replacement",
       key: "Replacement",
-      render: (text, record) => (
-        <Select
-          defaultValue="No" // Default to "No"
-          onChange={(value) => handleAction(record, "checkOrRecommend", value)}
-        >
-          <Select.Option value="Yes">Yes</Select.Option>
-          <Select.Option value="No">No</Select.Option>
-        </Select>
-      ),
-    },
+      render: (text, record) => {
+        const showDropdown =
+          !record.disabled &&
+          (adminRole === "approveAdmin" || adminRole === "superAdmin");
 
+        if (!showDropdown) {
+          return <span>{record.Replacement || "No"}</span>;
+        }
+
+        return (
+          <Select
+            value={record.Replacement || "No"}
+            onChange={(value) => {
+              // Update the record with the selected value
+              record.Replacement = value;
+
+              // Trigger the action with the new Replacement value
+              handleAction(record, "checkOrRecommend", value);
+
+              // Re-render with new state
+              setApplications((prev) =>
+                prev.map((app) =>
+                  app._id === record._id ? { ...app, Replacement: value } : app
+                )
+              );
+            }}
+            disabled={record.disabled}
+          >
+            <Select.Option value="Yes">Yes</Select.Option>
+            <Select.Option value="No">No</Select.Option>
+          </Select>
+        );
+      },
+    },
     // Show Replacement Officer for all roles
 
     {
@@ -367,20 +405,17 @@ const TransferApplications = () => {
               <div style={{ display: "flex", gap: 8 }}>
                 <Button
                   type="primary"
-                  onClick={() => {
-                    handleAction(record, "approve");
-                    record.isApproved = true;
-                  }}
+                  onClick={() => handleAction(record, "approve")}
+                  disabled={record.isApproved || record.disabled} // Disable if already approved or action taken
                 >
-                  {record.isApproved ? "Approve" : "Approve"}
+                  {record.isApproved ? "Approved" : "Approve"}
                 </Button>
 
                 <Button
                   type="primary"
-                  onClick={() => {
-                    handleAction(record, "reject");
-                    record.isRejected = true;
-                  }}
+                  danger
+                  onClick={() => handleAction(record, "reject")}
+                  disabled={record.isRejected || record.disabled} // Disable if already rejected or action taken
                 >
                   {record.isRejected ? "Rejected" : "Not Approve"}
                 </Button>
@@ -403,35 +438,29 @@ const TransferApplications = () => {
               <div style={{ display: "flex", gap: 8 }}>
                 {adminRole === "checkingAdmin" && (
                   <Button
-                    type="primary"
-                    onClick={() => {
-                      handleAction(record, "check");
-                      record.isChecked = true;
-                    }}
+                    type="primary" // Use primary type here
+                    onClick={() => handleAction(record, "check")}
+                    disabled={record.isChecked || record.disabled}
                   >
-                    {record.isChecked ? "Check" : "Check"}
+                    {record.isChecked ? "Checked" : "Check"}
                   </Button>
                 )}
 
                 {adminRole === "recommendAdmin" && (
                   <Button
                     type="primary"
-                    onClick={() => {
-                      handleAction(record, "recommend");
-                      record.isRecommended = true;
-                    }}
+                    onClick={() => handleAction(record, "recommend")}
+                    disabled={record.isRecommended || record.disabled}
                   >
-                    {record.isRecommended ? "Recommend" : "Recommend"}
+                    {record.isRecommended ? "Recommended" : "Recommend"}
                   </Button>
                 )}
 
                 {adminRole === "superAdmin" && (
                   <Button
                     type="primary"
-                    onClick={() => {
-                      handleAction(record, "process");
-                      record.isProcessed = true;
-                    }}
+                    onClick={() => handleAction(record, "process")}
+                    disabled={record.isProcessed || record.disabled}
                   >
                     {record.isProcessed ? "Processed" : "Process"}
                   </Button>
@@ -457,4 +486,3 @@ const TransferApplications = () => {
 };
 
 export default TransferApplications;
-//

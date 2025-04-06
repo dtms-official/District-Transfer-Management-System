@@ -39,7 +39,7 @@ const UserViewProfile = () => {
   const adminRole = adminData?.adminRole || null;
 
   const sections = [
-    { key: "BasicDetails", label: "Basic Details", icon: <IdcardOutlined /> },
+    { key: "UserProfile", label: "Basic Details", icon: <IdcardOutlined /> },
     { key: "WorkHistory", label: "Work History", icon: <ProfileOutlined /> },
     { key: "LeaveDetails", label: "Leave Details", icon: <CalendarOutlined /> },
     {

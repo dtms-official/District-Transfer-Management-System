@@ -165,7 +165,7 @@ const getRejectedTransferApplications = async (req, res) => {
     const workplaceId = decodedToken.workplace_id; // Get workplace_id from token
 
     const rejectedTransferApplcations = await TransferApplication.find({
-      isSubmited: false,
+      isSubmited: true,
       isChecked: false,
       isRecommended: false,
       isRejected: true,
@@ -187,127 +187,116 @@ const getRejectedTransferApplications = async (req, res) => {
 
 // For super admin only
 const approveTransferApplication = async (req, res) => {
-  const { TransferApplcationId } = req.params;
+  const { id } = req.params; // Using 'id' instead of 'TransferApplcationId'
 
   try {
-    const transferApplcation = await TransferApplication.findById(
-      TransferApplcationId
-    );
-    if (!transferApplcation) {
-      return res.status(404).json({ error: "Transfer applcation not found" });
+    const transferApplication = await TransferApplication.findById(id);
+    if (!transferApplication) {
+      return res.status(404).json({ error: "Transfer application not found" });
     }
 
-    transferApplcation.isSubmited = true;
-    transferApplcation.isChecked = true;
-    transferApplcation.isRecommended = true;
-    transferApplcation.isApproved = true; // Approve TransferApplcation
-    transferApplcation.isRejected = false;
-    transferApplcation.rejectReason = null;
+    // Update the application status to approved
+    transferApplication.isSubmited = true;
+    transferApplication.isChecked = true;
+    transferApplication.isRecommended = true; // Mark as recommended
+    transferApplication.isApproved = true; // Mark as approved
+    transferApplication.isRejected = false;
+    transferApplication.rejectReason = null;
 
-    await TransferApplication.save();
+    // Save the updated document
+    await transferApplication.save();
 
-    res
-      .status(200)
-      .json({ message: "Transfer applcation approved successfully" });
+    res.status(200).json({ message: "Transfer application approved successfully" });
   } catch (error) {
     console.error("Approval Error:", error.message);
     res.status(500).json({
-      error: "Cannot approve the transfer applcation right now. try again",
+      error: "Cannot approve the transfer application right now. Try again.",
     });
   }
 };
 
 // check TransferApplcation TransferApplcation
 const checkTransferApplication = async (req, res) => {
-  const { TransferApplcationId } = req.params;
+  const { id } = req.params;
 
   try {
-    const transferApplcation = await TransferApplication.findById(
-      TransferApplcationId
-    );
-    if (!transferApplcation) {
-      return res.status(404).json({ error: "Transfer applcation not found" });
+    const transferApplication = await TransferApplication.findById(id);
+    if (!transferApplication) {
+      return res.status(404).json({ error: "Transfer application not found" });
     }
 
-    transferApplcation.isSubmited = true;
-    transferApplcation.isChecked = true; // check TransferApplcation
-    transferApplcation.isRecommended = false;
-    transferApplcation.isApproved = false;
-    transferApplcation.isRejected = false;
-    transferApplcation.rejectReason = null;
-    await TransferApplcation.save();
+    transferApplication.isSubmited = true;
+    transferApplication.isChecked = true;
+    transferApplication.isRecommended = false;
+    transferApplication.isApproved = false;
+    transferApplication.isRejected = false;
+    transferApplication.rejectReason = null;
+    
+    await transferApplication.save();
 
-    res
-      .status(200)
-      .json({ message: "Transfer applcation checked successfully" });
+    res.status(200).json({ message: "Transfer application checked successfully" });
   } catch (error) {
-    console.error("Approval Error:", error.message);
+    console.error("Check Error:", error.message);
     res.status(500).json({
-      error: "Cannot check the transfer applcation right now. try again",
+      error: "Cannot check the transfer application right now. Try again.",
     });
   }
 };
 
 // Approve TransferApplcation
 const recommendTransferApplication = async (req, res) => {
-  const { TransferApplcationId } = req.params;
+  const { id } = req.params; // Using 'id' instead of 'TransferApplcationId'
 
   try {
-    const transferApplcation = await TransferApplication.findById(
-      TransferApplcationId
-    );
-    if (!transferApplcation) {
-      return res.status(404).json({ error: "Transfer applcation not found" });
+    const transferApplication = await TransferApplication.findById(id);
+    if (!transferApplication) {
+      return res.status(404).json({ error: "Transfer application not found" });
     }
 
-    transferApplcation.isSubmited = true;
-    transferApplcation.isChecked = true;
-    transferApplcation.isRecommended = true; // Recommended TransferApplcation
-    transferApplcation.isApproved = false;
-    transferApplcation.isRejected = false;
-    transferApplcation.rejectReason = null;
-    await TransferApplication.save();
+    // Update the application status
+    transferApplication.isSubmited = true;
+    transferApplication.isChecked = true;
+    transferApplication.isRecommended = true; // Mark as recommended
+    transferApplication.isApproved = false;
+    transferApplication.isRejected = false;
+    transferApplication.rejectReason = null;
 
-    res
-      .status(200)
-      .json({ message: "Transfer applcation recommended successfully" });
+    // Save the updated document
+    await transferApplication.save();
+
+    res.status(200).json({ message: "Transfer application recommended successfully" });
   } catch (error) {
-    console.error("Approval Error:", error.message);
+    console.error("Recommendation Error:", error.message);
     res.status(500).json({
-      error: "Cannot recommend the transfer applcation right now. try again",
+      error: "Cannot recommend the transfer application right now. Try again.",
     });
   }
 };
 
-// Reject TransferApplcation (Delete TransferApplcation)
 const rejectTransferApplication = async (req, res) => {
-  const { TransferApplcationId } = req.params;
-  const { rejectReason } = req.body;
+  const { id } = req.params; // Using 'id' instead of 'TransferApplcationId'
 
   try {
-    const transferApplcation = await TransferApplication.findByIdAndUpdate(
-      TransferApplcationId,
+    const transferApplication = await TransferApplication.findByIdAndUpdate(
+      id, // Using 'id' here
       {
-        isSubmited: false,
+        isSubmited: true,
         isChecked: false,
         isRecommended: false,
         isApproved: false,
         isRejected: true,
-        rejectReason,
       },
       { new: true }
     );
-    if (!transferApplcation)
-      return res.status(404).json({ message: "Transfer applcation not found" });
+    if (!transferApplication)
+      return res.status(404).json({ message: "Transfer application not found" });
 
     res.status(200).json({
-      message: "Transfer applcation rejected successfully",
-      transferApplcation,
+      message: "Transfer application rejected successfully",
+      transferApplication,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Something went wrong. Please try again later" });
+    res.status(500).json({ error: "Something went wrong. Please try again later" });
   }
 };
 
@@ -323,3 +312,4 @@ module.exports = {
   approveTransferApplication,
   rejectTransferApplication,
 };
+
