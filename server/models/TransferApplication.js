@@ -27,17 +27,24 @@ const TransferApplcationSchema = new mongoose.Schema({
     required: [true, "Workplace ID is required"],
   },
 
-  workplace_id: { type: String , required: true},
+  workplace_id: { type: String, required: true },
 
   remarks: { type: String },
   score: { type: String },
   transferDesision: { type: String },
+  transferDesisionType: { type: String },
+  transfered_workplace_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Workplace",
+    default: null,
+  },
   isSubmited: { type: Boolean, default: true }, // isSubmited status
   isChecked: { type: Boolean, default: false }, // isChecked status
   isRecommended: { type: Boolean, default: false }, // isRecommended status
   isApproved: { type: Boolean, default: false }, // isApproved status
   isRejected: { type: Boolean, default: false }, // isRejected status
-  isProccessed: { type: Boolean, default: false }, // isProccessed status
+  isProcessed: { type: Boolean, default: false }, // isProccessed status
+  isPublished: { type: Boolean, default: false }, // isPublished status
   Replacement: { type: Boolean, default: false }, // Replacement
   Replacement_userId: {
     type: mongoose.Schema.Types.ObjectId,

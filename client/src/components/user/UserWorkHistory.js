@@ -161,6 +161,18 @@ const UserWorkHistory = ({ user }) => {
       key: "nature_of_duty",
     },
     {
+      title: "Outer district",
+      dataIndex: "outer_district",
+      key: "outer_district",
+      render: (text) => (text ? "Yes" : "No"),
+    },
+    {
+      title: "Resident distance",
+      dataIndex: "resident_distance",
+      key: "resident_distance",
+      render: (text) => (text ? "Yes" : "No"),
+    },
+    {
       title: "Type of Transfer",
       dataIndex: "type_of_transfer",
       key: "type_of_transfer",
@@ -393,6 +405,52 @@ const UserWorkHistory = ({ user }) => {
                 rules={[{ required: true, message: "This field is required" }]}
               >
                 <DatePicker format="YYYY-MM-DD" style={{ width: "100%" }} />
+              </Form.Item>
+              <Form.Item
+                label="Have you worked in an outer district?"
+                name="outer_district"
+                style={{ flex: "1 1 48%" }}
+                rules={[{ required: true, message: "This field is required" }]}
+              >
+                <Select
+                  placeholder="Select District"
+                  style={{ width: "100%" }}
+                >
+                  <Option value="Ampara">Ampara</Option>
+                  <Option value="Anuradhapura">Anuradhapura</Option>
+                  <Option value="Badulla">Badulla</Option>
+                  <Option value="Batticaloa">Batticaloa</Option>
+                  <Option value="Colombo">Colombo</Option>
+                  <Option value="Galle">Galle</Option>
+                  <Option value="Gampaha">Gampaha</Option>
+                  <Option value="Hambantota">Hambantota</Option>
+                  <Option value="Jaffna">Jaffna</Option>
+                  <Option value="Kalutara">Kalutara</Option>
+                  <Option value="Kandy">Kandy</Option>
+                  <Option value="Kegalle">Kegalle</Option>
+                  <Option value="Kilinochchi">Kilinochchi</Option>
+                  <Option value="Kurunegala">Kurunegala</Option>
+                  <Option value="Mannar">Mannar</Option>
+                  <Option value="Matale">Matale</Option>
+                  <Option value="Matara">Matara</Option>
+                  <Option value="Monaragala">Monaragala</Option>
+                  <Option value="Mullaitivu">Mullaitivu</Option>
+                  <Option value="Nuwara Eliya">Nuwara Eliya</Option>
+                  <Option value="Polonnaruwa">Polonnaruwa</Option>
+                  <Option value="Puttalam">Puttalam</Option>
+                  <Option value="Ratnapura">Ratnapura</Option>
+                  <Option value="Trincomalee">Trincomalee</Option>
+                  <Option value="Vavuniya">Vavuniya</Option>
+                </Select>
+              </Form.Item>
+
+              <Form.Item
+                label="What is the distance?"
+                name="resident_distance"
+                style={{ flex: "1 1 48%" }}
+                rules={[{ required: true, message: "This field is required" }]}
+              >
+                <Input type="number" />
               </Form.Item>
             </>
           )}

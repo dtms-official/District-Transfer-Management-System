@@ -21,6 +21,9 @@ const UserWorkHistorySchema = new mongoose.Schema(
     workplace_city: { type: String, required: true },
     workplace_postalcode: { type: String }, // Fixed data type
     designation: { type: String, required: true },
+
+    outer_district: { type: String, required: true },
+    resident_distance: { type: Number, required: true },
   },
   { timestamps: true }
 );

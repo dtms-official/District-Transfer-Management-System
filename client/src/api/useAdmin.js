@@ -29,6 +29,7 @@ export const fetchCheckedUsers = async (token, setCheckedUsers, setMessage) => {
   }
 };
 
+// for applcaitions
 export const fetchRecommendedUsers = async (token, setRecommendedUsers, setMessage) => {
   try {
     const response = await axios.get(
@@ -46,3 +47,46 @@ export const fetchRecommendedUsers = async (token, setRecommendedUsers, setMessa
 };
 
 
+export const fetchPendingApplications = async (token, setPendingApplications, setMessage) => {
+  try {
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_URL}/admin/pending-applications`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    setPendingApplications(response.data);
+  } catch (error) {
+    setMessage("❌ Error fetching pending Applications.");
+  }
+};
+
+export const fetchCheckedApplications = async (token, setCheckedApplications, setMessage) => {
+  try {
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_URL}/admin/checked-applications`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    setCheckedApplications(response.data);
+  } catch (error) {
+    const errorMessage =
+      error.response?.data?.message || "❌ Error fetching applications.";
+    setMessage(errorMessage);
+  }
+};
+
+export const fetchRecommendedApplications = async (token, setRecommendedApplications, setMessage) => {
+  try {
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_URL}/admin/recommended-applications`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    setRecommendedApplications(response.data);
+  } catch (error) {
+    const errorMessage =
+      error.response?.data?.message || "❌ Error fetching applications.";
+    setMessage(errorMessage);
+  }
+};

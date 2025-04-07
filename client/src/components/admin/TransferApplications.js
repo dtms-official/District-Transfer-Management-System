@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Select, Tooltip, message } from "antd";
+import { Table, Button, Tooltip, message, Alert, notification } from "antd";
 import axios from "axios";
 import useCheckAdminAuth from "../../utils/checkAdminAuth";
 
@@ -57,14 +57,7 @@ const TransferApplications = () => {
   const { adminData } = useCheckAdminAuth();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(false);
-  // const [users, setUsers] = useState([]);
-  // const [activeWindow, setActiveWindow] = useState(null);
-
-  // Get admin role and workplace ID from adminData
   const [workplaceData, setWorkplaceData] = useState([]);
-  // const [selectedWorkplace, setSelectedWorkplace] = useState(null); // ✅ Fix variable declaration
-
-  // const workplaceId = adminData.workplace_id || null;
   const adminRole = adminData.adminRole || null;
 
   const [transferWindows, setTransferWindows] = useState([]); // ✅ Correct state variable
@@ -112,7 +105,7 @@ const TransferApplications = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/admin/total-transfer-application`,
+          `${process.env.REACT_APP_API_URL}/admin/total-applications`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -154,85 +147,40 @@ const TransferApplications = () => {
 
     return { yearsDifference, replacementStatus };
   };
-  // const handleEdit = (record) => {
-  //   console.log("Edit record:", record);
-  // };
 
-  const handleAction = async (record, actionType, replacementValue = null) => {
+  const update = async (id, actionType) => {
+    setLoading(true);
     try {
-      const token = localStorage.getItem("adminToken");
-
-      if (!token) {
-        message.error("Unauthorized! Please log in again.");
-        return;
-      }
-
-      // Map actionType to API endpoints
-      const urlMap = {
-        check: `${process.env.REACT_APP_API_URL}/admin/check-application/${record._id}`,
-        recommend: `${process.env.REACT_APP_API_URL}/admin/recommend-application/${record._id}`,
-        approve: `${process.env.REACT_APP_API_URL}/admin/approve-application/${record._id}`,
-        reject: `${process.env.REACT_APP_API_URL}/admin/reject-application/${record._id}`,
-      };
-
-      const url = urlMap[actionType];
-      if (!url) {
-        console.warn("Invalid actionType:", actionType);
-        return;
-      }
-
-      // Send request to the server with the appropriate action
-      const response = await axios.put(
-        url,
-        replacementValue ? { Replacement: replacementValue } : {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      await axios.put(
+        `${process.env.REACT_APP_API_URL}/admin/transfer-application/${actionType}/${id}`
       );
 
-      console.log("Server response:", response.data);
-
-      if (response.data.success || response.data.message) {
-        // Construct action message
-        const actionMessage =
-          actionType === "recommend"
-            ? "Recommendation Added"
-            : `${actionType} done`;
-
-        message.success(response.data.message || actionMessage);
-        window.location.reload(); // Refresh the page
-
-        // Update local application state to disable further actions and update status color
-        setApplications((prev) =>
-          prev.map((app) =>
-            app._id === record._id
-              ? {
-                  ...app,
-                  [`is${
-                    actionType.charAt(0).toUpperCase() + actionType.slice(1)
-                  }`]: true,
-                  Replacement:
-                    replacementValue || app.Replacement || "No" || "Yes",
-                  disabled: true, // Mark this application as "processed"
-                  status: actionType, // Track the action in the status
-                }
-              : app
-          )
-        );
+      if (actionType === "process") {
+        notification.success({
+          description: "Processed successfully",
+          placement: "topRight",
+        });
+      } else if (actionType === "find") {
+        notification.success({
+          description: "Replacement officer found successfully",
+          placement: "topRight",
+        });
       } else {
-        message.error("Unexpected server response");
+        notification.error({
+          description: "Something went wrong . please try again later",
+          placement: "topRight",
+        });
       }
+
+      window.location.reload();
     } catch (error) {
-      console.error(
-        "Action error:",
-        error.response?.data || error.message || error
-      );
-      message.error(
-        error.response?.data?.error ||
-          "Action failed. Check console for more info."
-      );
+      console.error(error.response?.data?.error || "Something went wrong");
+      notification.error({
+        description: error.response?.data?.error || "Something went wrong",
+        placement: "topRight",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -315,62 +263,21 @@ const TransferApplications = () => {
         const { replacementStatus } = calculateEligibility(dutyDate);
         return <span>{replacementStatus}</span>;
       },
-    }
-    ,
-
+    },
     {
       title: "Replacement",
       dataIndex: "Replacement",
       key: "Replacement",
-      render: (text, record) => {
-        const showDropdown =
-          !record.disabled &&
-          (adminRole === "approveAdmin" || adminRole === "superAdmin");
-
-        if (!showDropdown) {
-          return <span>{record.Replacement || "No"}</span>;
-        }
-
-        return (
-          <Select
-            value={record.Replacement || "No"}
-            onChange={(value) => {
-              // Update the record with the selected value
-              record.Replacement = value;
-
-              // Trigger the action with the new Replacement value
-              handleAction(record, "checkOrRecommend", value);
-
-              // Re-render with new state
-              setApplications((prev) =>
-                prev.map((app) =>
-                  app._id === record._id ? { ...app, Replacement: value } : app
-                )
-              );
-            }}
-            disabled={record.disabled}
-          >
-            <Select.Option value="Yes">Yes</Select.Option>
-            <Select.Option value="No">No</Select.Option>
-          </Select>
-        );
-      },
+      render: (text, record) => (
+        <span>{record.Replacement ? "Yes" : "No"}</span>
+      ),
     },
-    // Show Replacement Officer for all roles
 
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
       render: (text, record) => renderStatus(record),
-    },
-    {
-      title: "Replacement Officer",
-      dataIndex: "replacementOfficer",
-      key: "replacementOfficer",
-      render: (text) => {
-        return text && text.trim() !== "" ? text : "N/A";
-      },
     },
 
     {
@@ -383,86 +290,60 @@ const TransferApplications = () => {
     },
 
     {
-      title: "Transfer Decision Recommendation",
-      dataIndex: "transferDecisionRecommendation",
-      key: "transferDecisionRecommendation",
-      render: (text, record) => {
-        if (record.isProcessed) {
-          return text || "Processed";
-        }
-        return text || "Pending";
+      title: "Transfer Decision",
+      dataIndex: "transferDesision",
+      key: "transferDesision",
+    },
+
+    {
+      title: "Transfer Decision Type",
+      dataIndex: "transferDesisionType",
+      key: "transferDesisionType",
+      render: (text) => {
+        return text && text.trim() !== "" ? text : "N/A";
+      },
+    },
+    {
+      title: "Transfer Workplace",
+      dataIndex: "transfered_workplace_id",
+      key: "transfered_workplace_id",
+      render: (workplace_id) => {
+        const workplace = workplaceData.find(
+          (wp) => wp._id === workplace_id
+        );
+        return workplace ? workplace.workplace : "N/A";
+      },
+    },
+    {
+      title: "Replacement Officer",
+      dataIndex: "replacementOfficer",
+      key: "replacementOfficer",
+      render: (text) => {
+        return text && text.trim() !== "" ? text : "N/A";
       },
     },
 
-    ...(adminRole === "approveAdmin"
+    ...(adminRole === "superAdmin"
       ? [
           {
             title: "Action",
             key: "action",
-            fixed: "right",
-            width: 250,
             render: (_, record) => (
               <div style={{ display: "flex", gap: 8 }}>
                 <Button
                   type="primary"
-                  onClick={() => handleAction(record, "approve")}
-                  disabled={record.isApproved || record.disabled} // Disable if already approved or action taken
+                  onClick={() => update(record.userId._id, "process")}
+                  disabled={record.isProcessed} // Disable if processed
                 >
-                  {record.isApproved ? "Approved" : "Approve"}
+                  Process
                 </Button>
 
-                <Button
-                  type="primary"
-                  danger
-                  onClick={() => handleAction(record, "reject")}
-                  disabled={record.isRejected || record.disabled} // Disable if already rejected or action taken
-                >
-                  {record.isRejected ? "Rejected" : "Not Approve"}
-                </Button>
-              </div>
-            ),
-          },
-        ]
-      : []),
-
-    ...(adminRole === "checkingAdmin" ||
-    adminRole === "recommendAdmin" ||
-    adminRole === "superAdmin"
-      ? [
-          {
-            title: "Action",
-            key: "action",
-            fixed: "right",
-            width: 250,
-            render: (_, record) => (
-              <div style={{ display: "flex", gap: 8 }}>
-                {adminRole === "checkingAdmin" && (
-                  <Button
-                    type="primary" // Use primary type here
-                    onClick={() => handleAction(record, "check")}
-                    disabled={record.isChecked || record.disabled}
-                  >
-                    {record.isChecked ? "Checked" : "Check"}
-                  </Button>
-                )}
-
-                {adminRole === "recommendAdmin" && (
+                {record.isProcessed && record.Replacement_userId === null && (
                   <Button
                     type="primary"
-                    onClick={() => handleAction(record, "recommend")}
-                    disabled={record.isRecommended || record.disabled}
+                    onClick={() => update(record.userId._id, "find")}
                   >
-                    {record.isRecommended ? "Recommended" : "Recommend"}
-                  </Button>
-                )}
-
-                {adminRole === "superAdmin" && (
-                  <Button
-                    type="primary"
-                    onClick={() => handleAction(record, "process")}
-                    disabled={record.isProcessed || record.disabled}
-                  >
-                    {record.isProcessed ? "Processed" : "Process"}
+                    Find Replacement
                   </Button>
                 )}
               </div>
@@ -471,15 +352,46 @@ const TransferApplications = () => {
         ]
       : []),
   ];
-
   return (
-    <div>
+    <div className="mt-10 mx-6 sm:mx-12">
+      <Alert
+        message="Status Colors Information"
+        description={
+          <div className="space-y-2">
+            {["orange", "blue", "green", "red"].map((color, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <div
+                  style={{
+                    width: "12px",
+                    height: "12px",
+                    borderRadius: "50%",
+                    backgroundColor: color,
+                  }}
+                ></div>
+                <span>
+                  {index === 0
+                    ? "Checked (Yellow)"
+                    : index === 1
+                    ? "Recommended (Blue)"
+                    : index === 2
+                    ? "Approved (Green)"
+                    : "Not approved (Red)"}
+                </span>
+              </div>
+            ))}
+          </div>
+        }
+        type="info"
+        showIcon
+        className="mb-4"
+      />
       <Table
         columns={columns}
         dataSource={applications}
         loading={loading}
         rowKey="id"
         pagination={{ pageSize: 10 }}
+        scroll={{ x: "max-content" }}
       />
     </div>
   );

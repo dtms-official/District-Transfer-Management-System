@@ -12,7 +12,6 @@ const UserDiseaseSchema = new mongoose.Schema(
     treatment_date: { type: Date }, // Store date if "Yes"
     soft_work_recommendation: { type: Boolean, required: true },
     soft_work_period: { type: Number }, // Use Date type for dates
-
   },
   { timestamps: true }
 );

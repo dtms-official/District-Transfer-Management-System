@@ -1,94 +1,150 @@
-const mongoose = require("mongoose");
-const User = require("../models/User");
-const Workplace = require("../models/Workplace");
-const TransferApplication = require("../models/TransferApplication");
+const User = require("../../models/User");
+const UserDependence = require("../../models/UserDependence");
+const UserDisease = require("../../models/UserDisease");
+const UserDisability = require("../../models/UserDisability");
+const UserWorkHistory = require("../../models/UserWorkHistory");
+const UserPettion = require("../../models/UserPettion");
+const UserMedicalCondition = require("../../models/UserMedicalCondition");
+const Workplace = require("../../models/Workplace");
+const TransferApplication = require("../../models/TransferApplication");
+const { calculateWorkplaceDistance } = require("./calculateWorkplaceDistance");
 
-// Distance Calculator using Haversine formula
-const calculateDistance = (lat1, lon1, lat2, lon2) => {
-  const toRad = (value) => (value * Math.PI) / 180;
-  const R = 6371;
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-    Math.sin(dLon / 2) ** 2;
-  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-};
+function generateScore(
+  user,
+  dependence,
+  disease,
+  disability,
+  medicalCondition,
+  workhistory,
+  pettision
+) {
+  let score = 0;
 
-// Classify Workplace Distance
-const classifyDistance = (distance) => {
-  if (distance < 100) return "preferred";
-  else if (distance <= 160) return "moderate";
-  else return "difficult";
-};
+  const currentDate = new Date();
+  const dutyDateObj = new Date(user.duty_assumed_date);
 
-// Controller: Process transfer with logic breakdown
-exports.processTransfer = async (req, res) => {
+  let yearsDifference = currentDate.getFullYear() - dutyDateObj.getFullYear();
+
+  if (yearsDifference >= 3) score += 50;
+
+  const birthDate = new Date(user.dateOfBirth);
+  const age = new Date().getFullYear() - birthDate.getFullYear();
+  if (age < 58) score += 20;
+
+  if (workhistory && workhistory.outer_district !== "Ampara") score += 10;
+  if (workhistory && workhistory.resident_distance > 15) score += 15;
+  if (user.civil_status === "Married") score += 10;
+  if (user.gender === "Female") score += 15;
+  if (!pettision) score += 25;
+  if (dependence && dependence.natureOfDependency === "Infant") score += 5;
+  if (
+    (dependence && dependence.natureOfDependency === "School Going") ||
+    dependence.natureOfDependency === "Non-School Going Child"
+  )
+    score += 10;
+  if (dependence && dependence.breastfeeding_required === true) score += 5;
+  if (
+    (dependence && dependence.natureOfDependency === "Special Need") ||
+    dependence.natureOfDependency === "Affected by Chronic Disease" ||
+    dependence.natureOfDependency === "Elderly Dependent" ||
+    dependence.natureOfDependency === "Disabled Dependant"
+  )
+    score += 10;
+  if (disease) score += 15;
+  if (disease && disease.soft_work_recommendation === true) score += 5;
+  if (medicalCondition) score += 10;
+  if (disability) score += 15;
+  if (disability && disability.level === "Severe") score += 15;
+
+  return score;
+}
+
+exports.transferProcess = async (req, res) => {
+  const { userId } = req.params;
+
   try {
-    const { applicationId } = req.params;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
 
-    const application = await TransferApplication.findById(applicationId)
-      .populate("userId")
-      .populate("preferWorkplace_1 preferWorkplace_2 preferWorkplace_3");
+    const transferApplication = await TransferApplication.findOne({ userId });
+    if (!transferApplication) {
+      return res.status(404).json({
+        success: false,
+        error: "Transfer application not found",
+      });
+    }
 
-    if (!application) return res.status(404).json({ error: "Application not found" });
+    const dependence = await UserDependence.findOne({ userId });
+    const disease = await UserDisease.findOne({ userId });
+    const disability = await UserDisability.findOne({ userId });
+    const medicalCondition = await UserMedicalCondition.findOne({ userId });
+    const workhistory = await UserWorkHistory.findOne({ userId });
+    const pettision = await UserPettion.findOne({ userId });
 
-    const user = application.userId;
+    const workplaces = await Promise.all([
+      Workplace.findById(transferApplication.preferWorkplace_1),
+      Workplace.findById(transferApplication.preferWorkplace_2),
+      Workplace.findById(transferApplication.preferWorkplace_3),
+    ]);
 
-    const userLat = parseFloat(user.GPS_latitude);
-    const userLon = parseFloat(user.GPS_longitude);
+    if (workplaces.some((wp) => !wp)) {
+      return res.status(404).json({
+        success: false,
+        error: "Preferred workplaces not found",
+      });
+    }
 
-    const dist1 = calculateDistance(userLat, userLon, application.preferWorkplace_1.GPS_latitude, application.preferWorkplace_1.GPS_longitude);
-    const dist2 = calculateDistance(userLat, userLon, application.preferWorkplace_2.GPS_latitude, application.preferWorkplace_2.GPS_longitude);
-    const dist3 = calculateDistance(userLat, userLon, application.preferWorkplace_3.GPS_latitude, application.preferWorkplace_3.GPS_longitude);
+    const categorizedWorkplaces = await calculateWorkplaceDistance(
+      user,
+      workplaces
+    );
 
-    const preferWorkplace_1_category = classifyDistance(dist1);
-    const preferWorkplace_2_category = classifyDistance(dist2);
-    const preferWorkplace_3_category = classifyDistance(dist3);
+    const score = generateScore(
+      user,
+      dependence,
+      disease,
+      disability,
+      medicalCondition,
+      workhistory,
+      pettision
+    );
 
-    // 🎯 Transfer Logic Points
-    const pointsBreakdown = {
-      notAppliedForTransfer: user.appliedForTransfer === false ? 10 : 0,
-      threeYearsAtWorkplace: user.yearsAtCurrentWorkplace > 3 ? 50 : 0,
-      ageBelow58: (() => {
-        if (user.dateOfBirth) {
-          const age = new Date().getFullYear() - new Date(user.dateOfBirth).getFullYear();
-          return age < 58 ? 20 : 0;
-        }
-        return 0;
-      })(),
-      notWorkedOutsideDistrict: user.workedOutsideDistrict === false ? 10 : 0,
-      notWorkedFarFromResidence: user.workedOver15km === false ? 15 : 0,
-      civilStatusSingle: user.civil_status === "Single" ? 10 : 0,
-      genderMale: user.gender === "Male" ? 15 : 0,
-      noPetitions: user.hasPetitions === false ? 25 : 0,
-      noInfantChild: user.hasInfantChild === false ? 5 : 0,
-      noSchoolChild: user.hasSchoolChild === false ? 10 : 0,
-      notLactatingMother: user.isLactatingMother === false ? 5 : 0,
-      noDependents: user.hasSpecialDependents === false ? 10 : 0,
-      noDisease: user.hasAnyDisease === false ? 15 : 0,
-      noSoftWork: user.needsSoftWork === false ? 5 : 0,
-      noMedicalCondition: user.hasMedicalCondition === false ? 10 : 0,
-      noDisability: user.hasDisability === false ? 15 : 0,
-      noSevereDisability: user.hasSevereDisability === false ? 15 : 0,
-    };
+    let transferWorkplaceId = null;
 
-    const totalScore = Object.values(pointsBreakdown).reduce((a, b) => a + b, 0);
+    if (score < 100) {
+      transferWorkplaceId = transferApplication.preferWorkplace_1; // Easy Workplace
+    } else if (score >= 100 && score <= 160) {
+      transferWorkplaceId = transferApplication.preferWorkplace_2; // Moderate Workplace
+    } else {
+      transferWorkplaceId = transferApplication.preferWorkplace_3; // Difficult Workplace
+    }
+
+    const transferDesision = "Processed";
+    const isProcessed = true;
+    transferApplication.score = score;
+    transferApplication.isProcessed = isProcessed;
+    transferApplication.transferDesision = transferDesision;
+    transferApplication.transfered_workplace_id = transferWorkplaceId; 
+
+    await transferApplication.save();
 
     return res.status(200).json({
-      applicationId,
-      user: user.nameWithInitial || user.firstName,
-      totalScore,
-      scoreBreakdown: pointsBreakdown,
-      workplacePlacements: {
-        preferWorkplace_1: preferWorkplace_1_category,
-        preferWorkplace_2: preferWorkplace_2_category,
-        preferWorkplace_3: preferWorkplace_3_category,
+      success: true,
+      data: {
+        userId,
+        isProcessed,
+        transferDesision,
+        score,
+        categorizedWorkplaces,
+        transfered_workplace_id: transferWorkplaceId, 
       },
     });
   } catch (error) {
-    console.error("Transfer processing error:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 };

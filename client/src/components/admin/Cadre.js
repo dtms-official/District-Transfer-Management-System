@@ -190,7 +190,7 @@ const Cadre = () => {
           setCadres(data); // Store users for further use if needed
           setAllCafres(data); // Potentially reset or store all users if necessary
         } else {
-          message.error("No data found");
+          message.error("No cadre found");
         }
       })
       .catch((error) =>

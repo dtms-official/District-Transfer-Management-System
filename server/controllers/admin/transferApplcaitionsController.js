@@ -1,6 +1,6 @@
-const TransferApplication = require("../../models/TransferApplcation");
-const Admin = require("../../models/Admin");
-const User = require("../../models/User");
+const TransferApplication = require("../../models/TransferApplication");
+// const Admin = require("../../models/Admin");
+// const User = require("../../models/User");
 const jwt = require("jsonwebtoken");
 
 // Get All  TransferApplcations
@@ -17,9 +17,9 @@ const getTotalSubmitedTransferApplications = async (req, res) => {
 
     let filter = { isSubmited: true };
 
-    // if (adminRole !== "superAdmin") {
-    //   filter.workplace_id = workplace_id; // Apply workplace filter for non-superAdmins
-    // }
+    if (adminRole !== "superAdmin") {
+      filter.workplace_id = workplace_id; // Apply workplace filter for non-superAdmins
+    }
 
     const totalTransferApplications = await TransferApplication.find(filter)
       .populate("userId", "nameWithInitial designation duty_assumed_date")
@@ -51,7 +51,9 @@ const getPendingTransferApplications = async (req, res) => {
       isApproved: false,
       isRejected: false,
       workplace_id: workplaceId,
-    });
+    })
+      .populate("userId", "nameWithInitial designation duty_assumed_date")
+      .exec();
 
     res.status(200).json(pendingApplications);
   } catch (error) {
@@ -77,7 +79,9 @@ const getCheckedTransferApplications = async (req, res) => {
       isRejected: false,
       isApproved: false,
       workplace_id: workplaceId,
-    });
+    })
+      .populate("userId", "nameWithInitial designation duty_assumed_date")
+      .exec();
 
     res.status(200).json(checkedTransferApplcations);
   } catch (error) {
@@ -108,7 +112,9 @@ const getRecommendedTransferApplications = async (req, res) => {
       isRejected: false,
       isApproved: false,
       workplace_id: workplaceId, // Match TransferApplcations' workplace_id with admin's
-    });
+    })
+      .populate("userId", "nameWithInitial designation duty_assumed_date")
+      .exec();
 
     res.status(200).json(recommendedTransferApplcations);
   } catch (error) {
@@ -139,7 +145,9 @@ const getApprovedTransferApplications = async (req, res) => {
       isRejected: false,
       isApproved: true,
       workplace_id: workplaceId, // Match TransferApplcations' workplace_id with admin's
-    });
+    })
+      .populate("userId", "nameWithInitial designation duty_assumed_date")
+      .exec();
 
     res.status(200).json(approvedTransferApplcations);
   } catch (error) {
@@ -171,7 +179,9 @@ const getRejectedTransferApplications = async (req, res) => {
       isRejected: true,
       isApproved: false,
       workplace_id: workplaceId, // Match Transfer Applcations' workplace_id with admin's
-    });
+    })
+      .populate("userId", "nameWithInitial designation duty_assumed_date")
+      .exec();
 
     res.status(200).json(rejectedTransferApplcations);
   } catch (error) {
@@ -187,7 +197,7 @@ const getRejectedTransferApplications = async (req, res) => {
 
 // For super admin only
 const approveTransferApplication = async (req, res) => {
-  const { id } = req.params; // Using 'id' instead of 'TransferApplcationId'
+  const { id } = req.params;
 
   try {
     const transferApplication = await TransferApplication.findById(id);
@@ -206,7 +216,9 @@ const approveTransferApplication = async (req, res) => {
     // Save the updated document
     await transferApplication.save();
 
-    res.status(200).json({ message: "Transfer application approved successfully" });
+    res
+      .status(200)
+      .json({ message: "Transfer application approved successfully" });
   } catch (error) {
     console.error("Approval Error:", error.message);
     res.status(500).json({
@@ -231,10 +243,12 @@ const checkTransferApplication = async (req, res) => {
     transferApplication.isApproved = false;
     transferApplication.isRejected = false;
     transferApplication.rejectReason = null;
-    
+
     await transferApplication.save();
 
-    res.status(200).json({ message: "Transfer application checked successfully" });
+    res
+      .status(200)
+      .json({ message: "Transfer application checked successfully" });
   } catch (error) {
     console.error("Check Error:", error.message);
     res.status(500).json({
@@ -264,7 +278,9 @@ const recommendTransferApplication = async (req, res) => {
     // Save the updated document
     await transferApplication.save();
 
-    res.status(200).json({ message: "Transfer application recommended successfully" });
+    res
+      .status(200)
+      .json({ message: "Transfer application recommended successfully" });
   } catch (error) {
     console.error("Recommendation Error:", error.message);
     res.status(500).json({
@@ -289,14 +305,18 @@ const rejectTransferApplication = async (req, res) => {
       { new: true }
     );
     if (!transferApplication)
-      return res.status(404).json({ message: "Transfer application not found" });
+      return res
+        .status(404)
+        .json({ message: "Transfer application not found" });
 
     res.status(200).json({
       message: "Transfer application rejected successfully",
       transferApplication,
     });
   } catch (error) {
-    res.status(500).json({ error: "Something went wrong. Please try again later" });
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later" });
   }
 };
 
@@ -312,4 +332,3 @@ module.exports = {
   approveTransferApplication,
   rejectTransferApplication,
 };
-

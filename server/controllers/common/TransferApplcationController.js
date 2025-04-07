@@ -1,5 +1,5 @@
 const { check, validationResult } = require("express-validator");
-const TransferApplication = require("../../models/TransferApplcation");
+const TransferApplication = require("../../models/TransferApplication");
 const TransferWindow = require("../../models/TransferWindow");
 const Workplace = require("../../models/Workplace");
 const mongoose = require("mongoose");
