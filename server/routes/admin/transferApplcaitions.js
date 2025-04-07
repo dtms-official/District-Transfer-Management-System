@@ -21,6 +21,7 @@ router.put("/reject-application/:id", transferApplcaitions.rejectTransferApplica
 
 // Transfer logic Routes
 router.put("/transfer-application/process/:userId", transferProcessController.transferProcess);
-// router.put("/transfer-application/find/:userId", transferProcessController.assignScore);
+router.put("/transfer-application/find/:userId", transferProcessController.findReplacement);
+router.put("/transfer-application/publish/:userId", transferProcessController.publishApplication);
 
 module.exports = router;

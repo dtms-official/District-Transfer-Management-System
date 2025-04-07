@@ -309,12 +309,11 @@ const UserProfile = ({ user }) => {
             </Select>
           </Form.Item>
           <div className="flex" style={{ flex: "1 1 48%", gap: "20px" }}>
-            <Form.Item label="GPS Longitude" name="GPS_longitude">
-              <Input placeholder="GPS longitude" maxLength={10} />
-            </Form.Item>
-
             <Form.Item label="GPS Latitude" name="GPS_latitude">
               <Input placeholder="GPS latitude" maxLength={10} />
+            </Form.Item>
+            <Form.Item label="GPS Longitude" name="GPS_longitude">
+              <Input placeholder="GPS longitude" maxLength={10} />
             </Form.Item>
 
             <Form.Item>

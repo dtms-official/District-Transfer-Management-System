@@ -112,13 +112,15 @@ exports.transferProcess = async (req, res) => {
     );
 
     let transferWorkplaceId = null;
-
     if (score < 100) {
-      transferWorkplaceId = transferApplication.preferWorkplace_1; // Easy Workplace
+      transferWorkplaceId = transferApplication.preferWorkplace_3; // Difficult Workplace
+      workplaceCategory = "Difficult";
     } else if (score >= 100 && score <= 160) {
       transferWorkplaceId = transferApplication.preferWorkplace_2; // Moderate Workplace
+      workplaceCategory = "Moderate";
     } else {
-      transferWorkplaceId = transferApplication.preferWorkplace_3; // Difficult Workplace
+      transferWorkplaceId = transferApplication.preferWorkplace_1; // Prefered Workplace
+      workplaceCategory = "Prefered";
     }
 
     const transferDesision = "Processed";
@@ -126,7 +128,8 @@ exports.transferProcess = async (req, res) => {
     transferApplication.score = score;
     transferApplication.isProcessed = isProcessed;
     transferApplication.transferDesision = transferDesision;
-    transferApplication.transfered_workplace_id = transferWorkplaceId; 
+    transferApplication.transfered_workplace_id = transferWorkplaceId;
+    transferApplication.transferDesisionType = workplaceCategory;
 
     await transferApplication.save();
 
@@ -137,9 +140,43 @@ exports.transferProcess = async (req, res) => {
         isProcessed,
         transferDesision,
         score,
-        categorizedWorkplaces,
-        transfered_workplace_id: transferWorkplaceId, 
+        transfered_workplace_id: transferWorkplaceId,
+        transferDesisionType: workplaceCategory,
       },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+exports.findReplacement = async (req, res) => {};
+
+exports.publishApplication = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    const transferApplication = await TransferApplication.findOne({ userId });
+    if (!transferApplication) {
+      return res.status(404).json({
+        success: false,
+        error: "Transfer application not found",
+      });
+    }
+
+    transferApplication.isPublished = true;
+    await transferApplication.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Transfer applicaiton published successfully",
     });
   } catch (error) {
     return res.status(500).json({

@@ -2,6 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Table, Button, Tooltip, message, Alert, notification } from "antd";
 import axios from "axios";
 import useCheckAdminAuth from "../../utils/checkAdminAuth";
+import {
+  CheckCircleOutlined,
+  UserSwitchOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 
 // Render Status function with debugging logs
 const renderStatus = (application) => {
@@ -165,6 +170,11 @@ const TransferApplications = () => {
           description: "Replacement officer found successfully",
           placement: "topRight",
         });
+      } else if (actionType === "publish") {
+        notification.success({
+          description: "Transfer applicaiton published successfully",
+          placement: "topRight",
+        });
       } else {
         notification.error({
           description: "Something went wrong . please try again later",
@@ -308,9 +318,7 @@ const TransferApplications = () => {
       dataIndex: "transfered_workplace_id",
       key: "transfered_workplace_id",
       render: (workplace_id) => {
-        const workplace = workplaceData.find(
-          (wp) => wp._id === workplace_id
-        );
+        const workplace = workplaceData.find((wp) => wp._id === workplace_id);
         return workplace ? workplace.workplace : "N/A";
       },
     },
@@ -329,21 +337,34 @@ const TransferApplications = () => {
             title: "Action",
             key: "action",
             render: (_, record) => (
-              <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                 <Button
                   type="primary"
+                  icon={<CheckCircleOutlined />}
                   onClick={() => update(record.userId._id, "process")}
-                  disabled={record.isProcessed} // Disable if processed
+                  disabled={record.isProcessed}
                 >
-                  Process
+                  {record.isProcessed ? "Processed" : "Process"}
                 </Button>
 
                 {record.isProcessed && record.Replacement_userId === null && (
                   <Button
-                    type="primary"
+                    type="dashed"
+                    icon={<UserSwitchOutlined />}
                     onClick={() => update(record.userId._id, "find")}
                   >
                     Find Replacement
+                  </Button>
+                )}
+
+                {record.isProcessed && record.Replacement_userId !== null && (
+                  <Button
+                    type="default"
+                    icon={<UploadOutlined />}
+                    onClick={() => update(record.userId._id, "publish")}
+                    disabled={record.isPublished}
+                  >
+                  {record.isPublished ? "Published" : "Publish"}
                   </Button>
                 )}
               </div>
