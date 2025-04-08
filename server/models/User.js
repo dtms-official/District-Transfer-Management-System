@@ -9,7 +9,11 @@ const UserSchema = new mongoose.Schema(
     gender: { type: String, required: true },
     dateOfBirth: { type: Date, required: true },
     address: { type: String, required: true },
-    workplace_id: { type: String, required: true },
+    workplace_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Workplace",
+      required: true,
+    }, // Foreign key reference
     email: { type: String, default: null, sparse: true },
     contactNumber: { type: String, required: true },
     password: { type: String, required: true },

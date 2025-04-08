@@ -135,9 +135,7 @@ const TransferWindow = () => {
             ? "Currently ongoing transfer window"
             : "No transfer window ongoing"}
         </h2>
-        {pastWindows && (
-          <div></div>
-        )}
+        {pastWindows && <div></div>}
         {activeWindow && (
           <div className="mb-4">
             <p className="text-sm">Transfer Window Name: {activeWindow.name}</p>
@@ -187,7 +185,7 @@ const TransferWindow = () => {
 
             <Form.Item
               name="closingDate"
-              label="Application closing date"
+              label="Application Closing Date"
               rules={[
                 { required: true, message: "Please select a closing date!" },
               ]}

@@ -36,7 +36,7 @@ const HeaderBar = () => {
         display: "flex",
         justifyContent: "flex-end",
         paddingRight: 20,
-        background: "#fff",
+        background: "#fdfbff",
       }}
     >
       <Dropdown menu={{ items: menuItems }} trigger={["click"]}>

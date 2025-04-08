@@ -184,6 +184,12 @@ const Dependence = ({ user }) => {
       render: (text) => (text ? "Yes" : "No"),
     },
     {
+      title: "Does the dependent require breastfeeding",
+      dataIndex: "breastfeeding_required",
+      key: "breastfeeding_required",
+      render: (text) => (text ? "Yes" : "No"),
+    },
+    {
       title: "special need desc",
       dataIndex: "special_need_desc",
       key: "special_need_desc",
@@ -227,7 +233,7 @@ const Dependence = ({ user }) => {
               {/* Nature of Dependency */}
               <Form.Item
                 label="Nature of Dependency"
-                name="nature_of_dependency"
+                name="natureOfDependency"
                 style={{ flex: "1 1 48%" }}
                 rules={[{ required: true, message: "This field is required" }]}
               >
@@ -263,8 +269,8 @@ const Dependence = ({ user }) => {
                   ]}
                 >
                   <Select>
-                    <Option value="Yes">Yes</Option>
-                    <Option value="No">No</Option>
+                    <Option value="true">Yes</Option>
+                    <Option value="false">No</Option>
                   </Select>
                 </Form.Item>
               )}

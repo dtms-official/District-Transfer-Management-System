@@ -1,1 +1,1 @@
-export const MAINTENANCE_MODE = true; // Set to true/false 
+export const MAINTENANCE_MODE = false; // Set to true/false

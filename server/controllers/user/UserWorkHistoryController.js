@@ -4,8 +4,8 @@ const service = new CrudService(UserWorkHistory);
 const { dynamicValidation, runValidation, userValidation } = require("../../middleware/crudValidation");
 
 exports.validate = [
-  ...dynamicValidation([]),
   ...userValidation, 
+  ...dynamicValidation(["start_date","end_date","workplace","nature_of_duty", "workplace_type","workplace_city","designation"]),
   runValidation,
 ];
 

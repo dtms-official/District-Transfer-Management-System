@@ -1,5 +1,6 @@
 const { check, validationResult } = require("express-validator");
 const Cadre = require("../../models/Cadre");
+const jwt = require("jsonwebtoken");
 
 // Validation Rules
 exports.validate = [
@@ -32,12 +33,26 @@ exports.create = async (req, res) => {
 };
 
 // Get All Cadres
-exports.getAll = async (_req, res) => {
+exports.getAll = async (req, res) => {
   try {
-    const cadres = await Cadre.find();
-    res.json(cadres);
-  } catch (err) {
-    res.status(500).json({ error: "Fetch failed" });
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const { workplace_id, adminRole } = decodedToken;
+
+    const filter = adminRole !== "superAdmin" ? { workplace_id } : {};
+
+    const cadres = await Cadre.find(filter);
+
+    res.status(200).json(cadres);
+  } catch (error) {
+    console.error("Error fetching cadres:", error.message);
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later" });
   }
 };
 

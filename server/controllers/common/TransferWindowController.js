@@ -1,7 +1,10 @@
 const TransferWindow = require("../../models/TransferWindow");
 const CrudService = require("../../services/CrudService");
 const service = new CrudService(TransferWindow);
-const { dynamicValidation, runValidation } = require("../../middleware/crudValidation");
+const {
+  dynamicValidation,
+  runValidation,
+} = require("../../middleware/crudValidation");
 
 exports.validate = [
   ...dynamicValidation(["name", "closingDate"]),

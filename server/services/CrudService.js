@@ -47,7 +47,7 @@ class CrudService {
     } catch (err) {
       res
         .status(500)
-        .json({ error: "Unable to get the data. Please try again later" });
+        .json({ error: "Unable to fetch the data. Please try again later" });
     }
   }
 

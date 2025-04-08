@@ -204,7 +204,7 @@ exports.updateUser = async (req, res) => {
     // Update user details and set isUpdated to true
     const updatedUser = await User.findByIdAndUpdate(
       userId, // Use the userId from req.params.id
-      { $set: { ...req.body, isUpdated: true } }, // Add isUpdated: true
+      { $set: { ...req.body, isUpdated: true, rejectReason: null } }, // Dymamicly update values
       { new: true, runValidators: true }
     );
 

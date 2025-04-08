@@ -27,6 +27,11 @@ const UserDependenceSchema = new mongoose.Schema(
       type: String,
       required: [true, "Gender is required"], // Custom message
     },
+    natureOfDependency: {
+      type: String,
+      required: [true, "Nature dependency is required"], // Custom message
+    },
+
     dependent_DOB: {
       type: Date,
       required: [true, "Dependent Date of Birth is required"], // Custom message
@@ -50,6 +55,9 @@ const UserDependenceSchema = new mongoose.Schema(
       type: String,
     },
     Does_this_dependent_currently_undergo_any_treatment: {
+      type: Boolean,
+    },
+    breastfeeding_required: {
       type: Boolean,
     },
     special_need_desc: {

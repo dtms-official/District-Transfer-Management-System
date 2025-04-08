@@ -13,7 +13,7 @@ steps:
 
   - Step 3: Create a new feature branch  
     ```sh
-    git checkout -b feature-branch
+    git checkout -b feature/your branch name
     ```
 
   - Step 4: Work on your changes (modify files)
@@ -37,3 +37,7 @@ steps:
 
 
 Do all perfetly // Nosuad
+
+to rest the branch run these commands
+git checkout -- .
+git reset --hard
