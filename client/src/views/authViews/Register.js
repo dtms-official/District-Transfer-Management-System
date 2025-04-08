@@ -33,9 +33,9 @@ const Register = () => {
       console.error("Error during registration:", err);
       setSuccess("");
       setError(
-        err.response?.data?.message || "Registration failed. Please try again."
+        err.response?.data?.error || "Registration failed. Please try again."
       );
-      message.error(err.response?.data?.message || "Registration failed.");
+      message.error(err.response?.data?.error || "Registration failed.");
     }
   };
 
