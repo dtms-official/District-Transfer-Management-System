@@ -23,6 +23,10 @@ const getTotalSubmitedTransferApplications = async (req, res) => {
 
     const totalTransferApplications = await TransferApplication.find(filter)
       .populate("userId", "nameWithInitial designation duty_assumed_date")
+      .populate({
+        path: "Replacement_userId",
+        select: "nameWithInitial designation NIC",
+      })
       .exec();
 
     res.status(200).json(totalTransferApplications);

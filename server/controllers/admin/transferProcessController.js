@@ -15,46 +15,49 @@ function generateScore(
   disease,
   disability,
   medicalCondition,
-  workhistory,
-  pettision
+  pettision,
+  workhistory
 ) {
   let score = 0;
 
-  const currentDate = new Date();
-  const dutyDateObj = new Date(user.duty_assumed_date);
+  try {
+    const currentDate = new Date();
+    const dutyDateObj = new Date(user?.duty_assumed_date);
 
-  let yearsDifference = currentDate.getFullYear() - dutyDateObj.getFullYear();
+    let yearsDifference = currentDate.getFullYear() - dutyDateObj.getFullYear();
+    if (yearsDifference >= 3) score += 50;
 
-  if (yearsDifference >= 3) score += 50;
+    const birthDate = new Date(user?.dateOfBirth);
+    const age = currentDate.getFullYear() - birthDate.getFullYear();
+    if (age < 58) score += 20;
 
-  const birthDate = new Date(user.dateOfBirth);
-  const age = new Date().getFullYear() - birthDate.getFullYear();
-  if (age < 58) score += 20;
+    if (workhistory?.outer_district !== "Ampara") score += 10;
+    if (workhistory?.resident_distance > 15) score += 15;
+    if (user?.civil_status === "Married") score += 10;
+    if (user?.gender === "Female") score += 15;
+    if (!pettision) score += 25;
 
-  if (workhistory && workhistory.outer_district !== "Ampara") score += 10;
-  if (workhistory && workhistory.resident_distance > 15) score += 15;
-  if (user.civil_status === "Married") score += 10;
-  if (user.gender === "Female") score += 15;
-  if (!pettision) score += 25;
-  if (dependence && dependence.natureOfDependency === "Infant") score += 5;
-  if (
-    (dependence && dependence.natureOfDependency === "School Going") ||
-    dependence.natureOfDependency === "Non-School Going Child"
-  )
-    score += 10;
-  if (dependence && dependence.breastfeeding_required === true) score += 5;
-  if (
-    (dependence && dependence.natureOfDependency === "Special Need") ||
-    dependence.natureOfDependency === "Affected by Chronic Disease" ||
-    dependence.natureOfDependency === "Elderly Dependent" ||
-    dependence.natureOfDependency === "Disabled Dependant"
-  )
-    score += 10;
-  if (disease) score += 15;
-  if (disease && disease.soft_work_recommendation === true) score += 5;
-  if (medicalCondition) score += 10;
-  if (disability) score += 15;
-  if (disability && disability.level === "Severe") score += 15;
+    const depType = dependence?.natureOfDependency;
+    if (depType === "Infant") score += 5;
+    if (depType === "School Going" || depType === "Non-School Going Child")
+      score += 10;
+    if (dependence?.breastfeeding_required === true) score += 5;
+    if (
+      depType === "Special Need" ||
+      depType === "Affected by Chronic Disease" ||
+      depType === "Elderly Dependent" ||
+      depType === "Disabled Dependant"
+    )
+      score += 10;
+
+    if (disease) score += 15;
+    if (disease?.soft_work_recommendation === true) score += 5;
+    if (medicalCondition) score += 10;
+    if (disability) score += 15;
+    if (disability?.level === "Severe") score += 15;
+  } catch (err) {
+    console.error("Score generation error:", err.message);
+  }
 
   return score;
 }

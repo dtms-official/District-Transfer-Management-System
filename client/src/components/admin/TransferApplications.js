@@ -58,7 +58,7 @@ const renderStatus = (application) => {
   );
 };
 
-const TransferApplications = () => {
+const TransferApplications = ({ record }) => {
   const { adminData } = useCheckAdminAuth();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -324,10 +324,15 @@ const TransferApplications = () => {
     },
     {
       title: "Replacement Officer",
-      dataIndex: "replacementOfficer",
-      key: "replacementOfficer",
-      render: (text) => {
-        return text && text.trim() !== "" ? text : "N/A";
+      dataIndex: ["Replacement_userId", "NIC"],
+      render: (text, record) => {
+        const replacementUser = record.Replacement_userId;
+        if (replacementUser) {
+          return `${replacementUser.nameWithInitial} (${replacementUser.designation}, ${replacementUser.NIC})`;
+        }
+        return `${
+          record.Replacement ? "Not assined" : "No replecement needed"
+        }`;
       },
     },
 
@@ -338,35 +343,49 @@ const TransferApplications = () => {
             key: "action",
             render: (_, record) => (
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                <Button
-                  type="primary"
-                  icon={<CheckCircleOutlined />}
-                  onClick={() => update(record.userId._id, "process")}
-                  disabled={record.isProcessed}
-                >
-                  {record.isProcessed ? "Processed" : "Process"}
-                </Button>
-
-                {record.isProcessed && record.Replacement_userId === null && (
+                {record.isChecked &&
+                record.isRecommended &&
+                record.isApproved &&
+                !record.isProcessed ? (
                   <Button
-                    type="dashed"
-                    icon={<UserSwitchOutlined />}
-                    onClick={() => update(record.userId._id, "find")}
+                    type="primary"
+                    icon={<CheckCircleOutlined />}
+                    onClick={() => update(record.userId._id, "process")}
                   >
-                    Find Replacement
+                    Process
                   </Button>
-                )}
+                ) : !record.isProcessed ? (
+                  <Button
+                    type="primary"
+                    icon={<CheckCircleOutlined />}
+                    disabled
+                  >
+                    Approval Pending
+                  </Button>
+                ) : null}
 
-                {record.isProcessed && record.Replacement_userId !== null && (
+                {record.isProcessed && (
                   <Button
                     type="default"
                     icon={<UploadOutlined />}
                     onClick={() => update(record.userId._id, "publish")}
                     disabled={record.isPublished}
                   >
-                  {record.isPublished ? "Published" : "Publish"}
+                    {record.isPublished ? "Published" : "Publish"}
                   </Button>
                 )}
+
+                {record.Replacement &&
+                  record.isProcessed &&
+                  record.Replacement_userId === null && (
+                    <Button
+                      type="dashed"
+                      icon={<UserSwitchOutlined />}
+                      onClick={() => update(record.userId._id, "find")}
+                    >
+                      Find Replacement
+                    </Button>
+                  )}
               </div>
             ),
           },
