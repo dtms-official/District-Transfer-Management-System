@@ -163,7 +163,6 @@ const LeaveDetails = ({ user }) => {
               >
                 <Select>
                   <Option value="Casual">Casual</Option>
-                  <Option value="Casual">Casual</Option>
                   <Option value="Half-Pay">Half-Pay</Option>
                   <Option value="No-Pay">No-Pay</Option>
                   <Option value="Maternity Leave">Maternity Leave</Option>

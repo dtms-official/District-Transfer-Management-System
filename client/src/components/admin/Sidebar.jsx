@@ -118,6 +118,11 @@ const Sidebar = () => {
                 Transfer Applications
               </Link>
             </Menu.Item>
+              <Menu.Item key="2-3">
+                <Link to="/admin_dashboard/transfer-management/notApllied-user">
+                  Not Applied List
+                </Link>
+              </Menu.Item>
           </Menu.SubMenu>
           <Menu.Item
             key="6"

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Button, Input, Switch, message, Form, Table, Modal } from "antd";
+import { Button, Input, Switch, message, Form, Table, Modal,Typography } from "antd";
 
 const TransferWindow = () => {
   const [form] = Form.useForm();
@@ -42,10 +42,11 @@ const TransferWindow = () => {
   }, []);
 
   const handleSave = async () => {
-    const { name, closingDate } = form.getFieldsValue();
+    const { name, closingDate, applicationClosingDate } = form.getFieldsValue();
     const data = {
       name,
       closingDate,
+      applicationClosingDate,
       status: "Open",
       isTerminated: false,
     };
@@ -99,9 +100,15 @@ const TransferWindow = () => {
       key: "name",
     },
     {
-      title: "Closing Date",
+      title: "Transfer Closing Date",
       dataIndex: "closingDate",
       key: "closingDate",
+      render: (date) => new Date(date).toLocaleDateString(),
+    },
+    {
+      title: "Application Closing Date",
+      dataIndex: "applicationClosingDate",
+      key: "applicationClosingDate",
       render: (date) => new Date(date).toLocaleDateString(),
     },
     {
@@ -126,6 +133,9 @@ const TransferWindow = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 gap-4">
+        <Typography.Title level={3} className="mb-8 mt-8 pb-3">
+        Transfer Window
+      </Typography.Title>
       <div
         className="p-8 border border-gray-300 rounded-xl w-2/3 shadow-lg bg-white"
         style={{ maxWidth: "600px" }}
@@ -140,8 +150,12 @@ const TransferWindow = () => {
           <div className="mb-4">
             <p className="text-sm">Transfer Window Name: {activeWindow.name}</p>
             <p className="text-sm">
-              Application Closing Date:{" "}
+              Transfer Window Closing Date:
               {new Date(activeWindow.closingDate).toLocaleDateString()}
+            </p>
+            <p className="text-sm">
+              Application Closing Date:
+              {new Date(activeWindow.applicationClosingDate).toLocaleDateString()}
             </p>
             <Button
               type="primary"
@@ -184,10 +198,43 @@ const TransferWindow = () => {
             </Form.Item>
 
             <Form.Item
-              name="closingDate"
+              name="applicationClosingDate"
               label="Application Closing Date"
               rules={[
                 { required: true, message: "Please select a closing date!" },
+              ]}
+            >
+              <Input
+                type="date"
+                className="rounded-md"
+                min={new Date().toISOString().split("T")[0]}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="closingDate"
+              label="Transfer Window Closing Date"
+              dependencies={["applicationClosingDate"]}
+              rules={[
+                { required: true, message: "Please select a closing date!" },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const applicationDate = getFieldValue(
+                      "applicationClosingDate"
+                    );
+                    if (!value || !applicationDate) {
+                      return Promise.resolve();
+                    }
+                    if (new Date(value) > new Date(applicationDate)) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error(
+                        "Transfer Window Closing Date must be after the Application Closing Date"
+                      )
+                    );
+                  },
+                }),
               ]}
             >
               <Input

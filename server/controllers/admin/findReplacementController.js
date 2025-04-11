@@ -17,7 +17,7 @@ exports.findReplacement = async (req, res) => {
         .json({ success: false, error: "Transfer application not found" });
     }
 
-    const userWorkplace = user.workplace_id;
+    // const userWorkplace = user.workplace_id;
     const transferWorkplace = transferApplication.transfered_workplace_id;
     const designation = user.designation;
 
@@ -30,10 +30,20 @@ exports.findReplacement = async (req, res) => {
     if (!replacementUser) {
       return res
         .status(404)
-        .json({ success: false, error: "No replacement user found" });
+        .json({ success: false, error: "Replacement officer not found" });
     }
 
-    // If replacement user exists, process and send final response
+    const alreadyAssigned = await TransferApplication.findOne({
+      Replacement_userId: replacementUser._id,
+    });
+
+    if (alreadyAssigned) {
+      return res.status(400).json({
+        success: false,
+        error: "Replacement officer not found",
+      });
+    }
+
     transferApplication.Replacement_userId = replacementUser._id;
     transferApplication.transferDesision = "Processed with replacement";
     await transferApplication.save();

@@ -7,7 +7,7 @@ const {
 } = require("../../middleware/crudValidation");
 
 exports.validate = [
-  ...dynamicValidation(["name", "closingDate"]),
+  ...dynamicValidation(["name", "closingDate" , "applicationClosingDate"]),
   runValidation,
 ];
 

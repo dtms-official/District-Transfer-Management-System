@@ -9,6 +9,7 @@ import {
   message,
   Spin,
   Modal,
+  Typography
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import axios from "axios";
@@ -297,6 +298,9 @@ const Cadre = () => {
 
   return (
     <div className="p-4 max-w-4xl mx-auto">
+      <Typography.Title level={3} className="mb-8 mt-5 pb-3">
+        Cadre Management
+      </Typography.Title>
       {adminRole !== "superAdmin" && (
         <Card title="Add Government Cadre" className="mb-4 rounded-lg">
           <Form form={form} layout="vertical" onFinish={onFinish}>

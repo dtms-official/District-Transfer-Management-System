@@ -6,6 +6,7 @@ const transferProcessController = require("../../controllers/admin/transferProce
 const findReplacementController = require("../../controllers/admin/findReplacementController");
 
 // Get Routes
+router.get("/notApplied-users", transferApplcaitions.getNotAppliedUsers);
 router.get("/total-applications", transferApplcaitions.getTotalSubmitedTransferApplications);
 router.get("/pending-applications", transferApplcaitions.getPendingTransferApplications);
 router.get("/rejected-applications", transferApplcaitions.getRejectedTransferApplications);
