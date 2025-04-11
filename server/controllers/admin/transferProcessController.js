@@ -116,13 +116,13 @@ exports.transferProcess = async (req, res) => {
 
     let transferWorkplaceId = null;
     if (score < 100) {
-      transferWorkplaceId = transferApplication.preferWorkplace_3; // Difficult Workplace
+      transferWorkplaceId = transferApplication.preferWorkplace_1; // Difficult Workplace
       workplaceCategory = "Difficult";
     } else if (score >= 100 && score <= 160) {
       transferWorkplaceId = transferApplication.preferWorkplace_2; // Moderate Workplace
       workplaceCategory = "Moderate";
     } else {
-      transferWorkplaceId = transferApplication.preferWorkplace_1; // Prefered Workplace
+      transferWorkplaceId = transferApplication.preferWorkplace_3; // Prefered Workplace
       workplaceCategory = "Prefered";
     }
 
@@ -145,6 +145,7 @@ exports.transferProcess = async (req, res) => {
         score,
         transfered_workplace_id: transferWorkplaceId,
         transferDesisionType: workplaceCategory,
+        categorizedWorkplaces
       },
     });
   } catch (error) {
@@ -154,8 +155,6 @@ exports.transferProcess = async (req, res) => {
     });
   }
 };
-
-exports.findReplacement = async (req, res) => {};
 
 exports.publishApplication = async (req, res) => {
   const { userId } = req.params;

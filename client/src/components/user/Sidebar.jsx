@@ -62,6 +62,11 @@ const Sidebar = () => {
                 Apply for transfer
               </Link>
             </Menu.Item>
+            <Menu.Item key="2-2">
+              <Link to="/dashboard/transfer-management/my-applications">
+                My applicaitons
+              </Link>
+            </Menu.Item>
           </Menu.SubMenu>
 
           {/* Single Settings Option */}

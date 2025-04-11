@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Tooltip, message, Alert, notification } from "antd";
+import { Table, Button, Tooltip, message, Alert, notification,Typography } from "antd";
 import axios from "axios";
 import useCheckAdminAuth from "../../utils/checkAdminAuth";
 import {
@@ -181,11 +181,12 @@ const TransferApplications = ({ record }) => {
           placement: "topRight",
         });
       }
-
-      window.location.reload();
+      setInterval(function () {
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       console.error(error.response?.data?.error || "Something went wrong");
-      notification.error({
+      notification.warning({
         description: error.response?.data?.error || "Something went wrong",
         placement: "topRight",
       });
@@ -377,6 +378,7 @@ const TransferApplications = ({ record }) => {
 
                 {record.Replacement &&
                   record.isProcessed &&
+                  !record.isPublished &&
                   record.Replacement_userId === null && (
                     <Button
                       type="dashed"
@@ -394,6 +396,9 @@ const TransferApplications = ({ record }) => {
   ];
   return (
     <div className="mt-10 mx-6 sm:mx-12">
+      <Typography.Title level={3} className="mb-8 pb-3">
+        Transfer Applications
+      </Typography.Title>
       <Alert
         message="Status Colors Information"
         description={

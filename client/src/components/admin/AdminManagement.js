@@ -8,6 +8,7 @@ import {
   Spin,
   Card,
   Popconfirm,
+  Typography
 } from "antd";
 import axios from "axios";
 
@@ -169,7 +170,10 @@ const AdminManagement = () => {
 
   return (
     <div className="p-8 max-w-6xl mx-auto text-left">
-      <Card title="Admin Management" className="mb-4 rounded-lg">
+      <Typography.Title level={3} className="mb-8 mt-5 pb-3">
+        Admin Management
+      </Typography.Title>
+      <Card className="mb-4 rounded-lg">
         <Form
           form={form}
           layout="vertical"

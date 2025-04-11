@@ -12,6 +12,10 @@ import {
 import getWorkplaces from "../../api/getWorkplaces";
 import axios from "axios";
 import useUserData from "../../api/useUserData";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+
+dayjs.extend(duration);
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -20,8 +24,8 @@ const { Title, Text } = Typography;
 export default function TransferApplicationForm() {
   const [form] = Form.useForm();
   const [transferWindows, setTransferWindows] = useState([]);
+  const [timeRemaining, setTimeRemaining] = useState("");
   const [activeWindow, setActiveWindow] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(30 * 24 * 60 * 60);
   const { user } = useUserData();
   const { workplaces, fetchWorkplaces } = getWorkplaces();
   const [loading, setLoading] = useState(false);
@@ -114,7 +118,8 @@ export default function TransferApplicationForm() {
       const windows = response.data;
       const active = windows.find(
         (window) =>
-          !window.isTerminated && new Date(window.closingDate) > new Date()
+          !window.isTerminated &&
+          new Date(window.applicationClosingDate) > new Date()
       );
       setActiveWindow(active);
       setTransferWindows(windows);
@@ -125,29 +130,29 @@ export default function TransferApplicationForm() {
       );
     }
   };
-
   useEffect(() => {
-    if (activeWindow) {
-      const closingDate = new Date(activeWindow.closingDate).getTime();
-      const now = new Date().getTime();
-      setTimeLeft(Math.max((closingDate - now) / 1000, 0));
-    }
-  }, [activeWindow]);
+    const interval = setInterval(() => {
+      const closingDate = activeWindow?.applicationClosingDate;
+      const formattedDate = dayjs(closingDate).format("YYYY-MM-DD");
+      const now = dayjs();
+      const diffInSeconds = dayjs(formattedDate).diff(now, "second");
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => Math.max(prev - 1, 0));
+      if (diffInSeconds <= 0) {
+        setTimeRemaining("Application closed");
+        clearInterval(interval);
+        return;
+      }
+
+      const dur = dayjs.duration(diffInSeconds, "seconds");
+      const h = dur.hours();
+      const m = dur.minutes();
+      const s = dur.seconds();
+
+      setTimeRemaining(`${h} hours, ${m} minutes, ${s} seconds`);
     }, 1000);
-    return () => clearInterval(timer);
-  }, []);
 
-  const formatTime = (seconds) => {
-    const d = Math.floor(seconds / (24 * 60 * 60));
-    const h = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
-    const m = Math.floor((seconds % (60 * 60)) / 60);
-    const s = Math.floor(seconds % 60);
-    return `${d}d ${h}h ${m}m ${s}s`;
-  };
+    return () => clearInterval(interval);
+  }, [activeWindow]);
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100 p-6 overflow-hidden">
@@ -167,8 +172,10 @@ export default function TransferApplicationForm() {
         ) : (
           <>
             <Text type="danger" className="text-sm font-bold">
-              TRANSFER APPLICATION CLOSING IN: {formatTime(timeLeft)}
+              TRANSFER APPLICATION CLOSING IN:
+              {timeRemaining}
             </Text>
+            ;
             {!isSubmited && (
               <Form form={form} layout="vertical" onFinish={onFinish}>
                 <Form.Item
@@ -186,7 +193,7 @@ export default function TransferApplicationForm() {
                       .filter(
                         (window) =>
                           !window.isTerminated &&
-                          new Date(window.closingDate) > new Date()
+                          new Date(window.applicationClosingDate) > new Date()
                       )
                       .map((transferWindow) => (
                         <Option

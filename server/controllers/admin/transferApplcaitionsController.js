@@ -1,6 +1,7 @@
 const TransferApplication = require("../../models/TransferApplication");
+const TransferWindow = require("../../models/TransferWindow");
 // const Admin = require("../../models/Admin");
-// const User = require("../../models/User");
+const User = require("../../models/User");
 const jwt = require("jsonwebtoken");
 
 // Get All  TransferApplcations
@@ -32,6 +33,56 @@ const getTotalSubmitedTransferApplications = async (req, res) => {
     res.status(200).json(totalTransferApplications);
   } catch (error) {
     console.error("Error fetching total transfer applications:", error.message);
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later" });
+  }
+};
+
+const getNotAppliedUsers = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1]; // Extract token
+
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET); // Verify token
+    const { workplace_id, adminRole } = decodedToken; // Extract workplace_id & adminRole
+
+    const currentDate = new Date();
+    const activeTransferWindow = await TransferWindow.findOne({
+      closingDate: { $gte: currentDate },
+      applicationClosingDate: { $gte: currentDate },
+    });
+
+    if (activeTransferWindow) {
+      return res
+        .status(400)
+        .json({ message: "Currently a trnasfer window active" });
+    }
+
+    const filter =
+      adminRole === "superAdmin"
+        ? { isApproved: true }
+        : { isApproved: true, workplace_id };
+
+    const totalUsers = await User.find(filter);
+
+    const usersWithTransferApplications = await TransferApplication.find({
+      userId: { $in: totalUsers.map((user) => user._id) },
+    });
+
+    const notAppliedUsers = totalUsers.filter(
+      (user) =>
+        !usersWithTransferApplications.some(
+          (app) => app.userId.toString() === user._id.toString()
+        )
+    );
+
+    res.status(200).json(notAppliedUsers);
+  } catch (error) {
+    console.error("Error fetching pending users:", error.message);
     res
       .status(500)
       .json({ error: "Something went wrong. Please try again later" });
@@ -326,6 +377,7 @@ const rejectTransferApplication = async (req, res) => {
 
 module.exports = {
   getTotalSubmitedTransferApplications,
+  getNotAppliedUsers,
   getPendingTransferApplications,
   getRejectedTransferApplications,
   getCheckedTransferApplications,
