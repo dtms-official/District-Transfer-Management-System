@@ -25,7 +25,6 @@ const PageContainer = () => {
             minHeight: 280,
             padding: 0,
             backgroundColor: "#f5f5f5",
-            alignItems: "center",
           }}
         >
           <Outlet />
