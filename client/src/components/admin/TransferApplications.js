@@ -183,7 +183,7 @@ const TransferApplications = ({ record }) => {
       }
       setInterval(function () {
         window.location.reload();
-      }, 2000);
+      }, 10000);
     } catch (error) {
       console.error(error.response?.data?.error || "Something went wrong");
       notification.warning({

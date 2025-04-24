@@ -144,11 +144,12 @@ export default function TransferApplicationForm() {
       }
 
       const dur = dayjs.duration(diffInSeconds, "seconds");
+      const d = dur.days();
       const h = dur.hours();
       const m = dur.minutes();
       const s = dur.seconds();
 
-      setTimeRemaining(`${h} hours, ${m} minutes, ${s} seconds`);
+      setTimeRemaining(`${d} Days ${h} Hour, ${m} Min, ${s} Seconds`);
     }, 1000);
 
     return () => clearInterval(interval);
