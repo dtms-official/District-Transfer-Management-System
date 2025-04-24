@@ -10,23 +10,67 @@ import {
   Spin,
   Modal,
 } from "antd";
+import { LoadingOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import useUserData from "../../api/useUserData";
 import { useNavigate } from "react-router-dom";
-
 const { Option } = Select;
 const UserProfile = ({ user }) => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
   const [workplaceData, setWorkplaceData] = useState([]);
+  const [disabled, setDisabled] = useState(false);
+  const [locationError, setLocationError] = useState(null);
 
   const { fetchUserData } = useUserData();
-
   const [modalVisible, setModalVisible] = useState(false);
 
-  const handleLocationClick = () => {
-    setModalVisible(true); // Open the GPStracking modal when location icon is clicked
+  const handleLocationClick = async () => {
+    setLoading(true);
+    setLocationError(null);
+
+    try {
+      const perm = await navigator.permissions.query({ name: "geolocation" });
+
+      if (perm.state === "denied") {
+        Modal.warning({
+          title: "Location Blocked",
+          content:
+            "Please enable location access in your browser settings to use this feature.",
+        });
+        setLoading(false);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          form.setFieldsValue({
+            GPS_latitude: latitude.toFixed(6),
+            GPS_longitude: longitude.toFixed(6),
+          });
+          setDisabled(true);
+          setLoading(false);
+          message.success("Location access granted and values filled");
+        },
+        (err) => {
+          setLoading(false);
+          if (err.code === err.PERMISSION_DENIED) {
+            Modal.info({
+              title: "Allow Location Access",
+              content:
+                "Google requires your permission to access your location. Please allow it and try again.",
+            });
+          } else {
+            message.error("Error: " + err.message);
+          }
+        }
+      );
+    } catch (e) {
+      setLoading(false);
+      message.error("Browser does not support location permission check");
+    }
   };
 
   useEffect(() => {
@@ -343,30 +387,72 @@ const UserProfile = ({ user }) => {
               <Option value="Widowed">Widowed</Option>
             </Select>
           </Form.Item>
-          <div className="flex" style={{ flex: "1 1 48%", gap: "20px" }}>
-            <Form.Item label="GPS Latitude" name="GPS_latitude">
-              <Input placeholder="GPS latitude" maxLength={10} />
-            </Form.Item>
-            <Form.Item label="GPS Longitude" name="GPS_longitude">
-              <Input placeholder="GPS longitude" maxLength={10} />
-            </Form.Item>
+          <div
+            className="flex"
+            style={{ flex: "1 1 48%", gap: "20px", alignItems: "center" }}
+          >
+            <Form.Item label="GPS Coordinates">
+              <div style={{ display: "flex", gap: 16 }}>
+                <Form.Item
+                  name="GPS_latitude"
+                  style={{ flex: 1, marginBottom: 0 }}
+                  rules={[{ required: true, message: "Please input latitude" }]}
+                >
+                  <Input
+                    placeholder="Latitude (e.g., 12.3456)"
+                    maxLength={10}
+                    disabled={disabled}
+                    prefix={<EnvironmentOutlined />}
+                    suffix="°N"
+                  />
+                </Form.Item>
 
-            <Form.Item>
-              <Button
-                icon={<i className="fas fa-map-marker-alt"></i>}
-                onClick={handleLocationClick}
-                style={{
-                  fontSize: "24px",
-                  padding: "0",
-                  borderRadius: "50%",
-                  width: "40px",
-                  height: "40px",
-                  color: "#1878ff",
-                }}
-                className="btn"
-              />
+                <Form.Item
+                  name="GPS_longitude"
+                  style={{ flex: 1, marginBottom: 0 }}
+                  rules={[
+                    { required: true, message: "Please input longitude" },
+                  ]}
+                >
+                  <Input
+                    placeholder="Longitude (e.g., 98.7654)"
+                    maxLength={10}
+                    disabled={disabled}
+                    prefix={<EnvironmentOutlined />}
+                    suffix="°E"
+                  />
+                </Form.Item>
+
+                <Form.Item style={{ marginBottom: 0 }}>
+                  <Button
+                    type="danger"
+                    className="location-button"
+                    shape="circle"
+                    onClick={handleLocationClick}
+                    disabled={loading || disabled}
+                    icon={
+                      loading ? (
+                        <Spin
+                          indicator={
+                            <LoadingOutlined style={{ color: "#fff" }} spin />
+                          }
+                        />
+                      ) : (
+                        <i
+                          className="fas fa-map-marker-alt"
+                          style={{ fontSize: 20 }}
+                        />
+                      )
+                    }
+                  />
+                </Form.Item>
+              </div>
             </Form.Item>
           </div>
+
+          {locationError && (
+            <p style={{ color: "red", marginTop: "10px" }}>{locationError}</p>
+          )}
         </div>
 
         <>

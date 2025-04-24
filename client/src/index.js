@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
+import "./assets/css/global.css";
 import App from "./App";
 // import PerformanceTest from "./test/Test"; // Import performance test
 
