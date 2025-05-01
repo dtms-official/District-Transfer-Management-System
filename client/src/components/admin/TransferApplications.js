@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Tooltip, message, Alert, notification,Typography } from "antd";
+import {
+  Table,
+  Button,
+  Tooltip,
+  message,
+  Alert,
+  notification,
+  Typography,
+} from "antd";
 import axios from "axios";
 import useCheckAdminAuth from "../../utils/checkAdminAuth";
 import {
@@ -365,17 +373,6 @@ const TransferApplications = ({ record }) => {
                   </Button>
                 ) : null}
 
-                {record.isProcessed && (
-                  <Button
-                    type="default"
-                    icon={<UploadOutlined />}
-                    onClick={() => update(record.userId._id, "publish")}
-                    disabled={record.isPublished}
-                  >
-                    {record.isPublished ? "Published" : "Publish"}
-                  </Button>
-                )}
-
                 {record.Replacement &&
                   record.isProcessed &&
                   !record.isPublished &&
@@ -388,6 +385,17 @@ const TransferApplications = ({ record }) => {
                       Find Replacement
                     </Button>
                   )}
+
+                {record.isProcessed && (
+                  <Button
+                    type="default"
+                    icon={<UploadOutlined />}
+                    onClick={() => update(record.userId._id, "publish")}
+                    disabled={record.isPublished}
+                  >
+                    {record.isPublished ? "Published" : "Publish"}
+                  </Button>
+                )}
               </div>
             ),
           },

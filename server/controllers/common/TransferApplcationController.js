@@ -36,25 +36,42 @@ exports.create = async (req, res) => {
   }
 
   try {
-    const { transferWindowId, preferWorkplace_1, preferWorkplace_2, preferWorkplace_3 } = req.body;
+    const {
+      transferWindowId,
+      preferWorkplace_1,
+      preferWorkplace_2,
+      preferWorkplace_3,
+    } = req.body;
 
     // Check if transferWindowId exists in the TransferWindow collection
-    const transferWindowExists = await TransferWindow.findById(transferWindowId);
+    const transferWindowExists = await TransferWindow.findById(
+      transferWindowId
+    );
     if (!transferWindowExists) {
-      return res.status(400).json({ error: "No transfer window found for the provided ID" });
+      return res
+        .status(400)
+        .json({ error: "No transfer window found for the provided ID" });
     }
 
-    const workplaceIds = [preferWorkplace_1, preferWorkplace_2, preferWorkplace_3];
+    const workplaceIds = [
+      preferWorkplace_1,
+      preferWorkplace_2,
+      preferWorkplace_3,
+    ];
     const uniqueWorkplaceIds = new Set(workplaceIds);
 
     if (uniqueWorkplaceIds.size !== workplaceIds.length) {
-      return res.status(400).json({ error: "Preferred workplace ID(s) must be unique" });
+      return res
+        .status(400)
+        .json({ error: "Preferred workplace ID(s) must be unique" });
     }
 
     const workplaces = await Workplace.find({ _id: { $in: workplaceIds } });
 
     if (workplaces.length !== 3) {
-      return res.status(400).json({ error: "No workplaces found for the provided ID(s)" });
+      return res
+        .status(400)
+        .json({ error: "No workplaces found for the provided ID(s)" });
     }
 
     const data = await TransferApplication.create(req.body);
@@ -99,16 +116,50 @@ exports.getUnique = async (req, res) => {
 };
 
 // Get  All Dependence using userID
-exports.getDataByUser = async (req, res) => {
+exports.getApplications = async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.userId))
       return res.status(400).json({ error: "Invalid ID format" });
 
     const data = await TransferApplication.find({ userId: req.params.userId });
+
     if (!data || data.length === 0) {
-      return res.status(404).json({ error: "You haven’t submitted any applications yet" });
+      return res
+        .status(404)
+        .json({ error: "You haven’t submitted any applications yet" });
     }
+
     res.json(data);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Unable to fetch data. Please try again later" });
+  }
+};
+
+exports.getMyApplications = async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.userId))
+      return res.status(400).json({ error: "Invalid ID format" });
+
+    const data = await TransferApplication.find({ userId: req.params.userId });
+
+    if (!data || data.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "You haven’t submitted any applications yet" });
+    }
+
+    const filteredData = data.map((app) => {
+      const obj = app.toObject();
+      if (!obj.isPublished) {
+        delete obj.transfered_workplace_id;
+        delete obj.transferDesision;
+      }
+      return obj;
+    });
+
+    res.json(filteredData);
   } catch (err) {
     res
       .status(500)

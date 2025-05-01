@@ -111,6 +111,12 @@ const Dashboard = () => {
               <Descriptions.Item label="NIC">
                 {user?.NIC || "-"}
               </Descriptions.Item>
+              <Descriptions.Item label="Designation">
+                {user?.designation || "-"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Workplace">
+                {user?.workplace_id || "-"}
+              </Descriptions.Item>
               <Descriptions.Item label="Status">
                 {user?.isApproved ? (
                   <Tag color="green">Approved</Tag>

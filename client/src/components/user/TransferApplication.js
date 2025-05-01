@@ -33,6 +33,9 @@ export default function TransferApplicationForm() {
   const isSubmited =
     userApplication.length > 0 ? userApplication[0].isSubmited : false;
 
+  const isProcessed =
+    userApplication.length > 0 ? userApplication[0].isProcessed : false;
+
   const userId = user?._id || null;
   const workplaceId = user?.workplace_id || null;
 
@@ -102,13 +105,18 @@ export default function TransferApplicationForm() {
     fetchWorkplaces();
     fetchTransferWindows();
 
-    if (isSubmited) {
-      notification.success({
-        description:
-          "You have successfully submitted the transfer application. Wait for approval",
-      });
-    }
-  }, [user, fetchWorkplaces, isSubmited]);
+    // if (isProcessed) {
+    //   notification.success({
+    //     description:
+    //       "Your applicaiton has been processed go to my applications to see more details",
+    //   });
+    // } else if (isSubmited) {
+    //   notification.info({
+    //     description:
+    //       "You have successfully submitted the transfer application. Wait for approval",
+    //   });
+    // }
+  }, [user, fetchWorkplaces]);
 
   const fetchTransferWindows = async () => {
     try {
@@ -118,8 +126,7 @@ export default function TransferApplicationForm() {
       const windows = response.data;
       const active = windows.find(
         (window) =>
-          !window.isTerminated &&
-          new Date(window.applicationClosingDate) > new Date()
+          !window.isTerminated && new Date(window.ClosingDate) > new Date()
       );
       setActiveWindow(active);
       setTransferWindows(windows);
@@ -161,10 +168,20 @@ export default function TransferApplicationForm() {
         <Title level={4}>Transfer Application</Title>
         {!user?.isApproved ? (
           <Text type="danger">You need approval to apply for transfer.</Text>
-        ) : isSubmited ? (
-          <Text type="success">
+        ) : isSubmited && !isProcessed ? (
+          <Text type="info">
             You have submitted a transfer application successfully. Wait for the
-            approval
+            approval.
+          </Text>
+        ) : user?.isApproved && !isProcessed? (
+          <Text type="info">
+            Your application has been approved. Go to "My Applications" to see
+            more details.
+          </Text>
+        ) : user?.isApproved && isProcessed ? (
+          <Text type="info">
+            Your application has been processed. Go to "My Applications" to see
+            more details.
           </Text>
         ) : !activeWindow ? (
           <Text type="danger">
@@ -194,7 +211,7 @@ export default function TransferApplicationForm() {
                       .filter(
                         (window) =>
                           !window.isTerminated &&
-                          new Date(window.applicationClosingDate) > new Date()
+                          new Date(window.closingDate) > new Date()
                       )
                       .map((transferWindow) => (
                         <Option

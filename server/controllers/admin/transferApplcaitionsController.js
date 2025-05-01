@@ -53,13 +53,13 @@ const getNotAppliedUsers = async (req, res) => {
     const currentDate = new Date();
     const activeTransferWindow = await TransferWindow.findOne({
       closingDate: { $gte: currentDate },
-      applicationClosingDate: { $gte: currentDate },
+      applicationClosingDate: { $lte: currentDate },
     });
 
-    if (activeTransferWindow) {
+    if (!activeTransferWindow) {
       return res
         .status(400)
-        .json({ message: "Currently a trnasfer window active" });
+        .json({ error: "Currently no tranasfer window active" });
     }
 
     const filter =

@@ -407,7 +407,7 @@ const UserWorkHistory = ({ user }) => {
                 <DatePicker format="YYYY-MM-DD" style={{ width: "100%" }} />
               </Form.Item>
               <Form.Item
-                label="Have you worked in an outer district?"
+                label="District of workplace?"
                 name="outer_district"
                 style={{ flex: "1 1 48%" }}
                 rules={[{ required: true, message: "This field is required" }]}
@@ -445,7 +445,7 @@ const UserWorkHistory = ({ user }) => {
               </Form.Item>
 
               <Form.Item
-                label="What is the distance?"
+                label="Distance to the workplace from your residence (KM)"
                 name="resident_distance"
                 style={{ flex: "1 1 48%" }}
                 rules={[{ required: true, message: "This field is required" }]}
