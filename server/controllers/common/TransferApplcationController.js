@@ -37,6 +37,7 @@ exports.create = async (req, res) => {
 
   try {
     const {
+      userId,
       transferWindowId,
       preferWorkplace_1,
       preferWorkplace_2,
@@ -51,6 +52,17 @@ exports.create = async (req, res) => {
       return res
         .status(400)
         .json({ error: "No transfer window found for the provided ID" });
+    }
+
+    // Check if user already applied for this transfer window
+    const existingApplication = await TransferApplication.findOne({
+      userId,
+      transferWindowId,
+    });
+    if (existingApplication) {
+      return res.status(400).json({
+        error: "You have already applied for this transfer window",
+      });
     }
 
     const workplaceIds = [
