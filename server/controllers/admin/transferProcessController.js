@@ -62,6 +62,100 @@ function generateScore(
   return score;
 }
 
+// exports.transferProcess = async (req, res) => {
+//   const { userId } = req.params;
+
+//   try {
+//     const user = await User.findById(userId);
+//     if (!user) {
+//       return res.status(404).json({ success: false, error: "User not found" });
+//     }
+
+//     const transferApplication = await TransferApplication.findOne({ userId });
+//     if (!transferApplication) {
+//       return res.status(404).json({
+//         success: false,
+//         error: "Transfer application not found",
+//       });
+//     }
+
+//     const dependence = await UserDependence.findOne({ userId });
+//     const disease = await UserDisease.findOne({ userId });
+//     const disability = await UserDisability.findOne({ userId });
+//     const medicalCondition = await UserMedicalCondition.findOne({ userId });
+//     const workhistory = await UserWorkHistory.findOne({ userId });
+//     const pettision = await UserPettion.findOne({ userId });
+
+//     const workplaces = await Promise.all([
+//       Workplace.findById(transferApplication.preferWorkplace_1),
+//       Workplace.findById(transferApplication.preferWorkplace_2),
+//       Workplace.findById(transferApplication.preferWorkplace_3),
+//     ]);
+
+//     if (workplaces.some((wp) => !wp)) {
+//       return res.status(404).json({
+//         success: false,
+//         error: "Preferred workplaces not found",
+//       });
+//     }
+
+//     const categorizedWorkplaces = await calculateWorkplaceDistance(
+//       user,
+//       workplaces
+//     );
+
+//     const score = generateScore(
+//       user,
+//       dependence,
+//       disease,
+//       disability,
+//       medicalCondition,
+//       workhistory,
+//       pettision
+//     );
+
+//     let transferWorkplaceId = null;
+//     if (score < 100) {
+//       transferWorkplaceId = transferApplication.preferWorkplace_3; // Difficult Workplace
+//       workplaceCategory = "Difficult";
+//     } else if (score >= 100 && score <= 160) {
+//       transferWorkplaceId = transferApplication.preferWorkplace_2; // Moderate Workplace
+//       workplaceCategory = "Moderate";
+//     } else {
+//       transferWorkplaceId = transferApplication.preferWorkplace_1; // Prefered Workplace
+//       workplaceCategory = "Prefered";
+//     }
+
+//     const transferDesision = "Processed";
+//     const isProcessed = true;
+//     transferApplication.score = score;
+//     transferApplication.isProcessed = isProcessed;
+//     transferApplication.transferDesision = transferDesision;
+//     transferApplication.transfered_workplace_id = transferWorkplaceId;
+//     transferApplication.transferDesisionType = workplaceCategory;
+
+//     await transferApplication.save();
+
+//     return res.status(200).json({
+//       success: true,
+//       data: {
+//         userId,
+//         isProcessed,
+//         transferDesision,
+//         score,
+//         transfered_workplace_id: transferWorkplaceId,
+//         transferDesisionType: workplaceCategory,
+//         categorizedWorkplaces
+//       },
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       success: false,
+//       error: error.message,
+//     });
+//   }
+// };
+
 exports.transferProcess = async (req, res) => {
   const { userId } = req.params;
 
@@ -115,20 +209,68 @@ exports.transferProcess = async (req, res) => {
     );
 
     let transferWorkplaceId = null;
+    let workplaceCategory = "";
     if (score < 100) {
-      transferWorkplaceId = transferApplication.preferWorkplace_3; // Difficult Workplace
+      transferWorkplaceId = transferApplication.preferWorkplace_3;
       workplaceCategory = "Difficult";
     } else if (score >= 100 && score <= 160) {
-      transferWorkplaceId = transferApplication.preferWorkplace_2; // Moderate Workplace
+      transferWorkplaceId = transferApplication.preferWorkplace_2;
       workplaceCategory = "Moderate";
     } else {
-      transferWorkplaceId = transferApplication.preferWorkplace_1; // Prefered Workplace
+      transferWorkplaceId = transferApplication.preferWorkplace_1;
       workplaceCategory = "Prefered";
     }
 
     const transferDesision = "Processed";
     const isProcessed = true;
-    transferApplication.score = score;
+
+    transferApplication.score = {
+      totalScore: score,
+      dutyYears: user.duty_assumed_date
+        ? new Date().getFullYear() -
+          new Date(user.duty_assumed_date).getFullYear()
+        : "N/A",
+      age: user.dateOfBirth
+        ? new Date().getFullYear() - new Date(user.dateOfBirth).getFullYear()
+        : "N/A",
+      outerDistrict: workhistory?.outer_district !== "Ampara" ? "Yes" : "No",
+      residentDistance: workhistory?.resident_distance > 15 ? "Yes" : "No",
+      civilStatus: user?.civil_status === "Married" ? "Married" : "Single",
+      gender: user?.gender === "Female" ? "Female" : "Male",
+      petitionStatus: pettision ? "No Petition" : "Has Petition",
+      dependency: {
+        infant: dependence?.natureOfDependency === "Infant" ? "Yes" : "No",
+        schoolChild:
+          dependence?.natureOfDependency === "School Going" ||
+          dependence?.natureOfDependency === "Non-School Going Child"
+            ? "Yes"
+            : "No",
+        breastfeeding:
+          dependence?.breastfeeding_required === true ? "Yes" : "No",
+        specialNeed:
+          dependence?.natureOfDependency === "Special Need" ? "Yes" : "No",
+        chronicDisease:
+          dependence?.natureOfDependency === "Affected by Chronic Disease"
+            ? "Yes"
+            : "No",
+        elderlyDependent:
+          dependence?.natureOfDependency === "Elderly Dependent" ? "Yes" : "No",
+        disabledDependent:
+          dependence?.natureOfDependency === "Disabled Dependant"
+            ? "Yes"
+            : "No",
+      },
+      disease: disease ? "Has Disease" : "No Disease",
+      softWorkRecommendation:
+        disease?.soft_work_recommendation === true ? "Yes" : "No",
+      medicalCondition: medicalCondition
+        ? "Has Medical Condition"
+        : "No Medical Condition",
+      disability: disability ? "Has Disability" : "No Disability",
+      disabilityLevel:
+        disability?.level === "Severe" ? "Severe" : "Mild/No Disability",
+    };
+
     transferApplication.isProcessed = isProcessed;
     transferApplication.transferDesision = transferDesision;
     transferApplication.transfered_workplace_id = transferWorkplaceId;
@@ -142,10 +284,9 @@ exports.transferProcess = async (req, res) => {
         userId,
         isProcessed,
         transferDesision,
-        score,
         transfered_workplace_id: transferWorkplaceId,
         transferDesisionType: workplaceCategory,
-        categorizedWorkplaces
+        categorizedWorkplaces,
       },
     });
   } catch (error) {

@@ -2,6 +2,7 @@ const { check, validationResult } = require("express-validator");
 const TransferApplication = require("../../models/TransferApplication");
 const TransferWindow = require("../../models/TransferWindow");
 const Workplace = require("../../models/Workplace");
+const User = require("../../models/User");
 const mongoose = require("mongoose");
 
 // Validation Rules
@@ -84,6 +85,17 @@ exports.create = async (req, res) => {
       return res
         .status(400)
         .json({ error: "No workplaces found for the provided ID(s)" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (workplaceIds.some((id) => user.workplace_id.equals(id))) {
+      return res.status(400).json({
+        error: "You cannot select your workplace as a preferred workplace",
+      });
     }
 
     const data = await TransferApplication.create(req.body);

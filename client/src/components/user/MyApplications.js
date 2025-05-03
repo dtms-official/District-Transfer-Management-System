@@ -99,13 +99,24 @@ export default function MyApplications() {
         </Typography.Title>
 
         {userApplication.length === 0 ? (
-          <Text type="secondary">
+          <Text type="primary">
             You haven't submitted any applications yet.
           </Text>
         ) : userApplication.length > 0 &&
-          !userApplication.some((app) => app.isApproved) ? (
-          <Text type="secondary">
+          userApplication.some((app) => app.isSubmited && !app.isApproved) ? (
+          <Text type="primary">
             You have submitted an application. Wait for the approval.
+          </Text>
+        // ) : userApplication.length > 0 &&
+        //   userApplication.some((app) => !app.isSubmited && app.isRejected) ? (
+        //   <Text type="danger">
+        //     Your applicaiton rejected submit again.
+        //   </Text>
+        ) : userApplication.some(
+            (app) => app.isSubmited && app.isApproved && !app.isProcessed
+          ) ? (
+          <Text type="success">
+            You applicaiton has been approved Wait for transfer decison.
           </Text>
         ) : (
           userApplication.map((app, index) => {

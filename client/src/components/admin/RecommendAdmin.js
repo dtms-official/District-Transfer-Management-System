@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { message, Table, Card, Alert, Button, notification } from "antd";
+import { message, Table, Card, Alert, Button, notification , Space} from "antd";
 import {
   fetchCheckedUsers,
   fetchCheckedApplications,
 } from "../../api/useAdmin";
 import axios from "axios";
+import RejectButton from "./DeleteButton";
 
 export default function CheckingAdmin() {
   const navigate = useNavigate();
@@ -231,9 +232,16 @@ export default function CheckingAdmin() {
       fixed: "right",
       width: 150,
       render: (_, record) => (
-        <Button type="primary" onClick={() => handleAction(record, "check")}>
-          Recommend
-        </Button>
+        <Space>
+          <Button type="primary" onClick={() => handleAction(record, "check")}>
+            Recommend
+          </Button>
+
+          <RejectButton
+            record={record}
+            onComplete={() => setTimeout(() => window.location.reload(), 2000)}
+          />
+        </Space>
       ),
     },
   ];

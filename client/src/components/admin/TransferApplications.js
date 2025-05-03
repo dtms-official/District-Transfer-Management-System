@@ -7,6 +7,8 @@ import {
   Alert,
   notification,
   Typography,
+  Select,
+  Modal,
 } from "antd";
 import axios from "axios";
 import useCheckAdminAuth from "../../utils/checkAdminAuth";
@@ -18,7 +20,7 @@ import {
 
 // Render Status function with debugging logs
 const renderStatus = (application) => {
-  console.log("Rendering Status for:", application); // Debugging
+  console.log("Rendering Status for:", application);
   console.log("isChecked:", application?.isChecked);
   console.log("isRecommended:", application?.isRecommended);
   console.log("isApproved:", application?.isApproved);
@@ -73,7 +75,23 @@ const TransferApplications = ({ record }) => {
   const [workplaceData, setWorkplaceData] = useState([]);
   const adminRole = adminData.adminRole || null;
 
-  const [transferWindows, setTransferWindows] = useState([]); // ✅ Correct state variable
+  const [transferWindows, setTransferWindows] = useState([]);
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedScore, setSelectedScore] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
+
+  const showScoreModal = (score, id) => {
+    setSelectedScore(score);
+    setSelectedId(id);
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+    setSelectedScore(null);
+    setSelectedId(null);
+  };
 
   useEffect(() => {
     const fetchTransferWindows = async () => {
@@ -191,7 +209,7 @@ const TransferApplications = ({ record }) => {
       }
       setInterval(function () {
         window.location.reload();
-      }, 10000);
+      }, 2000);
     } catch (error) {
       console.error(error.response?.data?.error || "Something went wrong");
       notification.warning({
@@ -201,6 +219,29 @@ const TransferApplications = ({ record }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const updateTransferredWorkplace = (id, newWorkplaceId) => {
+    Modal.confirm({
+      title: "Are you sure you want to update the transfer workplace?",
+      okText: "Yes",
+      cancelText: "No",
+      onOk: async () => {
+        try {
+          const response = await axios.put(
+            `${process.env.REACT_APP_API_URL}/transfer-application/${id}`,
+            {
+              transfered_workplace_id: newWorkplaceId,
+            }
+          );
+          message.success(response.data.message || "Updated successfully");
+          setTimeout(() => window.location.reload(), 2000);
+        } catch (error) {
+          console.error(error.response?.data?.error || "Failed to update");
+          message.error(error.response?.data?.error || "Failed to update");
+        }
+      },
+    });
   };
 
   const columns = [
@@ -303,11 +344,25 @@ const TransferApplications = ({ record }) => {
       title: "Score",
       dataIndex: "score",
       key: "score",
-      render: (text) => {
-        return text && text.trim() !== "" ? text : "N/A";
+      render: (text, record) => {
+        if (!text || !text.totalScore) return "N/A";
+        return (
+          <button
+            style={{
+              background: "none",
+              border: "none",
+              color: "#1890ff",
+              cursor: "pointer",
+              padding: 0,
+              textDecoration: "underline",
+            }}
+            onClick={() => showScoreModal(text, record._id)}
+          >
+            {text.totalScore}
+          </button>
+        );
       },
     },
-
     {
       title: "Transfer Decision",
       dataIndex: "transferDesision",
@@ -325,10 +380,30 @@ const TransferApplications = ({ record }) => {
     {
       title: "Transfer Workplace",
       dataIndex: "transfered_workplace_id",
+      width: 300,
       key: "transfered_workplace_id",
-      render: (workplace_id) => {
+      render: (workplace_id, record) => {
         const workplace = workplaceData.find((wp) => wp._id === workplace_id);
-        return workplace ? workplace.workplace : "N/A";
+        const showDropdown = adminRole === "superAdmin";
+
+        if (!showDropdown) {
+          return workplace ? workplace.workplace : "N/A";
+        }
+
+        return (
+          <Select
+            value={workplace_id}
+            onChange={(value) => updateTransferredWorkplace(record._id, value)}
+            style={{ width: 260 }}
+            dropdownStyle={{ width: 400 }}
+          >
+            {workplaceData.map((wp) => (
+              <Select.Option key={wp._id} value={wp._id}>
+                {wp.workplace}
+              </Select.Option>
+            ))}
+          </Select>
+        );
       },
     },
     {
@@ -363,7 +438,7 @@ const TransferApplications = ({ record }) => {
                   >
                     Process
                   </Button>
-                ) : !record.isProcessed ? (
+                ) : !record.isApproved || record.isRejected ? (
                   <Button
                     type="primary"
                     icon={<CheckCircleOutlined />}
@@ -446,6 +521,169 @@ const TransferApplications = ({ record }) => {
         pagination={{ pageSize: 10 }}
         scroll={{ x: "max-content" }}
       />
+      <Modal
+        title={<span className="text-lg font-semibold">Score Details</span>}
+        open={isModalVisible}
+        onCancel={handleCloseModal}
+        footer={null}
+        width={800}
+        className="[&_.ant-modal-body]:p-6"
+      >
+        <div className="overflow-auto">
+          <table className="w-full text-left">
+            <tbody className="divide-y divide-gray-200">
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700 w-1/3">
+                  Total Score
+                </td>
+                <td className="py-3 px-4">
+                  {selectedScore?.totalScore || "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">
+                  Duty Years
+                </td>
+                <td className="py-3 px-4">
+                  {selectedScore?.dutyYears || "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">Age</td>
+                <td className="py-3 px-4">{selectedScore?.age || "N/A"}</td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">
+                  Outer District
+                </td>
+                <td className="py-3 px-4">
+                  {selectedScore?.outerDistrict || "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">
+                  Resident Distance
+                </td>
+                <td className="py-3 px-4">
+                  {selectedScore?.residentDistance || "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">
+                  Civil Status
+                </td>
+                <td className="py-3 px-4">
+                  {selectedScore?.civilStatus || "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">Gender</td>
+                <td className="py-3 px-4">{selectedScore?.gender || "N/A"}</td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">
+                  Petition Status
+                </td>
+                <td className="py-3 px-4">
+                  {selectedScore?.petitionStatus || "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">
+                  Dependency - Infant
+                </td>
+                <td className="py-3 px-4">
+                  {selectedScore?.dependency?.infant || "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">
+                  Dependency - School Child
+                </td>
+                <td className="py-3 px-4">
+                  {selectedScore?.dependency?.schoolChild || "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">
+                  Dependency - Breastfeeding
+                </td>
+                <td className="py-3 px-4">
+                  {selectedScore?.dependency?.breastfeeding || "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">
+                  Dependency - Special Need
+                </td>
+                <td className="py-3 px-4">
+                  {selectedScore?.dependency?.specialNeed || "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">
+                  Dependency - Chronic Disease
+                </td>
+                <td className="py-3 px-4">
+                  {selectedScore?.dependency?.chronicDisease || "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">
+                  Dependency - Elderly Dependent
+                </td>
+                <td className="py-3 px-4">
+                  {selectedScore?.dependency?.elderlyDependent || "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">
+                  Dependency - Disabled Dependent
+                </td>
+                <td className="py-3 px-4">
+                  {selectedScore?.dependency?.disabledDependent || "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">Disease</td>
+                <td className="py-3 px-4">{selectedScore?.disease || "N/A"}</td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">
+                  Soft Work Recommendation
+                </td>
+                <td className="py-3 px-4">
+                  {selectedScore?.softWorkRecommendation || "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">
+                  Medical Condition
+                </td>
+                <td className="py-3 px-4">
+                  {selectedScore?.medicalCondition || "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">
+                  Disability
+                </td>
+                <td className="py-3 px-4">
+                  {selectedScore?.disability || "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-gray-700">
+                  Disability Level
+                </td>
+                <td className="py-3 px-4">
+                  {selectedScore?.disabilityLevel || "N/A"}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Modal>
     </div>
   );
 };

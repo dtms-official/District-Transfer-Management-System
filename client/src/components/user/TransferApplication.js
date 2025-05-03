@@ -240,7 +240,7 @@ export default function TransferApplicationForm() {
               {timeRemaining}
             </Text>
 
-            {applicationStatus && isPublished && (
+            {applicationStatus && !isPublished && (
               <Form form={form} layout="vertical" onFinish={onFinish}>
                 <Form.Item
                   label="Select Transfer Window"
