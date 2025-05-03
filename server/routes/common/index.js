@@ -37,9 +37,15 @@ router.post(
 router.get("/transfer-application", TransferApplcationController.getAll);
 router.get("/transfer-application/:id", TransferApplcationController.getUnique);
 router.get(
-  "/transfer-application/user/:userId",
-  TransferApplcationController.getDataByUser
+  "/my-application/user/:userId",
+  TransferApplcationController.getMyApplications
 );
+
+router.get(
+  "/transfer-application/user/:userId",
+  TransferApplcationController.getApplications
+);
+
 router.put("/transfer-application/:id", TransferApplcationController.update);
 router.delete("/transfer-application/:id", TransferApplcationController.delete);
 

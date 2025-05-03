@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Layout,
   Row,
@@ -16,6 +16,7 @@ import {
   Spin,
 } from "antd";
 import { CheckCircleOutlined, PaperClipOutlined } from "@ant-design/icons";
+import getWorkplaces from "../../api/getWorkplaces";
 
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +29,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user, loading } = useUserData();
   const [profileCompletion, setProfileCompletion] = useState(0);
+  const { workplaces } = getWorkplaces();
 
   const fetchValue = useCallback(() => {
     if (user) {
@@ -43,6 +45,16 @@ const Dashboard = () => {
   useEffect(() => {
     fetchValue();
   }, [fetchValue]);
+
+  const workplaceName = useMemo(() => {
+    if (!user?.workplace_id || workplaces.length === 0) return "Loading...";
+    
+    const userWorkplace = workplaces.find(
+      (workplace) => workplace._id === user.workplace_id
+    );
+    
+    return userWorkplace ? userWorkplace.workplace : "Unknown";
+  }, [user?.workplace_id, workplaces]);
 
   if (loading)
     return (
@@ -111,6 +123,12 @@ const Dashboard = () => {
               <Descriptions.Item label="NIC">
                 {user?.NIC || "-"}
               </Descriptions.Item>
+              <Descriptions.Item label="Designation">
+                {user?.designation || "-"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Workplace">
+                {workplaceName || "Unknown"}
+              </Descriptions.Item>
               <Descriptions.Item label="Status">
                 {user?.isApproved ? (
                   <Tag color="green">Approved</Tag>
@@ -152,9 +170,7 @@ const Dashboard = () => {
                 Complete
               </Tag>
             ) : (
-              <Text type="secondary">
-                Complete your profile
-              </Text>
+              <Text type="secondary">Complete your profile</Text>
             )}
           </Card>
         </Col>

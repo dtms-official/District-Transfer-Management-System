@@ -53,13 +53,20 @@ const getNotAppliedUsers = async (req, res) => {
     const currentDate = new Date();
     const activeTransferWindow = await TransferWindow.findOne({
       closingDate: { $gte: currentDate },
-      applicationClosingDate: { $gte: currentDate },
+      applicationClosingDate: { $lte: currentDate },
     });
 
-    if (activeTransferWindow) {
+    if (
+      activeTransferWindow &&
+      activeTransferWindow.applicationClosingDate > currentDate
+    ) {
+      return res.status(400).json({ error: "Application not closed yet" });
+    }
+
+    if (!activeTransferWindow) {
       return res
         .status(400)
-        .json({ message: "Currently a trnasfer window active" });
+        .json({ error: "Currently no transfer window active" });
     }
 
     const filter =
@@ -351,7 +358,7 @@ const rejectTransferApplication = async (req, res) => {
     const transferApplication = await TransferApplication.findByIdAndUpdate(
       id, // Using 'id' here
       {
-        isSubmited: true,
+        isSubmited: false,
         isChecked: false,
         isRecommended: false,
         isApproved: false,
@@ -375,6 +382,28 @@ const rejectTransferApplication = async (req, res) => {
   }
 };
 
+const removeTransferApplication = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const transferApplication = await TransferApplication.findByIdAndDelete(id);
+
+    if (!transferApplication) {
+      return res
+        .status(404)
+        .json({ message: "Transfer application not found" });
+    }
+
+    res.status(200).json({
+      message: "Transfer application removed successfully",
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later" });
+  }
+};
+
 module.exports = {
   getTotalSubmitedTransferApplications,
   getNotAppliedUsers,
@@ -387,4 +416,5 @@ module.exports = {
   recommendTransferApplication,
   approveTransferApplication,
   rejectTransferApplication,
+  removeTransferApplication
 };

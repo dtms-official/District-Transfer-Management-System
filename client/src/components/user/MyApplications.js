@@ -34,7 +34,7 @@ export default function MyApplications() {
     setLoading(true);
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/transfer-application/user/${userId}`
+        `${process.env.REACT_APP_API_URL}/my-application/user/${userId}`
       );
       setUserApplication(res.data || []);
     } catch (error) {
@@ -99,8 +99,24 @@ export default function MyApplications() {
         </Typography.Title>
 
         {userApplication.length === 0 ? (
-          <Text type="secondary">
+          <Text type="primary">
             You haven't submitted any applications yet.
+          </Text>
+        ) : userApplication.length > 0 &&
+          userApplication.some((app) => app.isSubmited && !app.isApproved) ? (
+          <Text type="primary">
+            You have submitted an application. Wait for the approval.
+          </Text>
+        // ) : userApplication.length > 0 &&
+        //   userApplication.some((app) => !app.isSubmited && app.isRejected) ? (
+        //   <Text type="danger">
+        //     Your applicaiton rejected submit again.
+        //   </Text>
+        ) : userApplication.some(
+            (app) => app.isSubmited && app.isApproved && !app.isProcessed
+          ) ? (
+          <Text type="success">
+            You applicaiton has been approved Wait for transfer decison.
           </Text>
         ) : (
           userApplication.map((app, index) => {
@@ -143,32 +159,6 @@ export default function MyApplications() {
 
                   <Col span={12}>
                     <Text strong>
-                      {app.isPublished ? (
-                        <CheckCircleTwoTone
-                          twoToneColor="#52c41a"
-                          className="mr-1"
-                        />
-                      ) : (
-                        <ClockCircleTwoTone className="mr-1" />
-                      )}
-                      Status:
-                    </Text>{" "}
-                    {app.isPublished ? (
-                      <Tag
-                        icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
-                        color="success"
-                      >
-                        Published
-                      </Tag>
-                    ) : (
-                      <Tag icon={<ClockCircleTwoTone />} color="warning">
-                        Pending
-                      </Tag>
-                    )}
-                  </Col>
-
-                  <Col span={12}>
-                    <Text strong>
                       <FileTextOutlined className="mr-1 text-blue-500" />
                       Transfer Decision:
                     </Text>{" "}
@@ -191,7 +181,7 @@ export default function MyApplications() {
                       <EnvironmentTwoTone className="mr-1" />
                       Transferred Workplace:
                     </Text>{" "}
-                    {transferred}
+                    <Tag>{transferred || "Not assigned"}</Tag>
                   </Col>
                 </Row>
 

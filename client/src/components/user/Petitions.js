@@ -216,7 +216,7 @@ const Petitions = ({ user }) => {
         onOk={handleConfirm}
         onCancel={() => setConfirmVisible(false)}
       >
-        <p>Are you sure you want to submit with no disease?</p>
+        <p>Are you sure you want to submit with no pettions?</p>
       </Modal>
       <br></br>
       <Table

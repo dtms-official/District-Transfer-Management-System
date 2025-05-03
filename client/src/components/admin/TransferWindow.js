@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Button, Input, Switch, message, Form, Table, Modal,Typography } from "antd";
+import {
+  Button,
+  Input,
+  Switch,
+  message,
+  Form,
+  Table,
+  Modal,
+  Typography,
+} from "antd";
 
 const TransferWindow = () => {
   const [form] = Form.useForm();
@@ -100,7 +109,7 @@ const TransferWindow = () => {
       key: "name",
     },
     {
-      title: "Transfer Closing Date",
+      title: "Transfer Closing Window Date",
       dataIndex: "closingDate",
       key: "closingDate",
       render: (date) => new Date(date).toLocaleDateString(),
@@ -132,36 +141,38 @@ const TransferWindow = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 gap-4">
-        <Typography.Title level={3} className="mb-8 mt-8 pb-3">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 gap-6 px-4 py-8">
+      <Typography.Title level={3} className="mb-6">
         Transfer Window
       </Typography.Title>
-      <div
-        className="p-8 border border-gray-300 rounded-xl w-2/3 shadow-lg bg-white"
-        style={{ maxWidth: "600px" }}
-      >
+
+      <div className="w-full max-w-4xl p-8 border border-gray-300 rounded-xl shadow-lg bg-white">
         <h2 className="text-lg mb-4 font-semibold text-gray-700">
           {activeWindow
             ? "Currently ongoing transfer window"
             : "No transfer window ongoing"}
         </h2>
+
         {pastWindows && <div></div>}
+
         {activeWindow && (
           <div className="mb-4">
             <p className="text-sm">Transfer Window Name: {activeWindow.name}</p>
             <p className="text-sm">
-              Transfer Window Closing Date:
+              Transfer Window Closing Date:{" "}
               {new Date(activeWindow.closingDate).toLocaleDateString()}
             </p>
             <p className="text-sm">
-              Application Closing Date:
-              {new Date(activeWindow.applicationClosingDate).toLocaleDateString()}
+              Application Closing Date:{" "}
+              {new Date(
+                activeWindow.applicationClosingDate
+              ).toLocaleDateString()}
             </p>
             <Button
               type="primary"
               danger
               onClick={handleTerminate}
-              className="mt-2 w-full"
+              className="mt-4"
             >
               TERMINATE
             </Button>
@@ -169,19 +180,17 @@ const TransferWindow = () => {
         )}
       </div>
 
-      <div
-        className="p-8 border border-gray-300 rounded-xl w-2/3 shadow-lg bg-white"
-        style={{ maxWidth: "600px" }}
-      >
+      <div className="w-full max-w-4xl p-8 border border-gray-300 rounded-xl shadow-lg bg-white">
         <h2 className="text-lg mb-4 font-semibold text-gray-700">
           Transfer Management Window
         </h2>
+
         <div className="mb-4 flex items-center">
           <p className="mr-4 text-sm text-gray-700">Enable transfer window</p>
           <Switch
             checked={isEnabled}
             onChange={handleSwitchChange}
-            disabled={!!activeWindow} // Disable if there's an active window
+            disabled={!!activeWindow}
           />
         </div>
 
@@ -222,12 +231,9 @@ const TransferWindow = () => {
                     const applicationDate = getFieldValue(
                       "applicationClosingDate"
                     );
-                    if (!value || !applicationDate) {
+                    if (!value || !applicationDate) return Promise.resolve();
+                    if (new Date(value) > new Date(applicationDate))
                       return Promise.resolve();
-                    }
-                    if (new Date(value) > new Date(applicationDate)) {
-                      return Promise.resolve();
-                    }
                     return Promise.reject(
                       new Error(
                         "Transfer Window Closing Date must be after the Application Closing Date"
@@ -251,10 +257,7 @@ const TransferWindow = () => {
         )}
       </div>
 
-      <div
-        className="p-8 border border-gray-300 rounded-xl w-2/3 shadow-lg bg-white"
-        style={{ maxWidth: "600px" }}
-      >
+      <div className="w-full max-w-4xl p-8 border border-gray-300 rounded-xl shadow-lg bg-white">
         <h2 className="text-lg mb-4 font-semibold text-gray-700">
           Past Transfer Windows
         </h2>

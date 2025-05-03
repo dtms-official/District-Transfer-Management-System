@@ -19,6 +19,7 @@ router.put("/check-application/:id", transferApplcaitions.checkTransferApplicati
 router.put("/recommend-application/:id", transferApplcaitions.recommendTransferApplication);
 router.put("/approve-application/:id", transferApplcaitions.approveTransferApplication);
 router.put("/reject-application/:id", transferApplcaitions.rejectTransferApplication);
+router.put("/remove-application/:id", transferApplcaitions.removeTransferApplication);
 
 
 // Transfer logic Routes

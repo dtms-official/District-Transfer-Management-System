@@ -8,6 +8,7 @@ import {
   message,
   Form,
   notification,
+  Spin,
 } from "antd";
 import getWorkplaces from "../../api/getWorkplaces";
 import axios from "axios";
@@ -25,6 +26,7 @@ export default function TransferApplicationForm() {
   const [form] = Form.useForm();
   const [transferWindows, setTransferWindows] = useState([]);
   const [timeRemaining, setTimeRemaining] = useState("");
+  const [applicationStatus, setApplicaitonStatus] = useState(true);
   const [activeWindow, setActiveWindow] = useState(null);
   const { user } = useUserData();
   const { workplaces, fetchWorkplaces } = getWorkplaces();
@@ -32,6 +34,12 @@ export default function TransferApplicationForm() {
   const [userApplication, setUserApplication] = useState([]);
   const isSubmited =
     userApplication.length > 0 ? userApplication[0].isSubmited : false;
+  const isApproved =
+    userApplication.length > 0 ? userApplication[0].isApproved : false;
+  const isProcessed =
+    userApplication.length > 0 ? userApplication[0].isProcessed : false;
+  const isPublished =
+    userApplication.length > 0 ? userApplication[0].isPublished : false;
 
   const userId = user?._id || null;
   const workplaceId = user?.workplace_id || null;
@@ -60,13 +68,13 @@ export default function TransferApplicationForm() {
     setLoading(true);
     try {
       const payload = {
+        workplace_id: workplaceId,
+        userId: userId,
         transferWindowId: values.transferWindow,
         preferWorkplace_1: values.preferredWorkplace1,
         preferWorkplace_2: values.preferredWorkplace2,
         preferWorkplace_3: values.preferredWorkplace3,
         remarks: values.remarks || "",
-        workplace_id: workplaceId,
-        userId: userId,
       };
 
       await axios.post(
@@ -92,6 +100,7 @@ export default function TransferApplicationForm() {
   };
 
   useEffect(() => {
+    setLoading(true);
     if (user && !user.isApproved) {
       notification.error({
         message: "Approval Required",
@@ -101,16 +110,23 @@ export default function TransferApplicationForm() {
     }
     fetchWorkplaces();
     fetchTransferWindows();
+    setLoading(false);
 
-    if (isSubmited) {
-      notification.success({
-        description:
-          "You have successfully submitted the transfer application. Wait for approval",
-      });
-    }
-  }, [user, fetchWorkplaces, isSubmited]);
+    // if (isProcessed) {
+    //   notification.success({
+    //     description:
+    //       "Your applicaiton has been processed go to my applications to see more details",
+    //   });
+    // } else if (isSubmited) {
+    //   notification.info({
+    //     description:
+    //       "You have successfully submitted the transfer application. Wait for approval",
+    //   });
+    // }
+  }, [user, fetchWorkplaces]);
 
   const fetchTransferWindows = async () => {
+    setLoading(true);
     try {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/transfer-window`
@@ -118,8 +134,7 @@ export default function TransferApplicationForm() {
       const windows = response.data;
       const active = windows.find(
         (window) =>
-          !window.isTerminated &&
-          new Date(window.applicationClosingDate) > new Date()
+          !window.isTerminated && new Date(window.closingDate) > new Date()
       );
       setActiveWindow(active);
       setTransferWindows(windows);
@@ -128,47 +143,95 @@ export default function TransferApplicationForm() {
         error?.response?.data?.error ||
           "Something went wrong. Please try again."
       );
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
-    const interval = setInterval(() => {
-      const closingDate = activeWindow?.applicationClosingDate;
-      const formattedDate = dayjs(closingDate).format("YYYY-MM-DD");
-      const now = dayjs();
-      const diffInSeconds = dayjs(formattedDate).diff(now, "second");
+    setLoading(true);
+    try {
+      const interval = setInterval(() => {
+        const closingDate = activeWindow?.applicationClosingDate;
+        const formattedDate = dayjs(closingDate).format("YYYY-MM-DD");
+        const now = dayjs();
+        const diffInSeconds = dayjs(formattedDate).diff(now, "second");
 
-      if (diffInSeconds <= 0) {
-        setTimeRemaining("Application closed");
-        clearInterval(interval);
-        return;
-      }
+        if (diffInSeconds <= 0) {
+          setTimeRemaining("Application closed");
+          setApplicaitonStatus(false);
+          clearInterval(interval);
+          return;
+        }
 
-      const dur = dayjs.duration(diffInSeconds, "seconds");
-      const d = dur.days();
-      const h = dur.hours();
-      const m = dur.minutes();
-      const s = dur.seconds();
+        const dur = dayjs.duration(diffInSeconds, "seconds");
+        const d = dur.days();
+        const h = dur.hours();
+        const m = dur.minutes();
+        const s = dur.seconds();
 
-      setTimeRemaining(`${d} Days ${h} Hour, ${m} Min, ${s} Seconds`);
-    }, 1000);
+        setTimeRemaining(`${d} Days ${h} Hour, ${m} Min, ${s} Seconds`);
+      }, 1000);
 
-    return () => clearInterval(interval);
+      return () => clearInterval(interval);
+    } catch (error) {
+      message.error(
+        error?.response?.data?.error ||
+          "Something went wrong. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   }, [activeWindow]);
+  useEffect(() => {
+    if (user !== undefined && activeWindow !== undefined) {
+      setLoading(false);
+    }
+  }, [user, activeWindow]);
+
+  if (loading)
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "80vh",
+        }}
+      >
+        <Spin
+          size="large"
+          tip="Loading..."
+          style={{ fontSize: "24px", transform: "scale(2)" }} // Enlarges the spinner
+        />
+      </div>
+    );
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100 p-6 overflow-hidden">
       <Card className="w-full max-w-xl">
         <Title level={4}>Transfer Application</Title>
-        {!user?.isApproved ? (
-          <Text type="danger">You need approval to apply for transfer.</Text>
-        ) : isSubmited ? (
-          <Text type="success">
-            You have submitted a transfer application successfully. Wait for the
-            approval
-          </Text>
+        {loading ? (
+          <Spin tip="Checking transfer status..." />
         ) : !activeWindow ? (
           <Text type="danger">
             Currently, no active transfer window is available.
+          </Text>
+        ) : !user?.isApproved ? (
+          <Text type="danger">You need approval to apply for transfer.</Text>
+        ) : isSubmited && !isApproved && !isProcessed ? (
+          <Text type="info">
+            You have submitted a transfer application successfully. Wait for the
+            approval.
+          </Text>
+        ) : isApproved && !isProcessed ? (
+          <Text type="info">
+            Your application has been approved. Go to "My Applications" to see
+            more details.
+          </Text>
+        ) : isApproved && isProcessed && !isPublished ? (
+          <Text type="info">
+            Your application has been processed. Go to "My Applications" to see
+            more details.
           </Text>
         ) : (
           <>
@@ -176,8 +239,8 @@ export default function TransferApplicationForm() {
               TRANSFER APPLICATION CLOSING IN:
               {timeRemaining}
             </Text>
-            ;
-            {!isSubmited && (
+
+            {applicationStatus && !isPublished && (
               <Form form={form} layout="vertical" onFinish={onFinish}>
                 <Form.Item
                   label="Select Transfer Window"
@@ -194,7 +257,7 @@ export default function TransferApplicationForm() {
                       .filter(
                         (window) =>
                           !window.isTerminated &&
-                          new Date(window.applicationClosingDate) > new Date()
+                          new Date(window.closingDate) > new Date()
                       )
                       .map((transferWindow) => (
                         <Option

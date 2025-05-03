@@ -231,14 +231,7 @@ const Cadre = () => {
         return formattedDate;
       },
     },
-    {
-      title: "Workplace",
-      dataIndex: "workplace_id",
-      key: "workplace_id",
-      render: (_, record) =>
-        workplaceData.find((wp) => wp._id === record.workplace_id)?.workplace ||
-        "Unknown",
-    },
+  
   ];
 
   if (

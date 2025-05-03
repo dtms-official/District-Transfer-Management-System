@@ -51,6 +51,6 @@ exports.calculateWorkplaceDistance = async (user, workplaces) => {
     workplace_id: wp.id,
     workplace: wp.name,
     distance: wp.distance,
-    category: index === 0 ? "Easy" : index === 1 ? "Moderate" : "Difficult"
+    category: index === 0 ? "Prefered" : index === 1 ? "Moderate" : "Difficult"
   }));
 };
