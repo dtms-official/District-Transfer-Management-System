@@ -35,30 +35,32 @@ const TransferApplcationSchema = new mongoose.Schema(
     },
 
     remarks: { type: String },
-    score: {
-      totalScore: { type: String },
-      dutyYears: { type: String },
-      age: { type: String },
-      outerDistrict: { type: String },
-      residentDistance: { type: String },
-      civilStatus: { type: String },
-      gender: { type: String },
-      petitionStatus: { type: String },
-      dependency: {
-        infant: { type: String },
-        schoolChild: { type: String },
-        breastfeeding: { type: String },
-        specialNeed: { type: String },
-        chronicDisease: { type: String },
-        elderlyDependent: { type: String },
-        disabledDependent: { type: String },
-      },
-      disease: { type: String },
-      softWorkRecommendation: { type: String },
-      medicalCondition: { type: String },
-      disability: { type: String },
-      disabilityLevel: { type: String },
-    },
+    score: { type: String },
+
+    // score: {
+    //   totalScore: { type: String },
+    //   dutyYears: { type: String },
+    //   age: { type: String },
+    //   outerDistrict: { type: String },
+    //   residentDistance: { type: String },
+    //   civilStatus: { type: String },
+    //   gender: { type: String },
+    //   petitionStatus: { type: String },
+    //   dependency: {
+    //     infant: { type: String },
+    //     schoolChild: { type: String },
+    //     breastfeeding: { type: String },
+    //     specialNeed: { type: String },
+    //     chronicDisease: { type: String },
+    //     elderlyDependent: { type: String },
+    //     disabledDependent: { type: String },
+    //   },
+    //   disease: { type: String },
+    //   softWorkRecommendation: { type: String },
+    //   medicalCondition: { type: String },
+    //   disability: { type: String },
+    //   disabilityLevel: { type: String },
+    // },
     transferDesision: { type: String },
     transferDesisionType: { type: String },
     transfered_workplace_id: {
@@ -66,6 +68,8 @@ const TransferApplcationSchema = new mongoose.Schema(
       ref: "Workplace",
       default: null,
     },
+
+
     isSubmited: { type: Boolean, default: true }, // isSubmited status
     isChecked: { type: Boolean, default: false }, // isChecked status
     isRecommended: { type: Boolean, default: false }, // isRecommended status
