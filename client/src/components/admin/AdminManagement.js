@@ -251,7 +251,7 @@ const AdminManagement = () => {
             "Divisional Secretariat, Akkaraipaththu",
             "Divisional Secretariat, Thirukkovil",
             "Divisional Secretariat, Pothuvil",
-            "Divisional Secretariat, Kalmunai (Muslim)",
+            "Divisional Secretariat, Kalmunai",
             "Divisional Secretariat, Kalmunai (Tamil)",
             "Divisional Secretariat, Karathivu",
           ].map((place) => (
