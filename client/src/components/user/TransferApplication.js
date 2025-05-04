@@ -239,8 +239,8 @@ export default function TransferApplicationForm() {
               TRANSFER APPLICATION CLOSING IN:
               {timeRemaining}
             </Text>
-
-            {applicationStatus && !isPublished && (
+            {/* && isPublished */}
+            {applicationStatus  && (
               <Form form={form} layout="vertical" onFinish={onFinish}>
                 <Form.Item
                   label="Select Transfer Window"

@@ -8,6 +8,47 @@ const UserMedicalCondition = require("../../models/UserMedicalCondition");
 const Workplace = require("../../models/Workplace");
 const TransferApplication = require("../../models/TransferApplication");
 const { calculateWorkplaceDistance } = require("./calculateWorkplaceDistance");
+const geolib = require("geolib");
+
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  return (
+    geolib.getDistance(
+      { latitude: lat1, longitude: lon1 },
+      { latitude: lat2, longitude: lon2 }
+    ) / 1000
+  ).toFixed(2);
+};
+
+const getWorkplaceDistanceScore = async (user, Workplace) => {
+  const GPS_longitude = user?.GPS_longitude;
+  const GPS_latitude = user?.GPS_latitude;
+  const workplaceId = user?.workplace_id;
+
+  if (!GPS_latitude || !GPS_longitude || !workplaceId) return 0;
+
+  const workplace = await Workplace.findById(workplaceId);
+  if (!workplace || !workplace.GPS_latitude || !workplace.GPS_longitude) return 0;
+
+  const distance = parseFloat(
+    calculateDistance(
+      parseFloat(GPS_latitude),
+      parseFloat(GPS_longitude),
+      parseFloat(workplace.GPS_latitude),
+      parseFloat(workplace.GPS_longitude)
+    )
+  );
+
+  let score = 0;
+  if (distance <= 10) {
+    score += 5;
+  } else if (distance >= 10 && distance <= 25) {
+    score += 15;
+  } else  {
+    score += 20;
+  }
+
+  return score;
+};
 
 function generateScore(
   user,
@@ -21,6 +62,12 @@ function generateScore(
   let score = 0;
 
   try {
+
+    // User Info
+    const distanceScore = getWorkplaceDistanceScore(user, Workplace);
+    score += distanceScore;
+
+    // Basic Infro
     const currentDate = new Date();
     const dutyDateObj = new Date(user?.duty_assumed_date);
 
@@ -31,28 +78,62 @@ function generateScore(
     const age = currentDate.getFullYear() - birthDate.getFullYear();
     if (age < 58) score += 20;
 
-    if (workhistory?.outer_district !== "Ampara") score += 10;
+    // Work History
+    if (workhistory?.outer_district !== "Ampara") score += 30;
     if (workhistory?.resident_distance > 15) score += 15;
-    if (user?.civil_status === "Married") score += 10;
-    if (user?.gender === "Female") score += 15;
+    // Worked in favourable station at Out of district 20
+
+    const dependentDOB = dependence?.dependent_DOB;
+    const dependentAge = dependentDOB ? Math.floor((new Date() - new Date(dependentDOB)) / (1000 * 60 * 60 * 24 * 365.25)) : null;
+
+    // Civil status 
+    if (user?.civil_status === "Married") {
+      if (dependentAge < 5) score += 20;
+      if (dependentAge >= 5 && dependentAge <= 17) score += 10;
+    }
+    
+    // Gender
+    if (user?.gender === "Female") score += 10;
+
+    // Pettision
     if (!pettision) score += 25;
 
+    // Dependence
     const depType = dependence?.natureOfDependency;
+    const liveWith = dependence?.live_with_dependant;
+
     if (depType === "Infant") score += 5;
     if (depType === "School Going" || depType === "Non-School Going Child")
       score += 10;
     if (dependence?.breastfeeding_required === true) score += 5;
+    if (depType === "Disabled Dependant" && liveWith === true) score += 20;
+
+    if (depType === "Elderly Dependent" && dependentAge > 70 && liveWith === true) score += 15;
+
     if (
       depType === "Special Need" ||
-      depType === "Affected by Chronic Disease" ||
-      depType === "Elderly Dependent" ||
-      depType === "Disabled Dependant"
+      depType === "Affected by Chronic Disease" &&
+      dependentAge > 70 && liveWith === true
     )
-      score += 10;
+      score += 15;
 
-    if (disease) score += 15;
+    //Period Of Work
+    const userAppointmenDate = user?.first_appointment_date;
+    const years = userAppointmenDdate ? Math.floor((new Date() - new Date(userAppointmenDate)) / (1000 * 60 * 60 * 24 * 365.25)) : null;
+
+    if(years <= 8){
+      if(years >= 5)  score += 5;
+      else if (years > 3)  score += 10;
+    }
+    // Health
+    if (disease) score += 20;
     if (disease?.soft_work_recommendation === true) score += 5;
+
+    // MedicalCondition
     if (medicalCondition) score += 10;
+    if (medicalCondition?.type === "Surgery") score += 20;
+
+    // Disability
     if (disability) score += 15;
     if (disability?.level === "Severe") score += 15;
   } catch (err) {
@@ -145,7 +226,7 @@ exports.transferProcess = async (req, res) => {
         score,
         transfered_workplace_id: transferWorkplaceId,
         transferDesisionType: workplaceCategory,
-        categorizedWorkplaces
+        categorizedWorkplaces,
       },
     });
   } catch (error) {
