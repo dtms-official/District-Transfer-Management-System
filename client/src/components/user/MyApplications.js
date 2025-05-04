@@ -8,10 +8,8 @@ import {
   Divider,
   notification,
   Spin,
+  Pagination,
 } from "antd";
-import getWorkplaces from "../../api/getWorkplaces";
-import axios from "axios";
-import useUserData from "../../api/useUserData";
 import {
   CheckCircleTwoTone,
   ClockCircleTwoTone,
@@ -19,19 +17,26 @@ import {
   FileTextOutlined,
   CalendarOutlined,
 } from "@ant-design/icons";
+import axios from "axios";
+import getWorkplaces from "../../api/getWorkplaces";
+import useUserData from "../../api/useUserData";
+
 const { Text } = Typography;
 
 export default function MyApplications() {
   const [userApplication, setUserApplication] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingApplications, setLoadingApplications] = useState(false);
+  const [loadingWindows, setLoadingWindows] = useState(false);
   const [transferWindows, setTransferWindows] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(2);
+
   const { workplaces, fetchWorkplaces } = getWorkplaces();
   const { user } = useUserData();
-
   const userId = user?._id;
 
   const getUserApplication = useCallback(async () => {
-    setLoading(true);
+    setLoadingApplications(true);
     try {
       const res = await axios.get(
         `${process.env.REACT_APP_API_URL}/my-application/user/${userId}`
@@ -44,12 +49,12 @@ export default function MyApplications() {
         placement: "topRight",
       });
     } finally {
-      setLoading(false);
+      setLoadingApplications(false);
     }
   }, [userId]);
 
   const fetchTransferWindows = async () => {
-    setLoading(true);
+    setLoadingWindows(true);
     try {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/transfer-window`
@@ -61,7 +66,7 @@ export default function MyApplications() {
         description: "Failed to fetch transfer windows.",
       });
     } finally {
-      setLoading(false);
+      setLoadingWindows(false);
     }
   };
 
@@ -73,7 +78,16 @@ export default function MyApplications() {
     }
   }, [userId, getUserApplication, fetchWorkplaces]);
 
-  if (loading)
+  useEffect(() => {
+    if ((currentPage - 1) * pageSize >= userApplication.length) {
+      setCurrentPage(1);
+    }
+  }, [userApplication, currentPage, pageSize]);
+
+  const getWorkplaceName = (id) =>
+    workplaces.find((w) => w._id === id)?.workplace || "N/A";
+
+  if (loadingApplications || loadingWindows)
     return (
       <div
         style={{
@@ -86,10 +100,22 @@ export default function MyApplications() {
         <Spin
           size="large"
           tip="Loading..."
-          style={{ fontSize: "24px", transform: "scale(2)" }} // Enlarges the spinner
+          style={{ fontSize: "24px", transform: "scale(2)" }}
         />
       </div>
     );
+
+  const sortedApplications = userApplication
+    .slice()
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  // Check if there's an application with isProcessed: false and isPublished: false
+  const highlightedApp = sortedApplications.find(
+    (app) => app.isProcessed === false && app.isPublished === false
+  );
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedApps = sortedApplications.slice(startIndex, startIndex + pageSize);
 
   return (
     <div className="min-h-screen flex justify-center items-start py-10 px-4">
@@ -102,122 +128,123 @@ export default function MyApplications() {
           <Text type="primary">
             You haven't submitted any applications yet.
           </Text>
-        ) : userApplication.length > 0 &&
-          userApplication.some((app) => app.isSubmited && !app.isApproved) ? (
-          <Text type="primary">
-            You have submitted an application. Wait for the approval.
-          </Text>
-        // ) : userApplication.length > 0 &&
-        //   userApplication.some((app) => !app.isSubmited && app.isRejected) ? (
-        //   <Text type="danger">
-        //     Your applicaiton rejected submit again.
-        //   </Text>
-        ) : userApplication.some(
-            (app) => app.isSubmited && app.isApproved && !app.isProcessed
-          ) ? (
-          <Text type="success">
-            You applicaiton has been approved Wait for transfer decison.
-          </Text>
         ) : (
-          userApplication.map((app, index) => {
-            const windowName =
-              transferWindows.find((w) => w._id === app.transferWindowId)
-                ?.name || "Unknown";
-            const workplace1 =
-              workplaces.find((w) => w._id === app.preferWorkplace_1)
-                ?.workplace || "N/A";
-            const workplace2 =
-              workplaces.find((w) => w._id === app.preferWorkplace_2)
-                ?.workplace || "N/A";
-            const workplace3 =
-              workplaces.find((w) => w._id === app.preferWorkplace_3)
-                ?.workplace || "N/A";
-            const transferred =
-              workplaces.find((w) => w._id === app.transfered_workplace_id)
-                ?.workplace || "Pending";
+          <>
+            {/* If there's an application with isProcessed: false and isPublished: false, show the message */}
+            {highlightedApp && (
+              <Text type="success" className="block mb-4">
+                Your application has been approved. Wait for transfer decision.
+              </Text>
+            )}
 
-            return (
-              <Card
-                key={app._id}
-                type="inner"
-                title={
-                  <span className="text-lg font-semibold">
-                    <FileTextOutlined className="mr-2 text-blue-500" />
-                    Application {index + 1}
-                  </span>
-                }
-                className="mb-5 bg-white shadow-md rounded-lg border border-gray-200"
-              >
-                <Row gutter={[16, 12]}>
-                  <Col span={12}>
-                    <Text strong>
-                      <CalendarOutlined className="mr-1" />
-                      Transfer Window:
-                    </Text>{" "}
-                    {windowName}
-                  </Col>
+            {/* Render the list of applications, excluding the one with isProcessed: false and isPublished: false */}
+            {paginatedApps.map((app, index) => {
+              const appNumber = userApplication.length - (startIndex + index);
+              const windowName =
+                transferWindows.find((w) => w._id === app.transferWindowId)
+                  ?.name || "Unknown";
+              const workplace1 = getWorkplaceName(app.preferWorkplace_1);
+              const workplace2 = getWorkplaceName(app.preferWorkplace_2);
+              const workplace3 = getWorkplaceName(app.preferWorkplace_3);
+              const transferred =
+                getWorkplaceName(app.transfered_workplace_id) || "Pending";
 
-                  <Col span={12}>
-                    <Text strong>
-                      <FileTextOutlined className="mr-1 text-blue-500" />
-                      Transfer Decision:
-                    </Text>{" "}
-                    <Tag
-                      icon={
-                        app.transferDesision ? (
-                          <CheckCircleTwoTone twoToneColor="#1890ff" />
-                        ) : (
-                          <ClockCircleTwoTone />
-                        )
-                      }
-                      color={app.transferDesision ? "blue" : "default"}
-                    >
-                      {app.transferDesision || "Not decided yet"}
-                    </Tag>
-                  </Col>
+              // Skip rendering the application with isProcessed: false and isPublished: false
+              if (app.isProcessed === false && app.isPublished === false) return null;
 
-                  <Col span={12}>
-                    <Text strong>
-                      <EnvironmentTwoTone className="mr-1" />
-                      Transferred Workplace:
-                    </Text>{" "}
-                    <Tag>{transferred || "Not assigned"}</Tag>
-                  </Col>
-                </Row>
+              return (
+                <Card
+                  key={app._id}
+                  type="inner"
+                  title={
+                    <span className="text-lg font-semibold">
+                      <FileTextOutlined className="mr-2 text-blue-500" />
+                      Application {appNumber}
+                    </span>
+                  }
+                  className="mb-5 bg-white shadow-md rounded-lg border border-gray-200"
+                >
+                  <Row gutter={[16, 12]}>
+                    <Col span={12}>
+                      <Text strong>
+                        <CalendarOutlined className="mr-1" />
+                        Transfer Window:
+                      </Text>{" "}
+                      {windowName}
+                    </Col>
 
-                <Divider orientation="left" plain>
-                  Preferences
-                </Divider>
+                    <Col span={12}>
+                      <Text strong>
+                        <FileTextOutlined className="mr-1 text-blue-500" />
+                        Transfer Decision:
+                      </Text>{" "}
+                      <Tag
+                        icon={
+                          app.transferDecision ? (
+                            <CheckCircleTwoTone twoToneColor="#1890ff" />
+                          ) : (
+                            <ClockCircleTwoTone />
+                          )
+                        }
+                        color={app.transferDecision ? "blue" : "default"}
+                      >
+                        {app.transferDecision || "Not decided yet"}
+                      </Tag>
+                    </Col>
 
-                <Row gutter={[16, 12]}>
-                  <Col span={8}>
-                    <Text strong>Preferred Workplace 1:</Text>
-                    <div>{workplace1}</div>
-                  </Col>
-                  <Col span={8}>
-                    <Text strong>Preferred Workplace 2:</Text>
-                    <div>{workplace2}</div>
-                  </Col>
-                  <Col span={8}>
-                    <Text strong>Preferred Workplace 3:</Text>
-                    <div>{workplace3}</div>
-                  </Col>
-                </Row>
+                    <Col span={12}>
+                      <Text strong>
+                        <EnvironmentTwoTone className="mr-1" />
+                        Transferred Workplace:
+                      </Text>{" "}
+                      <Tag>{transferred}</Tag>
+                    </Col>
+                  </Row>
 
-                <Divider orientation="left" plain>
-                  Additional Info
-                </Divider>
+                  <Divider orientation="left" plain>
+                    Preferences
+                  </Divider>
 
-                <p>
-                  <Text strong>Remarks:</Text> {app.remarks || "None"}
-                </p>
-                <p>
-                  <Text strong>Applied On:</Text>{" "}
-                  {new Date(app.createdAt).toLocaleString()}
-                </p>
-              </Card>
-            );
-          })
+                  <Row gutter={[16, 12]}>
+                    <Col span={8}>
+                      <Text strong>Preferred Workplace 1:</Text>
+                      <div>{workplace1}</div>
+                    </Col>
+                    <Col span={8}>
+                      <Text strong>Preferred Workplace 2:</Text>
+                      <div>{workplace2}</div>
+                    </Col>
+                    <Col span={8}>
+                      <Text strong>Preferred Workplace 3:</Text>
+                      <div>{workplace3}</div>
+                    </Col>
+                  </Row>
+
+                  <Divider orientation="left" plain>
+                    Additional Info
+                  </Divider>
+
+                  <p>
+                    <Text strong>Remarks:</Text> {app.remarks || "No remarks"}
+                  </p>
+                  <p>
+                    <Text strong>Applied On:</Text>{" "}
+                    {new Date(app.createdAt).toLocaleString()}
+                  </p>
+                </Card>
+              );
+            })}
+
+            <div className="flex justify-center mt-4">
+              <Pagination
+                current={currentPage}
+                pageSize={pageSize}
+                total={sortedApplications.length}
+                onChange={(page) => setCurrentPage(page)}
+                showSizeChanger={false}
+              />
+            </div>
+          </>
         )}
       </Card>
     </div>
