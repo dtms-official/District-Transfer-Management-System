@@ -25,7 +25,6 @@ const UserSchema = new mongoose.Schema(
     service: { type: String, default: null },
     class: { type: String, default: null },
     city: { type: String, default: null },
-    pendingTransfer: { type: Boolean, default: false },
 
     // Additionally added
     resident_type: { type: String, default: null },
