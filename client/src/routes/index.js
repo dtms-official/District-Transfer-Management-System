@@ -18,6 +18,7 @@ const Cadre = lazy(() => import("../components/admin/Cadre"));
 const UserManagement = lazy(() => import("../components/admin/UserManagement"));
 const Test = lazy(() => import("../views/Test"));
 const NotFound = lazy(() => import("../views/NotFound"));
+const About = lazy(() => import("../views/About"));
 const AdminManagement = lazy(() =>
   import("../components/admin/AdminManagement")
 );
@@ -103,6 +104,7 @@ const RoutesPage = () => (
         <Route path="/admin_login" element={<AdminLogin />} />
         <Route path="register" element={<Register />} />
         <Route path="/test" element={<Test />} />
+        <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
