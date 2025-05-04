@@ -85,7 +85,7 @@ export default function MyApplications() {
   }, [userApplication, currentPage, pageSize]);
 
   const getWorkplaceName = (id) =>
-    workplaces.find((w) => w._id === id)?.workplace || "N/A";
+    workplaces.find((w) => w._id === id)?.workplace;
 
   if (loadingApplications || loadingWindows)
     return (
@@ -196,7 +196,7 @@ export default function MyApplications() {
                       <Text strong>
                         <EnvironmentTwoTone className="mr-1" />
                         Transferred Workplace:
-                      </Text>{" "}
+                      </Text>
                       <Tag>{transferred}</Tag>
                     </Col>
                   </Row>

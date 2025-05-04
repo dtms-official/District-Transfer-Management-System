@@ -156,6 +156,7 @@ const UserMedicalCondition = ({ user }) => {
                 <Select>
                   <Option value="Pregnancy">Pregnancy</Option>
                   <Option value="Therapy">Therapy</Option>
+                  <Option value="Surgery">Surgery</Option>
                   <Option value="Other">Other</Option>
                 </Select>
               </Form.Item>

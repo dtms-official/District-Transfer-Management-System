@@ -448,6 +448,16 @@ const UserProfile = ({ user }) => {
                 </Form.Item>
               </div>
             </Form.Item>
+            <Form.Item
+              label="Pending Transfer"
+              name="pendingTransfer"
+              style={{ flex: "1 1 48%" }}
+            >
+              <Select>
+                <Option value="Yes">Yes</Option>
+                <Option value="No">No</Option>
+              </Select>
+            </Form.Item>
           </div>
 
           {locationError && (
