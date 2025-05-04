@@ -68,7 +68,7 @@ const HomePage = () => {
             </Button>
           </Link>
 
-          <Button on={generatePdf} type="default" size="large">
+          <Button onClick={generatePdf} type="default" size="large">
             Help
           </Button>
 
