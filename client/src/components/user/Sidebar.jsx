@@ -18,7 +18,11 @@ const Sidebar = () => {
   const closeDrawer = () => setVisible(false);
 
   // Settings Modal Control
-  const showSettingsModal = () => setIsSettingsModalVisible(true);
+  const showSettingsModal = () => {
+    setIsSettingsModalVisible(true);
+    closeDrawer(); // Close the drawer when settings modal opens
+  };
+
   const closeSettingsModal = () => setIsSettingsModalVisible(false);
 
   return (
@@ -49,32 +53,36 @@ const Sidebar = () => {
       >
         <Menu mode="inline" defaultSelectedKeys={["1"]}>
           <Menu.Item key="1" icon={<UserOutlined />}>
-            <Link to="/dashboard">Dashboard</Link>
+            <Link to="/dashboard" onClick={closeDrawer}>
+              Dashboard
+            </Link>
           </Menu.Item>
+
           <Menu.SubMenu
             key="2"
             icon={<BarChartOutlined />}
             title="Transfer Management"
           >
-          
             <Menu.Item key="2-1">
-              <Link to="/dashboard/transfer-management/transfer-applications">
+              <Link
+                to="/dashboard/transfer-management/transfer-applications"
+                onClick={closeDrawer}
+              >
                 Apply for transfer
               </Link>
             </Menu.Item>
             <Menu.Item key="2-2">
-              <Link to="/dashboard/transfer-management/my-applications">
-                My applicaitons
+              <Link
+                to="/dashboard/transfer-management/my-applications"
+                onClick={closeDrawer}
+              >
+                My applications
               </Link>
             </Menu.Item>
           </Menu.SubMenu>
 
-          {/* Single Settings Option */}
-          <Menu.Item
-            key="2"
-            icon={<SettingOutlined />}
-            onClick={showSettingsModal}
-          >
+          {/* Settings Option */}
+          <Menu.Item key="3" icon={<SettingOutlined />} onClick={showSettingsModal}>
             Settings
           </Menu.Item>
         </Menu>
@@ -90,3 +98,5 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+
+

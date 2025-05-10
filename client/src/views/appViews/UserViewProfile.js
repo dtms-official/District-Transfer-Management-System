@@ -168,7 +168,11 @@ const UserViewProfile = () => {
             padding: "15px",
             backgroundColor: "#fff",
           }}
-          onClick={({ key }) => setCurrentSection(key)}
+          // ✅ Only line updated to add drawer auto-close behavior
+          onClick={({ key }) => {
+            setCurrentSection(key);
+            closeDrawer();
+          }}
         >
           {sections.map((section) => (
             <Menu.Item key={section.key} icon={section.icon}>
@@ -206,3 +210,5 @@ const UserViewProfile = () => {
 };
 
 export default UserViewProfile;
+
+

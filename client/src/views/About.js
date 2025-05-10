@@ -55,7 +55,7 @@ const About = () => {
                 className="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-blue-500"
               />
               <h3 className="text-xl font-bold text-center text-gray-800">
-                👩‍💻 Nuzla Razzom
+                👩‍💻 Nuzla Razool
               </h3>
               <p className="text-center text-sm text-gray-600 mb-2">
                 Front-End Developer
@@ -70,18 +70,18 @@ const About = () => {
             <div className="bg-gray-100 p-6 rounded-lg shadow hover:shadow-lg transition">
               <img
                 src={userImage}
-                alt="Midusheka Kuntrukumaren"
+                alt="Midushekaa Kunrakumaren"
                 className="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-blue-500"
               />
               <h3 className="text-xl font-bold text-center text-gray-800">
-                👩‍💻 Midusheka Kuntrukumaren
+                👩‍💻 Midushekaa Kunrakumaren
               </h3>
               <p className="text-center text-sm text-gray-600 mb-2">
                 Front-End Developer
               </p>
               <p className="text-gray-600 text-sm text-justify">
-                Focused on dynamic component design, smooth interactions, and visual consistency across devices.
-                Brings precision and usability to every front-end screen using React.js and Tailwind.
+               Specializes in dynamic component design, smooth interactions, and visual consistency across devices. 
+               Brings precision and usability to every front-end screen using React.js and Tailwind CSS.
               </p>
             </div>
           </div>

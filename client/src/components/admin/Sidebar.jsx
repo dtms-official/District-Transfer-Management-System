@@ -10,14 +10,14 @@ import {
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import useCheckAdminAuth from "../../utils/checkAdminAuth";
-import SettingsModal from "./SettingsModal"; // Import the SettingsModal
+import SettingsModal from "./SettingsModal";
 
 const Sidebar = () => {
   const { adminData, loading } = useCheckAdminAuth();
   const adminRole = adminData?.adminRole || null;
 
   const [visible, setVisible] = useState(false);
-  const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false); // Modal visibility state
+  const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
 
   const showDrawer = () => {
     setVisible(true);
@@ -28,11 +28,11 @@ const Sidebar = () => {
   };
 
   const showSettingsModal = () => {
-    setIsSettingsModalVisible(true); // Show the modal
+    setIsSettingsModalVisible(true);
   };
 
   const closeSettingsModal = () => {
-    setIsSettingsModalVisible(false); // Close the modal
+    setIsSettingsModalVisible(false);
   };
 
   if (loading)
@@ -48,7 +48,7 @@ const Sidebar = () => {
         <Spin
           size="large"
           tip="Loading..."
-          style={{ fontSize: "24px", transform: "scale(2)" }} // Enlarges the spinner
+          style={{ fontSize: "24px", transform: "scale(2)" }}
         />
       </div>
     );
@@ -85,21 +85,27 @@ const Sidebar = () => {
           style={{ height: "100%", borderRight: 0 }}
         >
           <Menu.Item key="1" icon={<HomeOutlined />}>
-            <Link to="/admin_dashboard">Dashboard</Link>
+            <Link to="/admin_dashboard" onClick={closeDrawer}>
+              Dashboard
+            </Link>
           </Menu.Item>
 
           {adminRole === "superAdmin" && (
             <Menu.Item key="2" icon={<TeamOutlined />}>
-              <Link to="admin_dashboard/admin-management">
+              <Link to="/admin_dashboard/admin-management" onClick={closeDrawer}>
                 Admin Management
               </Link>
             </Menu.Item>
           )}
           <Menu.Item key="3" icon={<TeamOutlined />}>
-            <Link to="admin_dashboard/user-management">User Management</Link>
+            <Link to="/admin_dashboard/user-management" onClick={closeDrawer}>
+              User Management
+            </Link>
           </Menu.Item>
           <Menu.Item key="4" icon={<SolutionOutlined />}>
-            <Link to="admin_dashboard/cadre-management">Cadre Management</Link>
+            <Link to="/admin_dashboard/cadre-management" onClick={closeDrawer}>
+              Cadre Management
+            </Link>
           </Menu.Item>
           <Menu.SubMenu
             key="5"
@@ -108,26 +114,38 @@ const Sidebar = () => {
           >
             {adminRole === "superAdmin" && (
               <Menu.Item key="2-1">
-                <Link to="/admin_dashboard/transfer-management/transfer-window">
+                <Link
+                  to="/admin_dashboard/transfer-management/transfer-window"
+                  onClick={closeDrawer}
+                >
                   Transfer Window
                 </Link>
               </Menu.Item>
             )}
             <Menu.Item key="2-2">
-              <Link to="/admin_dashboard/transfer-management/transfer-applications">
+              <Link
+                to="/admin_dashboard/transfer-management/transfer-applications"
+                onClick={closeDrawer}
+              >
                 Transfer Applications
               </Link>
             </Menu.Item>
-              <Menu.Item key="2-3">
-                <Link to="/admin_dashboard/transfer-management/notApllied-user">
-                  Not Applied List
-                </Link>
-              </Menu.Item>
+            <Menu.Item key="2-3">
+              <Link
+                to="/admin_dashboard/transfer-management/notApllied-user"
+                onClick={closeDrawer}
+              >
+                Not Applied List
+              </Link>
+            </Menu.Item>
           </Menu.SubMenu>
           <Menu.Item
             key="6"
             icon={<SettingOutlined />}
-            onClick={showSettingsModal}
+            onClick={() => {
+              closeDrawer();
+              showSettingsModal();
+            }}
           >
             Settings
           </Menu.Item>
@@ -144,3 +162,5 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+
+
