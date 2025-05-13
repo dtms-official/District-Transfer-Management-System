@@ -118,7 +118,7 @@ export default function MyApplications() {
   const paginatedApps = sortedApplications.slice(startIndex, startIndex + pageSize);
 
   return (
-    <div className="min-h-screen flex justify-center items-start py-10 px-4">
+    <div className="flex flex-col items-center min-h-screen p-6 overflow-hidden">
       <Card className="w-full max-w-3xl">
         <Typography.Title level={3} className="text-center mb-6">
           My Transfer Applications

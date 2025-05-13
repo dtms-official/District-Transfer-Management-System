@@ -23,8 +23,7 @@ const PageContainer = () => {
         <Content
           style={{
             minHeight: 280,
-            padding: 0,
-            backgroundColor: "#f5f5f5",
+            backgroundColor: "#fbf9f9",
           }}
         >
           <Outlet />

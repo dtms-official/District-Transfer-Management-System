@@ -48,30 +48,30 @@ const Sidebar = () => {
         open={visible}
       >
         <Menu mode="inline" defaultSelectedKeys={["1"]}>
-          <Menu.Item key="1" icon={<UserOutlined />}>
+          <Menu.Item key="1" icon={<UserOutlined />} onClick={closeDrawer}>
             <Link to="/dashboard">Dashboard</Link>
           </Menu.Item>
+
           <Menu.SubMenu
             key="2"
             icon={<BarChartOutlined />}
             title="Transfer Management"
           >
-          
-            <Menu.Item key="2-1">
+            <Menu.Item key="2-1" onClick={closeDrawer}>
               <Link to="/dashboard/transfer-management/transfer-applications">
                 Apply for transfer
               </Link>
             </Menu.Item>
-            <Menu.Item key="2-2">
+            <Menu.Item key="2-2" onClick={closeDrawer}>
               <Link to="/dashboard/transfer-management/my-applications">
-                My applicaitons
+                My applications
               </Link>
             </Menu.Item>
           </Menu.SubMenu>
 
           {/* Single Settings Option */}
           <Menu.Item
-            key="2"
+            key="3"
             icon={<SettingOutlined />}
             onClick={showSettingsModal}
           >

@@ -75,13 +75,7 @@ const Dashboard = () => {
     );
 
   return (
-    <Content
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#f8f9fa",
-        padding: "24px",
-      }}
-    >
+    <>
       <Row gutter={[24, 24]} justify="center">
         <Col xs={24} sm={24} md={16} lg={12} xl={10}>
           <Card
@@ -207,7 +201,7 @@ const Dashboard = () => {
           </Button>
         </Col>
       </Row>
-    </Content>
+    </>
   );
 };
 

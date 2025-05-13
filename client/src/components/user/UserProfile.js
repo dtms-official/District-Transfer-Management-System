@@ -7,86 +7,40 @@ import {
   Select,
   DatePicker,
   message,
-  Spin,
-  Modal,
+  Spin
 } from "antd";
 import { LoadingOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import useUserData from "../../api/useUserData";
 import { useNavigate } from "react-router-dom";
+import { getLocation } from '../../utils/getLocation';
+import getWorkplaces from "../../api/getWorkplaces";
+
 const { Option } = Select;
 const UserProfile = ({ user }) => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
-  const [workplaceData, setWorkplaceData] = useState([]);
+  const { workplaces } = getWorkplaces();
+  
   const [disabled, setDisabled] = useState(false);
   const [locationError, setLocationError] = useState(null);
 
   const { fetchUserData } = useUserData();
-  const [modalVisible, setModalVisible] = useState(false);
-
-  const handleLocationClick = async () => {
-    setLoading(true);
-    setLocationError(null);
-
-    try {
-      const perm = await navigator.permissions.query({ name: "geolocation" });
-
-      if (perm.state === "denied") {
-        Modal.warning({
-          title: "Location Blocked",
-          content:
-            "Please enable location access in your browser settings to use this feature.",
-        });
-        setLoading(false);
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const { latitude, longitude } = pos.coords;
-          form.setFieldsValue({
-            GPS_latitude: latitude.toFixed(6),
-            GPS_longitude: longitude.toFixed(6),
-          });
-          setDisabled(true);
-          setLoading(false);
-          message.success("Location access granted and values filled");
-        },
-        (err) => {
-          setLoading(false);
-          if (err.code === err.PERMISSION_DENIED) {
-            Modal.info({
-              title: "Allow Location Access",
-              content:
-                "Google requires your permission to access your location. Please allow it and try again.",
-            });
-          } else {
-            message.error("Error: " + err.message);
-          }
-        }
-      );
-    } catch (e) {
-      setLoading(false);
-      message.error("Browser does not support location permission check");
-    }
-  };
+  const [isMobile, setIsMobile] = useState(true);
 
   useEffect(() => {
-    const fetchWorkplaces = async () => {
-      try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/workplace`
-        ); // Uses base URL from React app
-        setWorkplaceData(response.data);
-      } catch (error) {
-        console.error("Error fetching workplaces:", error);
-      }
-    };
+    const detectDeviceType = () =>
+      /Mobile|Android|iPhone|iPad/i.test(navigator.userAgent);
 
-    fetchWorkplaces();
+    setIsMobile(detectDeviceType());
+    const deviceType = detectDeviceType();
+    console.log(deviceType ? "Mobile" : "Desktop");
   }, []);
+
+const handleLocationClick = () => {
+  getLocation(isMobile, form, setLoading, setDisabled, setLocationError);
+};
 
   useEffect(() => {
     if (user) {
@@ -227,7 +181,7 @@ const UserProfile = ({ user }) => {
             style={{ flex: "1 1 48%" }}
           >
             <Select>
-              {workplaceData.map((workplace) => (
+              {workplaces.map((workplace) => (
                 <Option key={workplace._id} value={workplace._id}>
                   {workplace.workplace}
                 </Option>
@@ -396,7 +350,6 @@ const UserProfile = ({ user }) => {
                 <Form.Item
                   name="GPS_latitude"
                   style={{ flex: 1, marginBottom: 0 }}
-                  rules={[{ required: true, message: "Please input latitude" }]}
                 >
                   <Input
                     placeholder="Latitude (e.g., 12.3456)"
@@ -410,9 +363,6 @@ const UserProfile = ({ user }) => {
                 <Form.Item
                   name="GPS_longitude"
                   style={{ flex: 1, marginBottom: 0 }}
-                  rules={[
-                    { required: true, message: "Please input longitude" },
-                  ]}
                 >
                   <Input
                     placeholder="Longitude (e.g., 98.7654)"
@@ -448,63 +398,13 @@ const UserProfile = ({ user }) => {
                 </Form.Item>
               </div>
             </Form.Item>
-           
           </div>
 
           {locationError && (
             <p style={{ color: "red", marginTop: "10px" }}>{locationError}</p>
           )}
         </div>
-
-        <>
-          <Modal
-            title="Select Location"
-            visible={modalVisible}
-            onCancel={() => setModalVisible(false)}
-            footer={null}
-            width={800}
-          >
-            <div style={{ marginTop: 20 }}>
-              <p style={{ fontWeight: "bold" }}>
-                Follow the steps below to select your preferred location:
-              </p>
-              <ul>
-                <li>Step 1: Watch the video tutorial below for guidance.</li>
-                <li>Step 2: Open the map to select your location.</li>
-                <li>
-                  Step 3: After ,copy your gps coordinates, then you can update
-                  your basic details
-                </li>
-              </ul>
-            </div>
-            <br />
-
-            <iframe
-              src="https://www.youtube.com/embed/H1AX9lPQ7RY?si=15wRnEubuKKIWI51"
-              width="100%"
-              height="400"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              title="Select Location Guide"
-            ></iframe>
-
-            <br />
-
-            <a
-              href="https://www.google.com/maps/@7.2975,81.6820,12z"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: "#1a73e8", fontSize: "16px" }}
-            >
-              Open Google Maps
-            </a>
-            <p style={{ marginTop: 20 }}>
-              You can also select your location directly on the map by clicking
-              the link below:
-            </p>
-          </Modal>
-        </>
+ 
         <Button type="primary" htmlType="submit" block>
           Update
         </Button>

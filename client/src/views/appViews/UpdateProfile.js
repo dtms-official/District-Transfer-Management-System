@@ -10,7 +10,7 @@ import {
   CheckCircleOutlined,
   MenuOutlined,
   ExceptionOutlined,
-  ClockCircleOutlined
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import UserProfile from "../../components/user/UserProfile";
@@ -192,24 +192,6 @@ const UpdateProfile = () => {
       </div>
     );
 
-  // Declare a variable to hold the key
-  // let notificationKey = "rejectNotification";
-
-  // const showNotification = (type, message, description) => {
-  //   notification[type]({
-  //     message: message,
-  //     description: description,
-  //     placement: "topRight",
-  //     duration: 3, // Duration in seconds
-  //     key: notificationKey, // Use a unique key to ensure only one notification shows
-  //   });
-  // };
-
-  // // Example of how to use it for reject reason
-  // if (user.rejectReason) {
-  //   showNotification("warning", "Your profile Rejected");
-  // }
-
   return (
     <>
       {/* Toggle Button for Mobile View */}
@@ -273,13 +255,13 @@ const UpdateProfile = () => {
         </Menu>
       </Drawer>
 
-      {/* Main Content */}
-      <Content
+    
+      <div
         style={{
-          padding: 40,
+          paddingTop: 20,
           margin: 0,
           minHeight: 280,
-          background: "#fff",
+          background: "#fefefe",
           borderRadius: "8px",
           display: "flex",
           flexDirection: "column",
@@ -312,7 +294,7 @@ const UpdateProfile = () => {
               user.isApproved
                 ? "Profile verified"
                 : user.isRejected
-                ? "Your data is invalid, please resubmit"
+                ? "Your profile rejected, please resubmit"
                 : user.isSubmited
                 ? "Your data submitted, please wait for the approval"
                 : "Your profile is not submitted, Please submit."
@@ -336,7 +318,7 @@ const UpdateProfile = () => {
         {error && (
           <Alert message={error} type="error" showIcon className="mb-4" />
         )}
-      </Content>
+      </div>
     </>
   );
 };

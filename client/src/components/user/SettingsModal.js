@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import { Modal, Tabs, Form, Input, Button, message } from "antd";
+import { Modal, Form, Input, Button, message } from "antd";
 import axios from "axios";
 import useCheckUserAuth from "../../utils/checkUserAuth";
-
-const { TabPane } = Tabs;
 
 const SettingsModal = ({ isVisible, onClose }) => {
   const { userData } = useCheckUserAuth(); // Fetch user data
@@ -40,9 +38,7 @@ const SettingsModal = ({ isVisible, onClose }) => {
       footer={null}
       width={window.innerWidth < 768 ? "90%" : 500}
     >
-      <Tabs defaultActiveKey="1">
-        {/* General Settings */}
-        <TabPane tab="General" key="1">
+     
           <Form layout="vertical" onFinish={handleChangePassword}>
             <Form.Item
               name="oldPassword"
@@ -95,13 +91,7 @@ const SettingsModal = ({ isVisible, onClose }) => {
               </Button>
             </Form.Item>
           </Form>
-        </TabPane>
-
-        {/* Advanced Settings */}
-        <TabPane tab="Advanced" key="2">
-          <p>Advanced settings will go here.</p>
-        </TabPane>
-      </Tabs>
+       
     </Modal>
   );
 };

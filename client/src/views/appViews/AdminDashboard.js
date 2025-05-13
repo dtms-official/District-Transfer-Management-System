@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Layout, Spin, Typography } from "antd";
+import { Spin, Typography } from "antd";
 import ApprovalAdmin from "../../components/admin/ApprovalAdmin";
 import CheckingAdmin from "../../components/admin/CheckingAdmin";
 import RecommendAdmin from "../../components/admin/RecommendAdmin";
@@ -7,7 +7,6 @@ import useCheckAdminAuth from "../../utils/checkAdminAuth";
 import SuperAdmin from "../../components/admin/SuperAdmin";
 import getOneWorkplace from "../../api/getOneWorkplace";
 
-const { Content } = Layout;
 const { Title, Text } = Typography;
 
 const AdminDashboard = () => {
@@ -45,10 +44,9 @@ const AdminDashboard = () => {
     );
 
   return (
-    <Content
+    <div
       style={{
         padding: "20px",
-        backgroundColor: "#f5f5f5",
         textAlign: "center",
       }}
     >
@@ -75,7 +73,7 @@ const AdminDashboard = () => {
       ) : (
         <CheckingAdmin />
       )}
-    </Content>
+    </div>
   );
 };
 
