@@ -114,12 +114,7 @@ const HomePage = () => {
             </Button>
           </Link>
 
-          <Button onClick={handleClick} type="default" size="large">
-            About
-          </Button>
-          <Button onClick={generatePdf} type="default" size="large">
-            Help
-          </Button>
+       
         </Space>
       </Content>
     </Layout>
