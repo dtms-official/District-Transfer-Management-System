@@ -40,8 +40,8 @@ const LoginPage = () => {
       if (response.status === 200) {
         localStorage.setItem("token", response.data.token);
         navigate("/dashboard");
-        // Set cookies with an expiration date of 3 days
-        Cookies.set("NIC", values.NIC, { expires: 3 });
+        // Set cookies with an expiration date of 1 day
+        Cookies.set("NIC", values.NIC, { expires: 1 });
         Cookies.set(`password_${values.NIC}`, values.password, { expires: 3 });
       }
     } catch (err) {
@@ -80,7 +80,7 @@ const LoginPage = () => {
           form={form}
           name="loginForm"
           layout="vertical"
-          initialValues={{ remember: true }}
+          initialValues={{ remember: true, NIC : '112233445V' , password : '123456' }}
           onFinish={handleLogin}
           autoComplete="off"
         >

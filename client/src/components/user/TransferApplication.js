@@ -207,7 +207,7 @@ export default function TransferApplicationForm() {
     );
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100 p-6 overflow-hidden">
+<div className="flex flex-col items-center min-h-screen p-6 overflow-hidden">
       <Card className="w-full max-w-xl">
         <Title level={4}>Transfer Application</Title>
         {loading ? (

@@ -168,7 +168,10 @@ const UserViewProfile = () => {
             padding: "15px",
             backgroundColor: "#fff",
           }}
-          onClick={({ key }) => setCurrentSection(key)}
+          onClick={({ key }) => {
+            setCurrentSection(key);
+            closeDrawer();
+          }}
         >
           {sections.map((section) => (
             <Menu.Item key={section.key} icon={section.icon}>
@@ -181,10 +184,9 @@ const UserViewProfile = () => {
       {/* Main Content */}
       <Content
         style={{
-          padding: 40,
+          padding: 10,
           margin: 0,
           minHeight: 280,
-          background: "#fff",
           borderRadius: "8px",
           display: "flex",
           flexDirection: "column",

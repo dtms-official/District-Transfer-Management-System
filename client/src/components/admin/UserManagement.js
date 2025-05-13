@@ -196,7 +196,7 @@ const UserManagement = () => {
     );
 
   return (
-    <div className="p-4 max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto">
       <Typography.Title level={3} className="mb-8 mt-5 pb-3">
         User Management
       </Typography.Title>

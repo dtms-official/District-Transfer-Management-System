@@ -290,7 +290,7 @@ const Cadre = () => {
   }
 
   return (
-    <div className="p-4 max-w-4xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <Typography.Title level={3} className="mb-8 mt-5 pb-3">
         Cadre Management
       </Typography.Title>
