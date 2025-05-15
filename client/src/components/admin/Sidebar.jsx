@@ -84,21 +84,21 @@ const Sidebar = () => {
           defaultSelectedKeys={["1"]}
           style={{ height: "100%", borderRight: 0 }}
         >
-          <Menu.Item key="1" icon={<HomeOutlined />}>
+          <Menu.Item key="1" icon={<HomeOutlined />} onClick={closeDrawer}>
             <Link to="/admin_dashboard">Dashboard</Link>
           </Menu.Item>
 
           {adminRole === "superAdmin" && (
-            <Menu.Item key="2" icon={<TeamOutlined />}>
+            <Menu.Item key="2" icon={<TeamOutlined />} onClick={closeDrawer}>
               <Link to="admin_dashboard/admin-management">
                 Admin Management
               </Link>
             </Menu.Item>
           )}
-          <Menu.Item key="3" icon={<TeamOutlined />}>
+          <Menu.Item key="3" icon={<TeamOutlined />} onClick={closeDrawer}>
             <Link to="admin_dashboard/user-management">User Management</Link>
           </Menu.Item>
-          <Menu.Item key="4" icon={<SolutionOutlined />}>
+          <Menu.Item key="4" icon={<SolutionOutlined />} onClick={closeDrawer}>
             <Link to="admin_dashboard/cadre-management">Cadre Management</Link>
           </Menu.Item>
           <Menu.SubMenu
@@ -107,18 +107,18 @@ const Sidebar = () => {
             title="Transfer Management"
           >
             {adminRole === "superAdmin" && (
-              <Menu.Item key="2-1">
+              <Menu.Item key="2-1"onClick={closeDrawer}>
                 <Link to="/admin_dashboard/transfer-management/transfer-window">
                   Transfer Window
                 </Link>
               </Menu.Item>
             )}
-            <Menu.Item key="2-2">
+            <Menu.Item key="2-2" onClick={closeDrawer}>
               <Link to="/admin_dashboard/transfer-management/transfer-applications">
                 Transfer Applications
               </Link>
             </Menu.Item>
-              <Menu.Item key="2-3">
+              <Menu.Item key="2-3" onClick={closeDrawer}>
                 <Link to="/admin_dashboard/transfer-management/notApllied-user">
                   Not Applied List
                 </Link>
